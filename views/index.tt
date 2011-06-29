@@ -1,6 +1,5 @@
 Hi
 <a href="/page">add a new entry</a>
-<hr />
 
 <% FOR e IN data.keys.sort %>
     <hr />

@@ -7,8 +7,8 @@ our $VERSION = '0.01';
 
 get '/' => sub {
     my $filename = config->{dwimmer}{json};
-	my $json = -e $filename ? read_file $filename : '{}';
-	my $data = from_json $json;
+    my $json = -e $filename ? read_file $filename : '{}';
+    my $data = from_json $json;
     template 'index', {data => $data};
 };
 
@@ -19,16 +19,16 @@ get '/page' => sub {
 
 post '/page' =>  sub {
     my $filename = config->{dwimmer}{json};
-	my $json = -e $filename ? read_file $filename : '{}';
-	my $data = from_json $json;
+    my $json = -e $filename ? read_file $filename : '{}';
+    my $data = from_json $json;
     my $now   = time;
-	$data->{$now} = {
-		title => params->{title},
-		text  => params->{text},
-	};
+    $data->{$now} = {
+        title => params->{title},
+        text  => params->{text},
+    };
 
-	write_file $filename, to_json($data);
-	redirect '/';
+    write_file $filename, to_json($data);
+    redirect '/';
 };
 
 true;
