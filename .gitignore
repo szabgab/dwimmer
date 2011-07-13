@@ -2,3 +2,4 @@ Makefile
 blib
 *.swp
 pm_to_blib
+MANIFEST.bak
