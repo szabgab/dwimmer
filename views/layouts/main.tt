@@ -14,6 +14,15 @@
 
 </head>
 <body>
+<a href="/">home</a> | 
+<% IF logged_in %>
+<% username %> <a href="/logout">logout</a>
+<% ELSE %>
+<form method="POST" action="/login">
+name: <input name="username"> password: <input type="password" name="password"> <input type="submit" value="Login">
+</form>
+<% END %>
+
 <% content %>
 <div id="footer">
 Powered by <a href="http://perldancer.org/">Dancer</a> <% dancer_version %>

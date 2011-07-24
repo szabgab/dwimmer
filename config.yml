@@ -29,3 +29,4 @@ engines:
 dwimmer:
   json: /home/gabor/dwimmer.json
   dbfile: /home/gabor/dwimmer.db
+session: YAML
