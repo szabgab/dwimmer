@@ -1,0 +1,8 @@
+
+Stand alone installation:
+- Install everyting
+- Run database creation script that will ask for admin password
+- From the web site allow the creation of a site with basic usage.
+  - At first only the admin can create sites but later we might allow
+    regular users as well to create sites using the main site.
+

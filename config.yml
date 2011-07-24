@@ -28,4 +28,4 @@ engines:
 #     end_tag:   '%]'
 dwimmer:
   json: /home/gabor/dwimmer.json
-
+  dbfile: /home/gabor/dwimmer.db
