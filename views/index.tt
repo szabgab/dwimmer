@@ -1,6 +1,3 @@
-Hi
-<a href="/page">add a new entry</a>
-
 <% FOR e IN data.keys.sort %>
     <hr />
     <h2><% data.$e.title %></h2>

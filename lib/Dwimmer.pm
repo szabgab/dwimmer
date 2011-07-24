@@ -20,11 +20,13 @@ hook before_template => sub {
 ###### routes
 my @error_pages = qw(invalid_login not_verified);
 
-get '/' => sub {
+sub route_index {
 #    my $db = _get_db();
 #    my $admin = $db->resultset('User')->find( {name => 'admin'});
     template 'index';
 };
+get '/' => \&route_index;
+get '/index' => \&route_index; # temp measure to allow the current configuration to work in CGI mode
 
 post '/login' => sub {
     my $username = params->{username};
@@ -41,7 +43,7 @@ post '/login' => sub {
     
     return redirect '/not_verified' if not $user->verified;
 
-    session user => $username;
+    session username => $username;
     session logged_in => 1;
 
 
