@@ -9,7 +9,8 @@ use File::Spec;
 use Getopt::Long qw(GetOptions);
 use String::Random;
 use Pod::Usage  qw(pod2usage);
-use YAML;
+
+use Dwimmer::Tools;
 
 my %opt;
 GetOptions(\%opt,
@@ -22,10 +23,8 @@ usage() if not $opt{password};
 die 'Password needs to be 6 characters' if length $opt{password} < 6;
 
 
-my $config = YAML::LoadFile('config.yml');
-my $dbfile = $config->{dwimmer}{dbfile};
 my $sql = File::Spec->catfile('share', 'schema', 'dwimmer.sql');
-
+my $dbfile = Dwimmer::Tools->get_dbfile;
 die "Database file '$dbfile' already exists\n" if -e $dbfile;
 
 DBIx::RunSQL->create(
