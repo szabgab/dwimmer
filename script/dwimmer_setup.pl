@@ -3,14 +3,13 @@ use strict;
 use warnings;
 
 use DBIx::RunSQL;
-use Digest::SHA qw(sha1_base64);
 use Email::Valid;
 use File::Spec;
 use Getopt::Long qw(GetOptions);
 use String::Random;
 use Pod::Usage  qw(pod2usage);
 
-use Dwimmer::Tools;
+use Dwimmer::Tools qw(get_dbfile sha1_base64);
 
 my %opt;
 GetOptions(\%opt,
@@ -24,7 +23,7 @@ die 'Password needs to be 6 characters' if length $opt{password} < 6;
 
 
 my $sql = File::Spec->catfile('share', 'schema', 'dwimmer.sql');
-my $dbfile = Dwimmer::Tools->get_dbfile;
+my $dbfile = get_dbfile();
 die "Database file '$dbfile' already exists\n" if -e $dbfile;
 
 DBIx::RunSQL->create(
@@ -36,7 +35,7 @@ DBIx::RunSQL->create(
 my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
 my $time = time;
 my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-$dbh->do('INSERT INTO user (name, sha1, email, validation_key, approved) VALUES(?, ?, ?, ?, ?)', 
+$dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified) VALUES(?, ?, ?, ?, ?)', 
     {}, 
     'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1);
 

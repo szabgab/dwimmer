@@ -8,7 +8,7 @@ CREATE TABLE user (
     country         VARCHAR(100),
     state           VARCHAR(100),
     validation_key  VARCHAR(255),
-    approved        BOOL DEFAULT 0,
+    verified        BOOL DEFAULT 0,
     register_ts     INTEGER DEFAUL NOW
 );
 

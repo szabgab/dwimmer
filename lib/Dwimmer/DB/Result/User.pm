@@ -73,7 +73,7 @@ __PACKAGE__->table("user");
   is_nullable: 1
   size: 255
 
-=head2 approved
+=head2 verified
 
   data_type: 'bool'
   default_value: 0
@@ -105,7 +105,7 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 100 },
   "validation_key",
   { data_type => "varchar", is_nullable => 1, size => 255 },
-  "approved",
+  "verified",
   { data_type => "bool", default_value => 0, is_nullable => 1 },
   "register_ts",
   { data_type => "integer defaul now", is_nullable => 1 },
@@ -147,8 +147,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-07-24 17:27:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MdbwsYXnA1DJEFLLzfjqGA
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-07-24 18:37:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:P55UGWZS5rUSwekJKGg6Ug
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
