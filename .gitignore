@@ -3,3 +3,4 @@ blib
 *.swp
 pm_to_blib
 MANIFEST.bak
+sessions
