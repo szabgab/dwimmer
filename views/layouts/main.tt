@@ -17,8 +17,9 @@
 <a href="/">home</a>
 <% IF logged_in %>
 | logged in as <a href="/manage"><% username %></a> <a href="/logout">logout</a>
-| <a href="/manage/edit_this_page">edit this page</a>
+| <a href="/edit_this_page">edit this page</a>
 <% ELSE %>
+| <a href="/register">register</a>
 <form method="POST" action="/login">
 name: <input name="username"> password: <input type="password" name="password"> <input type="submit" value="Login">
 </form>

@@ -28,5 +28,5 @@ engines:
 #     end_tag:   '%]'
 dwimmer:
   json: /home/gabor/dwimmer.json
-  dbfile: /home/gabor/dwimmer.db
+  dbfile: /home/gabor/work/Dwimmer/db/dwimmer.db
 session: YAML
