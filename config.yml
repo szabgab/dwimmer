@@ -26,7 +26,7 @@ engines:
     encoding:  'utf8'
 #     start_tag: '[%'
 #     end_tag:   '%]'
-dwimmer:
-  json: /home/gabor/dwimmer.json
-  dbfile: /home/gabor/work/Dwimmer/db/dwimmer.db
+#dwimmer:
+#  json: /home/gabor/dwimmer.json
+#  dbfile: /home/gabor/work/Dwimmer/db/dwimmer.db
 session: YAML

@@ -4,6 +4,8 @@ use Dancer ':syntax';
 our $VERSION = '0.01';
 
 use Data::Dumper;
+use Email::Valid;
+use MIME::Lite;
 use String::Random;
 
 use Dwimmer::DB;
@@ -173,7 +175,7 @@ get '/edit_this_page' => sub {
 ###### helper methods
 
 sub _get_db {
-    my $dbfile = config->{dwimmer}{dbfile};
+    my $dbfile = path(config->{appdir}, 'db', 'dwimmer.db');
     Dwimmer::DB->connect("dbi:SQLite:dbname=$dbfile", '', '');
 };
 

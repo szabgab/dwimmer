@@ -15,15 +15,18 @@ my %opt;
 GetOptions(\%opt,
     'email=s',
     'password=s',
+    'root=s',
 );
 usage() if not $opt{email};
 die 'Invalid e-mail' if not Email::Valid->address($opt{email});
 usage() if not $opt{password};
 die 'Password needs to be 6 characters' if length $opt{password} < 6;
+usage() if not $opt{root};
+
 
 
 my $sql = File::Spec->catfile('share', 'schema', 'dwimmer.sql');
-my $dbfile = get_dbfile();
+my $dbfile = "$opt{root}/db/dwimmer.db"; #get_dbfile();
 die "Database file '$dbfile' already exists\n" if -e $dbfile;
 
 DBIx::RunSQL->create(
@@ -59,6 +62,8 @@ REQUIRED PARAMETERS:
    --email email        of administrator
 
    --password PASSWORD  of administrator
+
+   --root ROOT         path to the root of the installation
 
 =cut
 
