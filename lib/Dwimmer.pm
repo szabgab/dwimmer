@@ -53,7 +53,7 @@ post '/login' => sub {
 
     # redirect to the referer except if that was 
     # the logout page or one of the error pages.
-    my $referer = request->referer;
+    my $referer = request->referer || '';
     my $host    = request->host;
 
     my $ref_path = '';

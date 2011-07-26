@@ -3,9 +3,10 @@ use strict;
 use warnings;
 
 use Cwd qw(abs_path);
+use Data::Dumper qw(Dumper);
 use File::Basename qw(dirname);
 
-plan tests => 2;
+plan tests => 6;
 
 
 my $root = dirname dirname abs_path($0);
@@ -32,9 +33,24 @@ use Dancer::Test;
 	like $r->{content}, qr{/login}, '/login';
 }
 
-# {
-	# my $r = dancer_response POST => '/login', username => 'admin', password => $password;
-# }
+{
+	# no referer !
+	my $r = dancer_response POST => '/login', {
+		params => {username => 'admin', password => $password},
+	};
+	is $r->{status}, 302, 'redirect' or diag $r->{content};
+	is $r->header('location'), 'http://localhost/', 'location';
+}
+
+{
+	local $ENV{HTTP_REFERER} = 'http://localhost/';
+	my $r = dancer_response POST => '/login', {
+		params => {username => 'admin', password => $password},
+	};
+	is $r->{status}, 302, 'redirect' or diag $r->{content};
+	is $r->header('location'), 'http://localhost/', 'location';
+#	is $r->header('location'), 'http://localhost/invalid_login';
+}
 
 
 
