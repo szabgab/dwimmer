@@ -7,6 +7,7 @@ use Data::Dumper;
 use Email::Valid;
 use MIME::Lite;
 use String::Random;
+use Template;
 
 use Dwimmer::DB;
 use Dwimmer::Tools qw(sha1_base64);
@@ -90,13 +91,20 @@ get '/page' => sub {
     # redirect '/';
 # };
 
-# static pages
-
-foreach my $page (@error_pages) {
+# static pages , 
+foreach my $page (@error_pages, 'add_user') {
     get "/$page" => sub {
-        template 'invalid_login';
+        template $page;
     };
 }
+
+get '/list_users' => sub {
+    my $db = _get_db();
+    my @users = $db->resultset('User')->all(); #{ select => [ qw/id uname/ ] });
+    #my $html = $users[0]->uname;
+    #return $html;
+    template 'list_users', {users => \@users};
+};
 
 get '/register' => sub {
     template 'register';
@@ -144,7 +152,6 @@ post '/register' => sub {
     });
     
     my $template = read_file(path(config->{appdir}, 'view', 'register_verify_mail'));
-    use Template;
     if ($user) {
         my $url = 'http://' . request->host . "/finish_registration?uname=$uname&code=$validation_key";
         #my $template = read_file 

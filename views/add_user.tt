@@ -1,0 +1,10 @@
+<form METHOD="POST">
+Username: <input name="uname" /><br />
+First name: <input name="fname" /><br />
+Last name: <input name="lname" /><br />
+email: <input name="email" /><br />
+password: <input name="pw" type="password" /><br />
+Send validation mail: <input name="verify" type="radio" value="send" CHECKED /> 
+Set verify bit <input type="radio" name="verify" value="set" />
+<input type="submit" value="Add user" /><br />
+</form>

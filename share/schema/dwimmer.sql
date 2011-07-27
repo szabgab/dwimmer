@@ -11,6 +11,7 @@ CREATE TABLE user (
     verified        BOOL DEFAULT 0,
     register_ts     INTEGER DEFAUL NOW
 );
+-- record if the person was added manually of s/he registered?
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_email ON user (email);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_name  ON user (name);

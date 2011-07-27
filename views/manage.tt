@@ -1,6 +1,7 @@
 <ul>
-<li><a href="/manage/page">add a new page</a></li>
-<li><a href="/manage/pages">list pages</a></li>
+<li><a href="/add_user">add user</a></li>
+<li><a href="/add_page">add a new page</a></li>
+<li><a href="/pages">list pages</a></li>
 </ul>
 
 

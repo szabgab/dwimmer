@@ -1,0 +1,5 @@
+<ul>
+<% FOR u IN users %>
+<li><a href="/show_user?id=<% u.id %>"><% u.name %></a></li>
+<% END %>
+</ul> 
