@@ -6,7 +6,7 @@ use Cwd qw(abs_path);
 use Data::Dumper qw(Dumper);
 use File::Basename qw(dirname);
 
-plan tests => 12;
+plan tests => 13;
 
 
 my $root = dirname dirname abs_path($0);
