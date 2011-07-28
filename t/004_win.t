@@ -4,15 +4,14 @@ use warnings;
 use t::lib::Dwimmer::Test;
 
 $ENV{DWIMMER_TEST} = 1;
-start();
+$ENV{DWIMMER_PORT} = 3001;
 
-# TODO set my own port?
-# TODO eliminate the logging to the console?
+start();
 
 eval "use Test::More";
 require Test::WWW::Mechanize;
 
-my $url = "http://localhost:3000/";
+my $url = "http://localhost:$ENV{DWIMMER_PORT}/";
 
 plan(tests => 1);
 
