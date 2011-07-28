@@ -1,4 +1,5 @@
 <ul>
+<li><a href="/list_users">list users</a></li>
 <li><a href="/add_user">add user</a></li>
 <li><a href="/add_page">add a new page</a></li>
 <li><a href="/pages">list pages</a></li>

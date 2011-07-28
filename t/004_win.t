@@ -6,19 +6,56 @@ use t::lib::Dwimmer::Test;
 $ENV{DWIMMER_TEST} = 1;
 $ENV{DWIMMER_PORT} = 3001;
 
+use Cwd qw(abs_path);
+use Data::Dumper qw(Dumper);
+use File::Basename qw(dirname);
+
+my $root = dirname dirname abs_path($0);
+my $password = 'dwimmer';
+mkdir "$root/db";
+unlink "$root/db/dwimmer.db";
+system "$^X script/dwimmer_setup.pl --root $root --email test\@dwimmer.org --password $password";
+
 start();
+
 
 eval "use Test::More";
 require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}/";
 
-plan(tests => 1);
+plan(tests => 13);
 
-#diag("xx");
 my $w = Test::WWW::Mechanize->new;
-#diag("yy");
 $w->get_ok($url);
-#diag("cc");
+
+
+$w->content_like(qr{/login}, '/login');
+$w->content_unlike(qr{logged in}, 'not logged in');
+
+$w->submit_form_ok( {
+	form_name => '',
+	fields => {
+		username => 'admin', 
+		password => $password,
+	},
+	}, 'submit login');
+	
+is($w->status, 200, 'status 200');
+#diag($w->content);
+$w->content_like(qr{logged in as.*>admin<}, 'content logged in as admin');
+
+
+$w->follow_link_ok({ url => '/manage'}, 'to manage page');
+$w->follow_link_ok({ url => '/list_users'}, 'to list_users page');
+$w->content_like(qr{/show_user\?id=1}, 'admin appears');
+
+$w->follow_link_ok({ url => '/manage'}, 'to manage page');
+$w->follow_link_ok({ url => '/add_user'}, 'to add_user page');
+
+
+$w->follow_link_ok({text_regex => qr{logout}}, 'logout');
+$w->content_unlike(qr{logged in}, 'not logged in');
+
 
 stop();
