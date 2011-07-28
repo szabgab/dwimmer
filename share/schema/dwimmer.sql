@@ -1,3 +1,10 @@
+CREATE TABLE config (
+    id              INTEGER PRIMARY KEY,
+    name            VARCHAR(30) UNIQUE NOT NULL,
+    value           VARCHAR(100)
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_config_name ON config (name);
+
 CREATE TABLE user (
     id              INTEGER PRIMARY KEY,
     name            VARCHAR(30) UNIQUE NOT NULL,
