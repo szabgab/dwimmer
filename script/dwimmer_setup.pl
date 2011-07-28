@@ -23,8 +23,6 @@ usage() if not $opt{password};
 die 'Password needs to be 6 characters' if length $opt{password} < 6;
 usage() if not $opt{root};
 
-
-
 my $sql = File::Spec->catfile('share', 'schema', 'dwimmer.sql');
 my $dbfile = "$opt{root}/db/dwimmer.db"; #get_dbfile();
 die "Database file '$dbfile' already exists\n" if -e $dbfile;
