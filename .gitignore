@@ -6,4 +6,4 @@ MANIFEST.bak
 
 sessions
 logs
-db
+/db
