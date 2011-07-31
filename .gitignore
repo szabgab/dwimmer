@@ -3,6 +3,9 @@ blib
 *.swp
 pm_to_blib
 MANIFEST.bak
+META.yml
+META.json
+/inc
 
 sessions
 logs
