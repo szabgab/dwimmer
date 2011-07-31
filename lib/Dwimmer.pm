@@ -20,6 +20,7 @@ hook before_template => sub {
     foreach my $field (qw(logged_in username)) {
         $tokens->{$field} = session->{$field};
     };
+    $tokens->{dwimmer_version} = $VERSION;
     return;
 };
 

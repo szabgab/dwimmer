@@ -27,7 +27,7 @@ name: <input name="username"> password: <input type="password" name="password"> 
 
 <% content %>
 <div id="footer">
-Powered by <a href="http://perldancer.org/">Dancer</a> <% dancer_version %>
+Powered by <a href="http://dwimmer.org/">Dwimmer</a> <% dwimmer_version %>
 </div>
 </body>
 </html>
