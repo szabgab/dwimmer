@@ -1,10 +1,16 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use autodie;
 
+use Cwd qw(abs_path);
 use DBIx::RunSQL;
 use Email::Valid;
+use File::Basename qw(dirname);
+use File::Copy::Recursive;
+use File::Path qw(mkpath);
 use File::Spec;
+use File::ShareDir;
 use Getopt::Long qw(GetOptions);
 use String::Random;
 use Pod::Usage  qw(pod2usage);
@@ -16,6 +22,8 @@ GetOptions(\%opt,
     'email=s',
     'password=s',
     'root=s',
+    'dbonly',
+    'silent',
 );
 usage() if not $opt{email};
 die 'Invalid e-mail' if not Email::Valid->address($opt{email});
@@ -23,30 +31,65 @@ usage() if not $opt{password};
 die 'Password needs to be 6 characters' if length $opt{password} < 6;
 usage() if not $opt{root};
 
-my $sql = File::Spec->catfile('share', 'schema', 'dwimmer.sql');
-my $dbfile = "$opt{root}/db/dwimmer.db"; #get_dbfile();
-die "Database file '$dbfile' already exists\n" if -e $dbfile;
 
-DBIx::RunSQL->create(
-    dsn => "dbi:SQLite:dbname=$dbfile",
-    sql => $sql,
-    verbose => 0,
-);
+if (-e $opt{root} and not $opt{dbonly}) { 
+    die "Root directory ($opt{root}) already exists"
+}
 
-my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
-my $time = time;
-my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-$dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified) VALUES(?, ?, ?, ?, ?)', 
-    {}, 
-    'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1);
+my $dist_dir = File::ShareDir::dist_dir('Dwimmer');
 
-print <<"END_MSG";
+# When we are in the development environment set this to the root there
+if (-e File::Spec->catdir(dirname(dirname abs_path($0)) , '.git') ) {
+    $dist_dir = dirname(dirname abs_path($0))
+}
+# die $dist_dir;
+
+my $db_dir = File::Spec->catdir($opt{root}, 'db');
+mkpath $db_dir if not -e $db_dir;
+
+setup_db();
+
+exit if $opt{dbonly};
+ 
+foreach my $dir (qw(views public bin environments)) {
+    File::Copy::Recursive::dircopy(
+        File::Spec->catdir( $dist_dir, $dir), 
+        File::Spec->catdir( $opt{root}, $dir )
+    );
+}
+
+exit;
+
+
+sub setup_db {
+    my $sql = File::Spec->catfile($dist_dir, 'schema', 'dwimmer.sql');
+    my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
+    die "Database file '$dbfile' already exists\n" if -e $dbfile;
+
+    DBIx::RunSQL->create(
+        dsn => "dbi:SQLite:dbname=$dbfile",
+        sql => $sql,
+        verbose => 0,
+    );
+
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
+    my $time = time;
+    my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
+    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified) VALUES(?, ?, ?, ?, ?)', 
+        {}, 
+        'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1);
+
+    return if $opt{silent};
+
+    print <<"END_MSG";
 Database created.
 
 You can now launch the application and visit the web site
 END_MSG
 
-exit;
+    return;
+}
+
 
 
 sub usage {
@@ -61,7 +104,9 @@ REQUIRED PARAMETERS:
 
    --password PASSWORD  of administrator
 
-   --root ROOT         path to the root of the installation
+   --root ROOT          path to the root of the installation
 
+   --dbonly             Create only the database (for development)
+   --silent             no success report (for testing)
 =cut
 

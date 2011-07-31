@@ -3,25 +3,24 @@ use warnings;
 
 use t::lib::Dwimmer::Test;
 
+use Cwd qw(abs_path);
+use Data::Dumper qw(Dumper);
+use File::Basename qw(dirname);
 use File::Slurp qw(read_file);
+use File::Spec;
 use File::Temp qw(tempdir);
+
 my $dir = tempdir( CLEANUP => 1 );
 
 $ENV{DWIMMER_TEST} = 1;
 $ENV{DWIMMER_PORT} = 3001;
-$ENV{DWIMMER_MAIL} = "$dir/mail.txt";
+$ENV{DWIMMER_MAIL} = File::Spec->catfile($dir, 'mail.txt');
 
-use Cwd qw(abs_path);
-use Data::Dumper qw(Dumper);
-use File::Basename qw(dirname);
-
-my $root = dirname dirname abs_path($0);
 my $password = 'dwimmer';
-mkdir "$root/db";
-unlink "$root/db/dwimmer.db";
+my $root = File::Spec->catdir($dir, 'dwimmer');
 system "$^X script/dwimmer_setup.pl --root $root --email test\@dwimmer.org --password $password";
 
-start();
+start($root);
 
 
 eval "use Test::More";
