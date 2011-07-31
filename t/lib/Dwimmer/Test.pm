@@ -15,7 +15,7 @@ sub start {
         #import Win32::Process;
 
         Win32::Process::Create($process, $^X,
-                            "perl bin\\app.pl",
+                            "perl -It\\lib bin\\app.pl",
                             0,
                             Win32::Process::NORMAL_PRIORITY_CLASS(),
                             ".") || die ErrorReport();

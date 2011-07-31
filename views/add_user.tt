@@ -4,7 +4,7 @@ First name: <input name="fname" /><br />
 Last name: <input name="lname" /><br />
 email: <input name="email" /><br />
 password: <input name="pw" type="password" /><br />
-Send validation mail: <input name="verify" type="radio" value="send" CHECKED /> 
-Set verify bit <input type="radio" name="verify" value="set" />
+Send validation mail: <input name="verify" type="radio" value="send_email" CHECKED /> 
+Set verified bit <input type="radio" name="verify" value="verified" />
 <input type="submit" value="Add user" /><br />
 </form>

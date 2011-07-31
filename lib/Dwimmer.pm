@@ -91,13 +91,6 @@ get '/page' => sub {
     # redirect '/';
 # };
 
-# static pages , 
-foreach my $page (@error_pages, 'add_user') {
-    get "/$page" => sub {
-        template $page;
-    };
-}
-
 get '/list_users' => sub {
     my $db = _get_db();
     my @users = $db->resultset('User')->all(); #{ select => [ qw/id uname/ ] });
@@ -106,38 +99,78 @@ get '/list_users' => sub {
     template 'list_users', {users => \@users};
 };
 
+# static pages , 
+foreach my $page (@error_pages, 'add_user') {
+    get "/$page" => sub {
+        template $page;
+    };
+}
+
+post '/add_user' => sub {
+    my %args;
+    foreach my $field ( qw(uname fname lname email pw verify) ) {
+        $args{$field} = params->{$field} || '';
+        trim($args{$field});
+    }
+
+    $args{pw} ||= String::Random->new->randregex('[a-zA-Z0-9]{10}');
+    $args{pw1} = $args{pw2} = delete $args{pw};
+    $args{tos} = 'on'; # not really the right thing
+
+    return 'invalid verify' if $args{verify} !~ /^(send_email|verified)$/;
+
+    my $ret = register_user(%args);
+    return $ret if $ret;
+
+
+
+    template '/user_added';
+
+};
+
 get '/register' => sub {
     template 'register';
 };
 
 post '/register' => sub {
+    my %args;
+    foreach my $field ( qw(uname fname lname email pw1 pw2 verify tos) ) {
+        $args{$field} = params->{$field} || '';
+        trim($args{$field});
+    }
+    $args{verify} = 'send_email';
+
+    my $ret = register_user(%args);
+    return $ret if $ret;
+
+    redirect '/register_done';
+};
+
+
+sub register_user {
+    my %args = @_;
     # validate
-    my $uname  = params->{uname}    || '';
-    my $email  = lc params->{email} || '';
-    my $pw1    = params->{pw1}      || '';
-    my $pw2    = params->{pw2}      || '';
-    my $tos    = params->{tos}      || '';
+    $args{email} = lc $args{email};
 
     my $db = _get_db();
-    $uname =~ s/^\s+|\s+$//g;
-    if (length $uname < 2 or $uname =~ /[^\w.-]/) {
+    if (length $args{uname} < 2 or $args{uname} =~ /[^\w.-]/) {
         return 'Invalid username';
     }
-    my $user = $db->resultset('User')->find( {name => $uname});
+    my $user = $db->resultset('User')->find( { name => $args{uname} });
     if ($user) {
         return 'This username is already taken';
     }
-    $user = $db->resultset('User')->find( {email => $email});
+    $user = $db->resultset('User')->find( {email => $args{email}});
     if ($user) {
         return 'This email was already used. Would you like to reset your password?';
     }
-    if (length $pw1 < 5) {
+    if (length $args{pw1} < 5) {
         return 'Password is too short. It needs at least 5 characters';
     }
-    if ($pw1 ne $pw2) {
+    if ($args{pw1} ne $args{pw2}) {
         return 'Passwords did not match';
     }
-    if ($tos ne 'on') {
+    if ($args{tos} ne 'on') {
         return 'Sorry we cannot register you if you dont agree to our Terms of Service';
     };
 
@@ -145,27 +178,33 @@ post '/register' => sub {
     my $time = time;
     my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
     $user = $db->resultset('User')->create({
-        name  => $uname,
-        email => $email,
-        sha1  => sha1_base64($pw1),
+        name  => $args{uname},
+        email => $args{email},
+        sha1  => sha1_base64($args{pw1}),
         validation_key => $validation_key,
     });
-    
-    my $template = read_file(path(config->{appdir}, 'view', 'register_verify_mail'));
-    if ($user) {
-        my $url = 'http://' . request->host . "/finish_registration?uname=$uname&code=$validation_key";
-        #my $template = read_file 
-        my $message = ''; # template 'register_verify_mail', { url => $url };
-        my $msg = MIME::Lite->new(
-            From    => 'gabor@szabgab.com',
-            To      => $email,
-            Subject => 'Verify your registration to Dwimmer!',
-            Data    => $message,
-        );
-        $msg->send;
+
+    if ($args{verify} eq 'send_email') {
+        my $template = read_file(path(config->{appdir}, 'views', 'register_verify_mail.tt'));
+        if ($user) {
+            my $url = 'http://' . request->host . "/finish_registration?uname=$args{uname}&code=$validation_key";
+            #my $template = read_file 
+            my $message = ''; # template 'register_verify_mail', { url => $url };
+            my $msg = MIME::Lite->new(
+                From    => 'gabor@szabgab.com',
+                To      => $args{email},
+                Subject => 'Verify your registration to Dwimmer!',
+                Data    => $message,
+            );
+            $msg->send;
+        }
+    } else {
+        # set the verified bit?
     }
-    redirect '/register_done';
-};
+
+    return;
+}
+
 
 get '/manage' => sub {
     template 'manage';
@@ -185,6 +224,17 @@ sub _get_db {
     my $dbfile = path(config->{appdir}, 'db', 'dwimmer.db');
     Dwimmer::DB->connect("dbi:SQLite:dbname=$dbfile", '', '');
 };
+
+sub trim {  $_[0] =~ s/^\s+|\s+$//g };
+
+sub read_file {
+    my $file = shift;
+    open my $fh, '<', $file or die "Could not open '$file' $!";
+    local $/ = undef;
+    my $cont = <$fh>;
+    close $fh;
+    return $cont;
+}
 
 true;
 

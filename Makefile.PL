@@ -9,6 +9,7 @@ my %prereq = (
         'DBIx::Class::Schema'  => 0,
         'DBIx::RunSQL'         => 0,
         'Email::Valid'         => 0,
+        'File::Slurp'          => 0,
         'File::Spec'           => 0,
         'Getopt::Long'         => 0,
         'MIME::Lite'           => 0,
