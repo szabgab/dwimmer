@@ -55,7 +55,7 @@ repository 'http://github.com/szabgab/dwimmer';
 
 install_script 'script/dwimmer_setup.pl';
 
-# Copy files to share before packaging it
+# Copy files to share before installing (but it is not included in the distribution)
 require File::Copy::Recursive;
 require File::Spec;
 foreach my $dir (qw(bin views schema public environments)) {

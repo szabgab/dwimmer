@@ -39,18 +39,9 @@ MYMETA\.(?:yaml|json)$
 #   Mac OSX SMB mount metadata files
 \B\._
 # Avoid archives of this distribution
-\bPadre-[\d\.\_]+
+\bDwimmer-[\d\.\_]+
 
-# Avoid Padre development files
-\B\.padre
-dev.pl
-\bprivlib
-^padre(?:\.exe)?$
-padre-splash-original.xcf
-
-# Perl 6 lexer temp dir
-/lex/
-^lex/
-
-# no need for the .mo files as they are generated on the target machine
-\.mo$
+\bsessions
+.gitignore
+\bdb\b
+\bshare\b
