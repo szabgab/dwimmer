@@ -57,6 +57,10 @@ foreach my $dir (qw(views public bin environments)) {
         File::Spec->catdir( $opt{root}, $dir )
     );
 }
+File::Copy::Recursive::fcopy(
+        File::Spec->catdir( $dist_dir, 'config.yml'), 
+        File::Spec->catdir( $opt{root} )
+    );
 
 exit;
 

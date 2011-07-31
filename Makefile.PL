@@ -58,9 +58,10 @@ install_script 'script/dwimmer_setup.pl';
 # Copy files to share before packaging it
 require File::Copy::Recursive;
 require File::Spec;
-foreach my $dir (qw(bin views schema public)) {
+foreach my $dir (qw(bin views schema public environments)) {
         File::Copy::Recursive::dircopy( $dir, File::Spec->catdir('share', $dir) );
 }
+File::Copy::Recursive::fcopy('config.yml', 'share');
 
 install_share;
 
