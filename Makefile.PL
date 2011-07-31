@@ -1,6 +1,22 @@
+use 5.008005;
 use strict;
 use warnings;
-use ExtUtils::MakeMaker;
+use inc::Module::Install 1.00;
+
+# Configure-time dependencies MUST be done first.
+# This version ensures that we have a new MakeMaker that
+# WON'T load modules to determine the version.
+# This _SHOULD_ theoretically make the "require Test::NoWarnings".
+# stuff above here no longer needed.
+configure_requires 'ExtUtils::MakeMaker' => '6.52';
+
+
+name     'Dwimmer';
+license  'perl';
+author   'Gabor Szabo <szabgab@dwimmer.org>';
+all_from 'lib/Dwimmer.pm';
+
+requires 'perl' => '5.008005';
 
 my %prereq = (
         'Dancer'               => 1.3060,
@@ -16,25 +32,26 @@ my %prereq = (
         'Pod::Usage'           => 0,
         'String::Random'       => 0,
         'Template'             => 0,
-        'Test::More'           => 0,
-        'Test::WWW::Mechanize' => 0,
         'YAML'                 => 0,
 );
-
 if ($^O =~ /win32/i) {
     $prereq{'Win32::Process'} = 0;
 }
 
-WriteMakefile(
-    NAME                => 'Dwimmer',
-    AUTHOR              => q{YOUR NAME <youremail@example.com>},
-    VERSION_FROM        => 'lib/Dwimmer.pm',
-    ABSTRACT            => 'YOUR APPLICATION ABSTRACT',
-    ($ExtUtils::MakeMaker::VERSION >= 6.3002
-      ? ('LICENSE'=> 'perl')
-      : ()),
-    PL_FILES            => {},
-    PREREQ_PM           => \%prereq,
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Dwimmer-*' },
-);
+foreach my $module (keys %prereq) {
+        requires $module => $prereq{$module};
+}
+
+test_requires        'Test::More'           => 0;
+test_requires        'Test::WWW::Mechanize' => 0;
+
+
+homepage 'http://dwimmer.org/';
+bugtracker 'http://github.com/szabgab/dwimmer';
+repository 'http://github.com/szabgab/dwimmer';
+
+# install_script 'script/dwimmer_setup.pl';
+# install_share;
+
+
+WriteAll;
