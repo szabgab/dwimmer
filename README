@@ -2,6 +2,29 @@
 Stand alone installation:
 - Install everyting
 - Run database creation script that will ask for admin password
+
+From the web interface
+- Configure email sending (local delivery or using an SMTP server)
+- Admin can add user
+- Move all the dwimmer pages to be under /_dwimmer/
+- Allow creating and editing of pages.
+  each page should have
+  1) body text
+  2) list of comman separated tags
+
+- Use a very simple markup language and allow any HTML.
+  [linkname]
+  [linkname link title]
+  [schema://specialcase]
+  [schema://specialcase link title]
+
+- When arriving at a page that does not exist yet,
+  display this info and if the user is logged in then offer the page
+  to be edited/created.
+
+- Maybe add groups and group permissions?
+
+
 - From the web site allow the creation of a site with basic usage.
   - At first only the admin can create sites but later we might allow
     regular users as well to create sites using the main site.
