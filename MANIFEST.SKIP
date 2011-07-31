@@ -1,13 +1,56 @@
-^\.git\/
-maint
-^tags$
-.last_cover_stats
-Makefile$
-^blib
-^pm_to_blib
-^.*.bak
-^.*.old
-^t.*sessions
-^cover_db
-^.*\.log
-^.*\.swp$
+# Avoid version control files.
+\bRCS\b
+\bCVS\b
+,v$
+\B\.svn\b
+\B\.git\b
+\B\.cvsignore$
+
+# Avoid Makemaker generated and utility files.
+\bMakefile$
+\bblib
+\bMakeMaker-\d
+\bpm_to_blib$
+\bblibdirs$
+^MANIFEST\.SKIP$
+MYMETA\.(?:yaml|json)$
+
+
+# Avoid Module::Build generated and utility files.
+\bBuild$
+\bBuild.bat$
+\b_build
+
+# Avoid Devel::Cover generated files
+\bcover_db
+
+# Avoid temp and backup files.
+~$
+\.tmp$
+\.old$
+\.bak$
+\#$
+\.#
+\.rej$
+
+# Avoid OS-specific files/dirs
+#   Mac OSX metadata
+\B\.DS_Store
+#   Mac OSX SMB mount metadata files
+\B\._
+# Avoid archives of this distribution
+\bPadre-[\d\.\_]+
+
+# Avoid Padre development files
+\B\.padre
+dev.pl
+\bprivlib
+^padre(?:\.exe)?$
+padre-splash-original.xcf
+
+# Perl 6 lexer temp dir
+/lex/
+^lex/
+
+# no need for the .mo files as they are generated on the target machine
+\.mo$
