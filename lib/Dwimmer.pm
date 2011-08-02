@@ -14,15 +14,23 @@ use Template;
 use Dwimmer::DB;
 use Dwimmer::Tools qw(sha1_base64);
 
-###### hooks 
-hook before_template => sub {
-    my $tokens = shift;
+
+sub render_response {
+    my ($template, $data) = @_;
+
+    $data ||= {};
     foreach my $field (qw(logged_in username)) {
-        $tokens->{$field} = session->{$field};
+        $data->{$field} = session->{$field};
     };
-    $tokens->{dwimmer_version} = $VERSION;
-    return;
-};
+    $data->{dwimmer_version} = $VERSION;
+    my $content_type = request->content_type || params->{content_type} || '';
+    if ($content_type =~ /json/) {
+       content_type 'text/plain';
+       return to_json $data, {utf8 => 0};
+    } else {
+       return template $template, $data;
+    }
+}
 
 
 ###### routes
@@ -31,7 +39,7 @@ my @error_pages = qw(invalid_login not_verified);
 sub route_index {
 #    my $db = _get_db();
 #    my $admin = $db->resultset('User')->find( {name => 'admin'});
-    template 'index';
+    render_response 'index';
 };
 get '/' => \&route_index;
 get '/index' => \&route_index; # temp measure to allow the current configuration to work in CGI mode
@@ -77,11 +85,11 @@ post '/login' => sub {
 
 get '/logout' => sub {
      session->destroy;
-     template 'goodbye';
+     render_response 'goodbye';
 };
 
 get '/page' => sub {
-    template 'page';
+    render_response 'page';
 };
 
 # post '/page' =>  sub {
@@ -99,13 +107,13 @@ get '/list_users' => sub {
     my @users = $db->resultset('User')->all(); #{ select => [ qw/id uname/ ] });
     #my $html = $users[0]->uname;
     #return $html;
-    template 'list_users', {users => \@users};
+    render_response 'list_users', {users => \@users};
 };
 
 # static pages , 
 foreach my $page (@error_pages, 'add_user') {
     get "/$page" => sub {
-        template $page;
+        render_response $page;
     };
 }
 
@@ -126,13 +134,11 @@ post '/add_user' => sub {
     return $ret if $ret;
 
 
-
-    template '/user_added';
-
+    render_response '/user_added';
 };
 
 get '/register' => sub {
-    template 'register';
+    render_response 'register';
 };
 
 post '/register' => sub {
@@ -150,6 +156,7 @@ post '/register' => sub {
 };
 
 
+
 sub register_user {
     my %args = @_;
     # validate
@@ -165,7 +172,7 @@ sub register_user {
     }
     $user = $db->resultset('User')->find( {email => $args{email}});
     if ($user) {
-        return 'This email was already used. Would you like to reset your password?';
+        return 'This email was already used. If you already have a registration but dont remember the password, you can <a href="/reset_password">reset</a> it here.';
     }
     if (length $args{pw1} < 5) {
         return 'Password is too short. It needs at least 5 characters';
@@ -210,7 +217,7 @@ sub register_user {
 
 
 get '/manage' => sub {
-    template 'manage';
+    render_response 'manage';
 };
 
 
