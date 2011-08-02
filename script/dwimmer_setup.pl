@@ -83,6 +83,9 @@ sub setup_db {
         {}, 
         'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1);
 
+    $dbh->do("INSERT INTO site (name, owner) VALUES ('www', 1)");
+    $dbh->do("INSERT INTO page (siteid, title, body, filename, author) VALUES (1, 'Welcome to your Dwimmer installation', '<h1>Dwimmer</h1>', '/', 1)");
+
     return if $opt{silent};
 
     print <<"END_MSG";

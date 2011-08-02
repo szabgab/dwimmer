@@ -49,12 +49,27 @@ sub render_response {
 my @error_pages;# = qw(invalid_login not_verified);
 
 sub route_index {
-#    my $db = _get_db();
-#    my $admin = $db->resultset('User')->find( {name => 'admin'});
-    render_response 'index';
+    my $db = _get_db();
+
+    my $site_name = 'www';
+
+    # based on hostname?
+    my $host = request->host;
+    if ($host =~ /^([\w-]+)\./) {
+        $site_name = $1;
+    }
+    my $site = $db->resultset('Site')->find( { name => $site_name } );
+    return "Could not find site called '$site_name' in the database" if not $site;
+
+    my $path = request->path_info;
+
+    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path});
+
+    render_response 'index', {page => $page};
 };
 get '/' => \&route_index;
 get '/index' => \&route_index; # temp measure to allow the current configuration to work in CGI mode
+
 
 post '/login' => sub {
     my $username = params->{username};
@@ -246,6 +261,8 @@ get '/manage' => sub {
 
 
 get '/edit_this_page' => sub {
+    my $referer = request->referer || '';
+    return $referer;
     return 'edit this page';
 };
 
