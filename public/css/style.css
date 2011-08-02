@@ -187,3 +187,8 @@ padding-right: 160px;
 font-family: sans-serif;
 font-size: 10px;
 }
+
+#editor {
+//    visibility: hidden;
+}
+

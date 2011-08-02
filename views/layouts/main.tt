@@ -3,18 +3,20 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=<% settings.charset %>" />
-<title>Dwimmer</title>
+<title><% page.title %></title>
 <link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
 
 <script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.js"></script>
+<script type="text/javascript" src="<% request.uri_base %>/javascripts/dwimmer.js"></script>
 
 </head>
 <body>
 <div id="admin"></div>
+
 <a href="/">home</a>
 <% IF logged_in %>
 | logged in as <a href="/manage"><% username %></a> <a href="/logout">logout</a>
-| <a href="/edit_this_page">edit this page</a>
+| <a class="edit_this_page" href="#">edit this page</a>
 <% ELSE %>
 | <a href="/register">register</a>
 <form method="POST" action="/login">
@@ -22,8 +24,23 @@ name: <input name="username"> password: <input type="password" name="password"> 
 </form>
 <% END %>
 
-
+<div id="content">
 <% content %>
+</div>
+
+<div id="editor">
+  <form id="frm">
+  <input type="button" id="sbmt" value="Save" />
+  <input type="button" id="cancel" value="Cancel" />
+  <br />
+  <input id="formtitle" size="80" />
+  <br />
+  <textarea rows="10" cols="70" id="text"></textarea>
+  </form>
+</div>
+<div id="preview"></div>
+
+
 <div id="footer">
 Powered by <a href="http://dwimmer.org/">Dwimmer</a> <% dwimmer_version %>
 </div>
