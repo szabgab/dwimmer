@@ -10,6 +10,7 @@
 
 </head>
 <body>
+<div id="admin"></div>
 <a href="/">home</a>
 <% IF logged_in %>
 | logged in as <a href="/manage"><% username %></a> <a href="/logout">logout</a>
@@ -20,6 +21,7 @@
 name: <input name="username"> password: <input type="password" name="password"> <input type="submit" value="Login">
 </form>
 <% END %>
+
 
 <% content %>
 <div id="footer">
