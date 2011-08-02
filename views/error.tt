@@ -1,0 +1,29 @@
+<h1>Error</h1>
+<% IF invalid_verify %>
+invalid verify
+<% END %>
+
+<% IF invalid_username %>
+Invalid username
+<% END %>
+
+<% IF username_taken %>
+This username is already taken
+<% END %>
+
+<% IF email_used %>
+This email was already used. If you already have a registration but dont remember the password, 
+you can <a href="/reset_password">reset</a> it here.
+<% END %>
+
+<% IF shortpassword %>
+Password is too short. It needs at least 5 characters
+<% END %>
+
+<% IF passwords_dont_match %>
+Passwords did not match
+<% END %>
+
+<% IF no_tos %>
+Sorry we cannot register you if you dont agree to our Terms of Services
+<% END %>

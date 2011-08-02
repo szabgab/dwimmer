@@ -128,11 +128,10 @@ post '/add_user' => sub {
     $args{pw1} = $args{pw2} = delete $args{pw};
     $args{tos} = 'on'; # not really the right thing
 
-    return 'invalid verify' if $args{verify} !~ /^(send_email|verified)$/;
+    return render_response 'error', { invalid_verify => 1} if $args{verify} !~ /^(send_email|verified)$/;
 
     my $ret = register_user(%args);
-    return $ret if $ret;
-
+    return render_response 'error', {$ret => 1} if $ret;
 
     render_response '/user_added';
 };
@@ -150,7 +149,7 @@ post '/register' => sub {
     $args{verify} = 'send_email';
 
     my $ret = register_user(%args);
-    return $ret if $ret;
+    return render_response 'error', {$ret => 1} if $ret;
 
     redirect '/register_done';
 };
@@ -164,24 +163,24 @@ sub register_user {
 
     my $db = _get_db();
     if (length $args{uname} < 2 or $args{uname} =~ /[^\w.-]/) {
-        return 'Invalid username';
+        return 'invalid_username';
     }
     my $user = $db->resultset('User')->find( { name => $args{uname} });
     if ($user) {
-        return 'This username is already taken';
+        return 'username_taken';
     }
     $user = $db->resultset('User')->find( {email => $args{email}});
     if ($user) {
-        return 'This email was already used. If you already have a registration but dont remember the password, you can <a href="/reset_password">reset</a> it here.';
+        return 'email_used';
     }
     if (length $args{pw1} < 5) {
-        return 'Password is too short. It needs at least 5 characters';
+        return 'short_password';
     }
     if ($args{pw1} ne $args{pw2}) {
-        return 'Passwords did not match';
+        return 'passwords_dont_match';
     }
     if ($args{tos} ne 'on') {
-        return 'Sorry we cannot register you if you dont agree to our Terms of Service';
+        return 'no_tos';
     };
 
     # insert new user
@@ -224,8 +223,6 @@ get '/manage' => sub {
 get '/edit_this_page' => sub {
     return 'edit this page';
 };
-
-
 
 
 ###### helper methods
