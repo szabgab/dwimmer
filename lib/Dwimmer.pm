@@ -14,6 +14,18 @@ use Template;
 use Dwimmer::DB;
 use Dwimmer::Tools qw(sha1_base64);
 
+my %open = map { $_ => 1 } qw(/ /login);
+
+hook before => sub {
+    my $path = request->path_info;
+    return if $open{$path};
+    
+    if (not session->{logged_in}) {
+        request->path_info('/needs_login');
+    }
+    return;
+};
+
 
 sub render_response {
     my ($template, $data) = @_;
@@ -34,7 +46,7 @@ sub render_response {
 
 
 ###### routes
-my @error_pages = qw(invalid_login not_verified);
+my @error_pages;# = qw(invalid_login not_verified);
 
 sub route_index {
 #    my $db = _get_db();
@@ -48,16 +60,17 @@ post '/login' => sub {
     my $username = params->{username};
     my $password = params->{password};
     
-    return redirect '/invalid_login' if not $username or not $password;
+    return render_response 'error', {missing_username => 1} if not $username;
+    return render_response 'error', {missing_password => 1} if not $password;
 
     my $db = _get_db();
     my $user = $db->resultset('User')->find( {name => $username});
-    return redirect '/invalid_login' if not $user;
+    return render_response 'error', {no_such_user => 1} if not $user;
 
     my $sha1 = sha1_base64($password);
-    return redirect '/invalid_login' if $sha1 ne $user->sha1;
-    
-    return redirect '/not_verified' if not $user->verified;
+    return render_response 'error', {invalid_password => 1} if $sha1 ne $user->sha1;
+  
+    return render_response 'error', {not_verified => 1} if not $user->verified;
 
     session username => $username;
     session logged_in => 1;
@@ -111,22 +124,33 @@ get '/list_users' => sub {
 };
 
 # static pages , 
-foreach my $page (@error_pages, 'add_user') {
+foreach my $page (@error_pages, 'add_user', 'needs_login') {
     get "/$page" => sub {
         render_response $page;
     };
 }
 
+get '/show_user' => sub {
+    my $id = params->{id};
+    return render_response 'error', { no_id => 1} if not defined $id;
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( $id );
+    return render_response 'error', { no_such_user => 1} if not defined $id;
+    return render_response  'show_user', {user => $user};
+};
+
 post '/add_user' => sub {
     my %args;
-    foreach my $field ( qw(uname fname lname email pw verify) ) {
+    foreach my $field ( qw(uname fname lname email pw1 pw2 verify) ) {
         $args{$field} = params->{$field} || '';
         trim($args{$field});
     }
+    #return $args{verify};
 
-    $args{pw} ||= String::Random->new->randregex('[a-zA-Z0-9]{10}');
-    $args{pw1} = $args{pw2} = delete $args{pw};
-    $args{tos} = 'on'; # not really the right thing
+    if ($args{pw1} eq '' and $args{pw2} eq '') {
+        $args{pw1} = $args{pw2} = String::Random->new->randregex('[a-zA-Z0-9]{10}');
+    }
+    $args{tos} = 'on'; # TODO not really the right thing, mark in the database that the user was added by the admin
 
     return render_response 'error', { invalid_verify => 1} if $args{verify} !~ /^(send_email|verified)$/;
 
@@ -191,6 +215,7 @@ sub register_user {
         email => $args{email},
         sha1  => sha1_base64($args{pw1}),
         validation_key => $validation_key,
+        verified => ($args{verify} eq 'verified' ? 1 : 0), 
     });
 
     if ($args{verify} eq 'send_email') {

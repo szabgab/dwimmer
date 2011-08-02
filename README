@@ -29,3 +29,5 @@ From the web interface
   - At first only the admin can create sites but later we might allow
     regular users as well to create sites using the main site.
 
+
+Allow the admin to disable a user or even to delete it? Or we rather keep the user around for accounting purposes.

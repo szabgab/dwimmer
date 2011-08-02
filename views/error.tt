@@ -1,14 +1,15 @@
 <h1>Error</h1>
+
 <% IF invalid_verify %>
-invalid verify
+Invalid verify.
 <% END %>
 
 <% IF invalid_username %>
-Invalid username
+Invalid username.
 <% END %>
 
 <% IF username_taken %>
-This username is already taken
+This username is already taken.
 <% END %>
 
 <% IF email_used %>
@@ -17,13 +18,42 @@ you can <a href="/reset_password">reset</a> it here.
 <% END %>
 
 <% IF shortpassword %>
-Password is too short. It needs at least 5 characters
+Password is too short. It needs at least 5 characters.
 <% END %>
 
 <% IF passwords_dont_match %>
-Passwords did not match
+Passwords did not match.
 <% END %>
 
 <% IF no_tos %>
-Sorry we cannot register you if you dont agree to our Terms of Services
+Sorry we cannot register you if you dont agree to our Terms of Services.
 <% END %>
+
+<% IF missing_password %>
+Missing password.
+<% END %>
+
+<% IF missing_username %>
+Missing username.
+<% END %>
+
+<% IF no_such_user %>
+No such user.
+<% END %>
+
+<% IF invalid_password %>
+Invalid password.
+<% END %>
+
+<% IF not_verified %>
+You have not verified your e-mail address yet.
+<% END %>
+
+<% IF no_id %>
+No ID given.
+<% END %>
+
+<% IF no_such_user %>
+No such user
+<% END %>
+

@@ -3,7 +3,10 @@ Username: <input name="uname" /><br />
 First name: <input name="fname" /><br />
 Last name: <input name="lname" /><br />
 email: <input name="email" /><br />
-password: <input name="pw" type="password" /><br />
+You can leave the password fields empty and a password will be generated to the user
+who will be able to reset it via the web form.<br />
+password: <input name="pw1" type="password" /><br />
+retypr password: <input name="pw2" type="password" /><br />
 Send validation mail: <input name="verify" type="radio" value="send_email" CHECKED /> 
 Set verified bit <input type="radio" name="verify" value="verified" />
 <input type="submit" value="Add user" /><br />
