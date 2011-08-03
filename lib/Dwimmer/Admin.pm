@@ -15,7 +15,6 @@ use Dwimmer::DB;
 use Dwimmer::Tools qw(sha1_base64 _get_db _get_site);
 
 ###### routes
-my @error_pages;# = qw(invalid_login not_verified);
 
 sub render_response {
     my ($template, $data) = @_;
@@ -92,7 +91,7 @@ post '/login' => sub {
         return redirect '/';    
     }
 
-    my $noland_pages = join '|', ('logout', @error_pages);
+    my $noland_pages = join '|', ('logout');
     if ($ref_path =~ m{^/($noland_pages)}) {
         return redirect '/';
     }
@@ -128,7 +127,7 @@ get '/list_users' => sub {
 };
 
 # static pages , 
-foreach my $page (@error_pages, 'add_user', 'needs_login') {
+foreach my $page ('add_user', 'needs_login') {
     get "/$page" => sub {
         render_response $page;
     };
