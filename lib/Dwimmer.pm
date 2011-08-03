@@ -5,11 +5,11 @@ use 5.008005;
 
 our $VERSION = '0.01';
 
-use Data::Dumper;
-use Email::Valid;
-use MIME::Lite;
-use String::Random;
-use Template;
+use Data::Dumper    qw(Dumper);
+use Email::Valid    ();
+use MIME::Lite      ();
+use String::Random  ();
+use Template        ();
 
 use Dwimmer::DB;
 use Dwimmer::Tools qw(sha1_base64);
@@ -31,14 +31,17 @@ sub render_response {
     my ($template, $data) = @_;
 
     $data ||= {};
-    foreach my $field (qw(logged_in username)) {
+    foreach my $field (qw(logged_in username userid)) {
         $data->{$field} = session->{$field};
     };
+    
+    debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
     my $content_type = request->content_type || params->{content_type} || '';
     if ($content_type =~ /json/) {
        content_type 'text/plain';
-       return to_json $data, {utf8 => 0};
+       debug('json', $data);
+       return to_json $data, { utf8 => 0, convert_blessed => 1, allow_blessed => 1 };
     } else {
        return template $template, $data;
     }
@@ -65,7 +68,12 @@ sub route_index {
 
     my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path});
 
-    render_response 'index', {page => $page};
+    my %data= (
+        title  => $page->title,
+        body   => $page->body,
+        author => $page->author->name,
+    );
+    render_response 'index', {page => \%data};
 };
 get '/' => \&route_index;
 get '/index' => \&route_index; # temp measure to allow the current configuration to work in CGI mode
@@ -88,6 +96,7 @@ post '/login' => sub {
     return render_response 'error', {not_verified => 1} if not $user->verified;
 
     session username => $username;
+    session userid   => $user->id;
     session logged_in => 1;
 
 

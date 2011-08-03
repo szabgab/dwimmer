@@ -6,15 +6,16 @@
    $(".edit_this_page").click(function() {
        //$(location).attr('pathname');
        //window.location.pathname;
-       var url = $(location).attr('href');
-       $.get(url, function(resp) {
+       var url = $(location).attr('href') + '?content_type=json';
+       $.getJSON(url, function(resp) {
             $('#content').hide();
             $('#editor').show();
             $('#preview').show();
             //$('#formtitle').value = 'ddd';
-            $('#text').html('www'); //resp["title"]);
+            $('#text').html( resp["page"]["body"] );
+            $('#text').keyup();
             //$('#text').html(resp);
-            alert(resp);
+            //alert(resp);
        });
               
        // fill editor with content fetched from the server

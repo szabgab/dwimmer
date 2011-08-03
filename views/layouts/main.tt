@@ -15,7 +15,9 @@
 
 <a href="/">home</a>
 <% IF logged_in %>
-| logged in as <a href="/manage"><% username %></a> <a href="/logout">logout</a>
+| logged in as <a href="/show_user?id=<% userid %>"><% username %></a> 
+| <a href="/logout">logout</a>
+| <a href="/manage">manage</a>
 | <a class="edit_this_page" href="#">edit this page</a>
 <% ELSE %>
 | <a href="/register">register</a>
@@ -23,7 +25,7 @@
 name: <input name="username"> password: <input type="password" name="password"> <input type="submit" value="Login">
 </form>
 <% END %>
-
+<p></p>
 <div id="content">
 <% content %>
 </div>

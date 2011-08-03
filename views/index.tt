@@ -2,4 +2,4 @@
 <div id="body">
 <% page.body %>
 </div>
-Created by <% page.author.name %>
+Created by <% page.author %>
