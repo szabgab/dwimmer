@@ -102,6 +102,3 @@ $u->content_like(qr{logged in as.*>$users[0]{uname}<}, "content logged in as $us
 $w->follow_link_ok({text_regex => qr{logout}}, 'logout');
 $w->content_unlike(qr{logged in}, 'not logged in');
 
-
-stop();
-
