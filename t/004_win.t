@@ -33,7 +33,6 @@ plan(tests => 28);
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok($url);
 
-
 $w->content_like(qr{/login}, '/login');
 $w->content_unlike(qr{logged in}, 'not logged in');
 
@@ -50,12 +49,12 @@ is($w->status, 200, 'status 200');
 $w->content_like(qr{logged in as.*>admin<}, 'content logged in as admin');
 
 
-$w->follow_link_ok({ url => '/manage'}, 'to manage page');
-$w->follow_link_ok({ url => '/list_users'}, 'to list_users page');
+$w->follow_link_ok({ url => '/_dwimmer/manage'}, 'to manage page');
+$w->follow_link_ok({ url => '/_dwimmer/list_users'}, 'to list_users page');
 $w->content_like(qr{/show_user\?id=1}, 'admin appears');
 
-$w->follow_link_ok({ url => '/manage'}, 'to manage page');
-$w->follow_link_ok({ url => '/add_user'}, 'to add_user page');
+$w->follow_link_ok({ url => '/_dwimmer/manage'}, 'to manage page');
+$w->follow_link_ok({ url => '/_dwimmer/add_user'}, 'to add_user page');
 
 my @users = (
 	{
@@ -83,18 +82,18 @@ $w->submit_form_ok( {
 	fields => $users[0],
 }, 'add user');
 $w->content_like( qr{user added} );
-$w->follow_link_ok({ url => '/manage'}, 'to manage page');
-$w->follow_link_ok({ url => '/list_users'}, 'to list_users page');
-$w->content_like(qr{/show_user\?id=1">admin}, 'admin appears');
-$w->content_like(qr{/show_user\?id=2">$users[0]{uname}}, "$users[0]{uname} appears");
+$w->follow_link_ok({ url => '/_dwimmer/manage'}, 'to manage page');
+$w->follow_link_ok({ url => '/_dwimmer/list_users'}, 'to list_users page');
+$w->content_like(qr{/_dwimmer/show_user\?id=1">admin}, 'admin appears');
+$w->content_like(qr{/_dwimmer/show_user\?id=2">$users[0]{uname}}, "$users[0]{uname} appears");
 #diag($w->content);
 
 
 #diag(read_file($ENV{DWIMMER_MAIL}));
 my $u = Test::WWW::Mechanize->new;
-$u->get_ok("$url/manage");
+$u->get_ok("$url/_dwimmer/manage");
 $u->content_like( qr{have to be logged in}, 'not logged in');
-$u->get_ok("$url/manage");
+$u->get_ok("$url/_dwimmer/manage");
 $u->content_like( qr{have to be logged in}, 'not logged in');
 
 $u->get_ok($url);

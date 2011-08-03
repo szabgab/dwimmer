@@ -32,7 +32,7 @@
        var text = $('#text').val();
        var title = $('#formtitle').val();
 
-        var url = '/save';
+        var url = '/_dwimmer/save';
         var data = $("#frm").serialize();
 //        alert(data);
         $.post(url, data, function(resp) {

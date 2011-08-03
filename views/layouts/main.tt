@@ -15,13 +15,13 @@
 
 <a href="/">home</a>
 <% IF logged_in %>
-| logged in as <a href="/show_user?id=<% userid %>"><% username %></a> 
-| <a href="/logout">logout</a>
-| <a href="/manage">manage</a>
+| logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a> 
+| <a href="/_dwimmer/logout">logout</a>
+| <a href="/_dwimmer/manage">manage</a>
 | <a class="edit_this_page" href="">edit this page</a>
 <% ELSE %>
-| <a href="/register">register</a>
-<form method="POST" action="/login">
+| <a href="/_dwimmer/register">register</a>
+<form method="POST" action="/_dwimmer/login">
 name: <input name="username"> password: <input type="password" name="password"> <input type="submit" value="Login">
 </form>
 <% END %>
@@ -31,7 +31,7 @@ name: <input name="username"> password: <input type="password" name="password"> 
 </div>
 
 <div id="editor">
-  <form id="frm" action="/save" method="POST">
+  <form id="frm" action="/_dwimmer/save" method="POST">
   <input type="button" id="save" value="Save" />
   <input type="button" id="cancel" value="Cancel" />
   <input type="hidden" name="filename" value="<% page.filename %>" />

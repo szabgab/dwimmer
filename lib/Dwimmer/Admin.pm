@@ -1,4 +1,4 @@
-package Dwimmer;
+package Dwimmer::Admin;
 use Dancer ':syntax';
 
 use 5.008005;
@@ -12,20 +12,10 @@ use String::Random  ();
 use Template        ();
 
 use Dwimmer::DB;
-use Dwimmer::Tools qw(sha1_base64);
+use Dwimmer::Tools qw(sha1_base64 _get_db _get_site);
 
-my %open = map { $_ => 1 } qw(/ /login);
-
-hook before => sub {
-    my $path = request->path_info;
-    return if $open{$path};
-    
-    if (not session->{logged_in}) {
-        request->path_info('/needs_login');
-    }
-    return;
-};
-
+###### routes
+my @error_pages;# = qw(invalid_login not_verified);
 
 sub render_response {
     my ($template, $data) = @_;
@@ -46,44 +36,6 @@ sub render_response {
        return template $template, $data;
     }
 }
-
-
-###### routes
-my @error_pages;# = qw(invalid_login not_verified);
-
-sub _get_site {
-    my $site_name = 'www';
-
-    # based on hostname?
-    my $host = request->host;
-    if ($host =~ /^([\w-]+)\./) {
-        $site_name = $1;
-    }
-
-    my $db = _get_db();
-    my $site = $db->resultset('Site')->find( { name => $site_name } );
-    return ($site_name, $site);
-}
-
-sub route_index {
-    my $db = _get_db();
-
-    my ($site_name, $site) = _get_site();
-    return "Could not find site called '$site_name' in the database" if not $site;
-
-    my $path = request->path_info;
-    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path});
-
-    my %data= (
-        title  => $page->title,
-        body   => $page->body,
-        author => $page->author->name,
-        filename => $page->filename,
-    );
-    render_response 'index', {page => \%data};
-};
-get '/' => \&route_index;
-get '/index' => \&route_index; # temp measure to allow the current configuration to work in CGI mode
 
 post '/save' => sub {
     my ($site_name, $site) = _get_site();
@@ -274,7 +226,6 @@ sub register_user {
         my $template = read_file(path(config->{appdir}, 'views', 'register_verify_mail.tt'));
         if ($user) {
             my $url = 'http://' . request->host . "/finish_registration?uname=$args{uname}&code=$validation_key";
-            #my $template = read_file 
             my $message = ''; # template 'register_verify_mail', { url => $url };
             my $msg = MIME::Lite->new(
                 From    => 'gabor@szabgab.com',
@@ -306,10 +257,6 @@ get '/edit_this_page' => sub {
 
 ###### helper methods
 
-sub _get_db {
-    my $dbfile = path(config->{appdir}, 'db', 'dwimmer.db');
-    Dwimmer::DB->connect("dbi:SQLite:dbname=$dbfile", '', '');
-};
 
 sub trim {  $_[0] =~ s/^\s+|\s+$//g };
 
