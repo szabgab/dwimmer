@@ -28,11 +28,37 @@
         return false;
     });
     
-    $('#sbmt').click(function(){
-       //alert("xxx");
+    $('#save').click(function(){
        var text = $('#text').val();
-       //alert(text);
-       //$('#preview').html(text);
+       var title = $('#formtitle').val();
+       //alert(title);
+
+        //var url = $(location).attr('host'); // should be http://bla.bla.com/
+        var url = '/save';
+        //alert(url);
+        //alert($("#frm"));
+        var data = $("#frm").serialize();
+        //alert(data);
+        $.post(url, data, function(resp) {
+            //alert(resp);
+            var data = eval('(' + resp + ')');
+            //alert(data["error"]);
+//            if (resp["error"] != undefined) {
+//                alert('xx');
+                if (data["error"] == "no_file_supplied") {
+                    alert("Internal error, no filename supplied. Not saved.");
+                } else if (data["error"] == "no_site") {
+                    alert("Internal error, dont know which site are you on.");
+ //               } else {
+ //                   alert("Unknown error: " + resp["error"]);
+//                }
+            } else { // assume success?
+                //window.location = $(location).attr('href');
+                location.reload;
+            }
+        });
+
+        return false;
     });
 
     $('#text').keyup(function(){

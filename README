@@ -10,7 +10,8 @@ From the web interface
 - Allow creating and editing of pages.
   each page should have
   1) body text
-  2) list of comman separated tags
+  2) list of comma separated tags
+  3) title
 
 - Use a very simple markup language and allow any HTML.
   [linkname]

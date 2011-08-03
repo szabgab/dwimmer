@@ -31,13 +31,13 @@ name: <input name="username"> password: <input type="password" name="password"> 
 </div>
 
 <div id="editor">
-  <form id="frm">
-  <input type="button" id="sbmt" value="Save" />
+  <form id="frm" action="/save" method="POST">
+  <input type="button" id="save" value="Save" />
   <input type="button" id="cancel" value="Cancel" />
   <br />
-  <input id="formtitle" size="80" />
+  <input name="formtitle" id="formtitle" size="80" />
   <br />
-  <textarea rows="10" cols="70" id="text"></textarea>
+  <textarea rows="10" cols="70" name="text" id="text"></textarea>
 <!--  <br />
   Comman separated tags: <input id="formtags" size="80" />
 -->

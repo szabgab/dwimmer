@@ -51,9 +51,7 @@ sub render_response {
 ###### routes
 my @error_pages;# = qw(invalid_login not_verified);
 
-sub route_index {
-    my $db = _get_db();
-
+sub _get_site {
     my $site_name = 'www';
 
     # based on hostname?
@@ -61,11 +59,19 @@ sub route_index {
     if ($host =~ /^([\w-]+)\./) {
         $site_name = $1;
     }
+
+    my $db = _get_db();
     my $site = $db->resultset('Site')->find( { name => $site_name } );
+    return ($site_name, $site);
+}
+
+sub route_index {
+    my $db = _get_db();
+
+    my ($site_name, $site) = _get_site();
     return "Could not find site called '$site_name' in the database" if not $site;
 
     my $path = request->path_info;
-
     my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path});
 
     my %data= (
@@ -78,6 +84,20 @@ sub route_index {
 get '/' => \&route_index;
 get '/index' => \&route_index; # temp measure to allow the current configuration to work in CGI mode
 
+post '/save' => sub {
+    my ($site_name, $site) = _get_site();
+
+    return '{ "error" : "no_site" }' if not $site;
+    my $file = params->{filename};
+    return '{ "error" : "no_file_supplied" }' if not $file;
+
+    # TODO check if the user has the right to save this page!
+    debug( params->{text} );
+    debug( params->{formtitle} );
+        
+
+    return '{ "success" : "1" }';
+};
 
 post '/login' => sub {
     my $username = params->{username};
