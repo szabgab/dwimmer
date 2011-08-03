@@ -18,7 +18,7 @@
 | logged in as <a href="/show_user?id=<% userid %>"><% username %></a> 
 | <a href="/logout">logout</a>
 | <a href="/manage">manage</a>
-| <a class="edit_this_page" href="#">edit this page</a>
+| <a class="edit_this_page" href="">edit this page</a>
 <% ELSE %>
 | <a href="/register">register</a>
 <form method="POST" action="/login">
@@ -38,6 +38,9 @@ name: <input name="username"> password: <input type="password" name="password"> 
   <input id="formtitle" size="80" />
   <br />
   <textarea rows="10" cols="70" id="text"></textarea>
+<!--  <br />
+  Comman separated tags: <input id="formtags" size="80" />
+-->
   </form>
 </div>
 <div id="preview"></div>
