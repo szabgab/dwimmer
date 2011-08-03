@@ -11,24 +11,30 @@
 
 </head>
 <body>
-<div id="admin"></div>
-
-<a href="/">home</a>
+<div id="admin">
 <% IF logged_in %>
-| logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a> 
+logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a> 
 | <a href="/_dwimmer/logout">logout</a>
 | <a href="/_dwimmer/manage">manage</a>
 | <a class="edit_this_page" href="">edit this page</a>
 <% ELSE %>
-| <a href="/_dwimmer/register">register</a>
 <form method="POST" action="/_dwimmer/login">
-name: <input name="username"> password: <input type="password" name="password"> <input type="submit" value="Login">
+<span class="login-label"> Username: </span><input name="username" />
+<span class="login-label"> Password: </span><input type="password" name="password" />
+<input type="submit" value="Login" />
 </form>
+<span><a href="/_dwimmer/lost_password">Lost password</a></span>
+<span><a href="/_dwimmer/register">Register</a></span>
 <% END %>
-<p></p>
+</div>
+
+<p>
+<a href="/">home</a>
+</p>
 <div id="content">
 <% content %>
 </div>
+
 
 <div id="editor">
   <form id="frm" action="/_dwimmer/save" method="POST">

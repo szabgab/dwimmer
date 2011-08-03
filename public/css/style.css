@@ -193,3 +193,31 @@ font-size: 10px;
     visibility: hidden;
 }
 */
+
+#admin {
+    font-size: 100%;
+/*    font-weight:bold; */
+    text-align: left;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height: 35px;
+    z-index:100;
+    color:#735005;
+    background-color:#F4A83D;
+    border-bottom:3px solid #222;
+    /* margin-bottom: 10px; */
+    padding: 0px 0;
+}
+
+#admin form {
+    display: inline;
+}
+
+/*
+#admin a {
+    text-decoration: underline;
+    color:#735005;
+}
+*/
