@@ -34,6 +34,7 @@ name: <input name="username"> password: <input type="password" name="password"> 
   <form id="frm" action="/save" method="POST">
   <input type="button" id="save" value="Save" />
   <input type="button" id="cancel" value="Cancel" />
+  <input type="hidden" name="filename" value="<% page.filename %>" />
   <br />
   <input name="formtitle" id="formtitle" size="80" />
   <br />

@@ -78,6 +78,7 @@ sub route_index {
         title  => $page->title,
         body   => $page->body,
         author => $page->author->name,
+        filename => $page->filename,
     );
     render_response 'index', {page => \%data};
 };
@@ -94,7 +95,14 @@ post '/save' => sub {
     # TODO check if the user has the right to save this page!
     debug( params->{text} );
     debug( params->{formtitle} );
-        
+    my $db = _get_db();
+    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $file});
+    $page->body( params->{text} );
+    $page->title( params->{formtitle} );
+    # TODO save to history
+    # TODO update author
+    # TODO update timestamp
+    $page->update;
 
     return '{ "success" : "1" }';
 };
