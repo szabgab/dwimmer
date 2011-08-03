@@ -6,10 +6,25 @@ use base 'Exporter';
 
 our @EXPORT = qw(start stop);
 
+#use File::Basename qw(dirname);
+
+use File::Spec;
+use File::Temp qw(tempdir);
+
 my $process;
 
 sub start {
-    my ($root) = @_;
+    my ($password) = @_;
+
+my $dir = tempdir( CLEANUP => 1 );
+
+$ENV{DWIMMER_TEST} = 1;
+$ENV{DWIMMER_PORT} = 3001;
+$ENV{DWIMMER_MAIL} = File::Spec->catfile($dir, 'mail.txt');
+
+my $root = File::Spec->catdir($dir, 'dwimmer');
+system "$^X script/dwimmer_setup.pl --root $root --email test\@dwimmer.org --password $password";
+
 
     if ($^O =~ /win32/i) {
         require Win32::Process;
