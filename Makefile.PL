@@ -35,6 +35,7 @@ my %prereq = (
         'Pod::Usage'           => 0,
         'String::Random'       => 0,
         'Template'             => 0,
+        'XML::RSS'             => 0,
         'YAML'                 => 0,
 );
 if ($^O =~ /win32/i) {
