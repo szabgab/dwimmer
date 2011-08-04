@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use t::lib::Dwimmer::Test qw(start $admin_mail);
+use t::lib::Dwimmer::Test qw(start $admin_mail @users);
 
 use Cwd qw(abs_path);
 use Data::Dumper qw(Dumper);
@@ -38,6 +38,7 @@ is_deeply($guest->list_users, {
 	error => 'not_logged_in',
 	}, 'to list_users page');
 
+
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok($url);
 
@@ -64,15 +65,6 @@ $w->content_like(qr{/show_user\?id=1}, 'admin appears');
 $w->follow_link_ok({ url => '/_dwimmer/manage'}, 'to manage page');
 $w->follow_link_ok({ url => '/_dwimmer/add_user'}, 'to add_user page');
 
-my @users = (
-	{
-		uname    => 'tester',
-		fname    => 'foo',
-		lname    => 'bar',
-		email    => 'test@dwimmer.org',
-		password => 'dwimmer',
-	},
-);
 $w->submit_form_ok( {
 	form_name => '',
 	fields => $users[0],

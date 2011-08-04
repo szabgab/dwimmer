@@ -4,7 +4,7 @@ use warnings;
 
 use base 'Exporter';
 
-our @EXPORT = qw(start stop $admin_mail);
+our @EXPORT = qw(start stop $admin_mail @users);
 
 #use File::Basename qw(dirname);
 
@@ -23,6 +23,17 @@ $ENV{DWIMMER_PORT} = 3001;
 $ENV{DWIMMER_MAIL} = File::Spec->catfile($dir, 'mail.txt');
 
 our $admin_mail = 'test@dwimmer.org';
+
+our @users = (
+	{
+		uname    => 'tester',
+		fname    => 'foo',
+		lname    => 'bar',
+		email    => 'test@dwimmer.org',
+		password => 'dwimmer',
+	},
+);
+
 my $root = File::Spec->catdir($dir, 'dwimmer');
 system "$^X -Ilib script/dwimmer_setup.pl --root $root --email $admin_mail --password $password";
 
