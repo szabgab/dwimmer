@@ -168,7 +168,6 @@ get '/page' => sub {
 get '/list_users.json' => sub {
     my $db = _get_db();
     my @users = $db->resultset('User')->all(); #{ select => [ qw/id uname/ ] });
-die;
     return { users => \@users };
 };
 get '/list_users' => sub {

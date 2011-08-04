@@ -28,9 +28,6 @@ my $guest = Dwimmer::Client->new( host => $url );
 is_deeply($guest->list_users, { 
 	dwimmer_version => $Dwimmer::Client::VERSION, 
 	error => 'not_logged_in',
-#	userid => undef,
-#	username => undef,
-#	logged_in => undef,
 	}, 'to list_users page');
 
 my $w = Test::WWW::Mechanize->new;
