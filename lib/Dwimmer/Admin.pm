@@ -167,8 +167,8 @@ get '/page' => sub {
 
 get '/list_users.json' => sub {
     my $db = _get_db();
-    my @users = $db->resultset('User')->all(); #{ select => [ qw/id uname/ ] });
-    return { users => \@users };
+    my @users = map { { id => $_->id, name => $_->name }  }  $db->resultset('User')->all();
+    return to_json { users => \@users };
 };
 get '/list_users' => sub {
     my $db = _get_db();

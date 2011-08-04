@@ -17,12 +17,16 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 31);
+plan(tests => 32);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
 is_deeply($admin->login( 'admin', 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
 is_deeply($admin->login( 'admin', $password ), { success => 1 }, 'login success');
+is_deeply($admin->list_users, { users => [
+		{ id => 1, name => 'admin', }
+	] }, 'list_users');
+
 
 my $guest = Dwimmer::Client->new( host => $url );
 is_deeply($guest->list_users, { 
