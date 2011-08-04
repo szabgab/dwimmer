@@ -27,6 +27,13 @@ sub list_users {
 	return from_json $m->content;
 }
 
+# parameters can be    id => 1
+sub get_user {
+	my ($self, %args) = @_;
+	my $m = $self->mech;
+	$m->get($self->host . "/_dwimmer/get_user.json?id=$args{id}");
+	return from_json $m->content;
+}
 
 
 1;

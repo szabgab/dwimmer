@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use t::lib::Dwimmer::Test;
+use t::lib::Dwimmer::Test qw(start $admin_mail);
 
 use Cwd qw(abs_path);
 use Data::Dumper qw(Dumper);
@@ -17,7 +17,7 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 32);
+plan(tests => 33);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
@@ -26,7 +26,11 @@ is_deeply($admin->login( 'admin', $password ), { success => 1 }, 'login success'
 is_deeply($admin->list_users, { users => [
 		{ id => 1, name => 'admin', }
 	] }, 'list_users');
-
+is_deeply($admin->get_user(id => 1), {
+	id => 1,
+	name => 'admin',
+	email => $admin_mail,
+	}, 'show user details');
 
 my $guest = Dwimmer::Client->new( host => $url );
 is_deeply($guest->list_users, { 

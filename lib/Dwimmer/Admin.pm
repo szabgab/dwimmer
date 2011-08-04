@@ -190,6 +190,15 @@ get '/needs_login.json' => sub {
     return render_response 'error', { error => 'not_logged_in' };
 };
 
+
+get '/get_user.json' => sub {
+    my $id = params->{id};
+    return to_json { error => 'no_id' } if not defined $id;
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( $id );
+    return to_josn { error => 'no_such_user' } if not defined $id;
+    return to_json { id => $user->id, name => $user->name, email => $user->email };
+};
 get '/show_user' => sub {
     my $id = params->{id};
     return render_response 'error', { no_id => 1} if not defined $id;
