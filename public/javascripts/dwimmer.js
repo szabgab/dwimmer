@@ -4,10 +4,14 @@
    $('#content').show();
    $('#logged_in_bar').hide();
    $('#guest_bar').hide();
-   $.get('/_dwimmer/session.json', function(resp) {
-       alert(resp);
+   $.getJSON('/_dwimmer/session.json', function(resp) {
+       if (resp["logged_in"] == 1) {
+           $('#logged_in_bar').show();
+       } else {
+           $('#guest_bar').show();
+       }
    });
-    
+
    // fill editor with content fetched from the server
    $(".edit_this_page").click(function() {
        var url = $(location).attr('href') + '?content_type=json';
