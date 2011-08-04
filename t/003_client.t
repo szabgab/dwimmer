@@ -16,7 +16,7 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 8);
+plan(tests => 12);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
@@ -38,10 +38,27 @@ is_deeply($admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 're
 $users[0]{verify} = 'verified';
 is_deeply($admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail');
 
+$users[0]{email} = 'test2@dwimmer.org';
+$users[0]{pw1} = $users[0]{pw2} = $users[0]{password};
+is_deeply($admin->add_user( %{ $users[0] } ), { success => 1 }, 'add user with same mail');
 
 my $guest = Dwimmer::Client->new( host => $url );
 is_deeply($guest->list_users, { 
 	dwimmer_version => $Dwimmer::Client::VERSION, 
 	error => 'not_logged_in',
 	}, 'to list_users page');
+is_deeply($admin->list_users, { users => [
+		{ id => 1, name => 'admin', },
+		{ id => 2, name => $users[0]{uname} },
+	] }, 'list_users');
 
+is_deeply($admin->get_user(id => 1), {
+	id => 1,
+	name => 'admin',
+	email => $admin_mail,
+	}, 'show user details');
+is_deeply($admin->get_user(id => 2), {
+	id => 2,
+	name => $users[0]{uname},
+	email => $users[0]{email},
+	}, 'show user details');
