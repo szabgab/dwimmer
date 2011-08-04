@@ -49,4 +49,12 @@ sub add_user {
 	return from_json $m->content;
 }
 
+sub get_session {
+	my ($self) = @_;
+	my $m = $self->mech;
+	$m->get( $self->host . "/_dwimmer/session.json" );
+	return from_json $m->content;
+}
+
 1;
+

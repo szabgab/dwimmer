@@ -16,15 +16,23 @@ use Dwimmer::Tools qw(sha1_base64 _get_db _get_site);
 
 ###### routes
 
-sub render_response {
-    my ($template, $data) = @_;
+sub include_session {
+    my ($data) = @_;
 
-    $data ||= {};
     if (session->{logged_in}) {
         foreach my $field (qw(logged_in username userid)) {
             $data->{$field} = session->{$field};
         };
     }
+
+    return;
+}
+
+sub render_response {
+    my ($template, $data) = @_;
+
+    $data ||= {};
+    include_session($data);
     
     debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
@@ -194,6 +202,11 @@ get '/needs_login.json' => sub {
     return render_response 'error', { error => 'not_logged_in' };
 };
 
+get '/session.json' => sub {
+    my $data = {logged_in => 0};
+    include_session($data);
+    return to_json $data;
+};
 
 get '/get_user.json' => sub {
     my $id = params->{id};

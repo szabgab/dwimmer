@@ -12,12 +12,13 @@
 </head>
 <body>
 <div id="admin">
-<% IF logged_in %>
+<div id="logged_in_bar">
 logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a> 
-| <a href="/_dwimmer/logout">logout</a>
+| <a class="logout" href="">logout</a>
 | <a href="/_dwimmer/manage">manage</a>
 | <a class="edit_this_page" href="">edit this page</a>
-<% ELSE %>
+</div>
+<div id="guest_bar">
 <form method="POST" action="/_dwimmer/login">
 <span class="login-label"> Username: </span><input name="username" />
 <span class="login-label"> Password: </span><input type="password" name="password" />
@@ -25,7 +26,7 @@ logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a>
 </form>
 <span><a href="/_dwimmer/lost_password">Lost password</a></span>
 <span><a href="/_dwimmer/register">Register</a></span>
-<% END %>
+</div>
 </div>
 
 <p>

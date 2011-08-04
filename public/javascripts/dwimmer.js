@@ -2,6 +2,11 @@
    $('#editor').hide();
    $('#preview').hide();
    $('#content').show();
+   $('#logged_in_bar').hide();
+   $('#guest_bar').hide();
+   $.get('/_dwimmer/session.json', function(resp) {
+       alert(resp);
+   });
     
    // fill editor with content fetched from the server
    $(".edit_this_page").click(function() {
@@ -27,7 +32,7 @@
 
         return false;
     });
-    
+
     $('#save').click(function(){
        var text = $('#text').val();
        var title = $('#formtitle').val();
@@ -54,6 +59,15 @@
         var html = markup(text);
         $('#preview').html(html);
     });
+
+    $('.logout').click(function(){
+        var url = '/_dwimmer/logout.json';
+        $.get(url, function(resp) {
+
+        });
+        return false;
+    });
+
 });
 
 

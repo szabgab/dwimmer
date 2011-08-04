@@ -16,7 +16,7 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 17);
+plan(tests => 19);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
@@ -64,6 +64,7 @@ is_deeply($user->list_users, {
 	error => 'not_logged_in',
 	}, 'to list_users page');
 is_deeply($user->login($users[0]{uname}, $users[0]{password}), { success => 1}, 'user logged in');
+is_deeply($user->get_session, { logged_in => 1, username => $users[0]{uname}, userid => 2 }, 'not logged in');
 is_deeply($user->get_user(id => 2), {
 	id => 2,
 	name => $users[0]{uname},
@@ -73,6 +74,11 @@ is_deeply($user->get_user(id => 2), {
 # TODO this user should NOT be able to add new users
 
 is_deeply($user->logout, { success => 1 }, 'logout');
+is_deeply($user->get_session, {
+	logged_in => 0, 
+#	dwimmer_version => $Dwimmer::Client::VERSION,
+	}, 'get_session');
+#diag(explain($user->get_user(id => 2)));
 is_deeply($user->get_user(id => 2), {
 	dwimmer_version => $Dwimmer::Client::VERSION, 
 	error => 'not_logged_in',
