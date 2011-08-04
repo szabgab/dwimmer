@@ -17,13 +17,21 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 30);
+plan(tests => 31);
 
 use Dwimmer::Client;
-my $c = Dwimmer::Client->new( host => $url );
-is_deeply($c->login( 'admin', 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
-is_deeply($c->login( 'admin', $password ), { success => 1 }, 'login success');
+my $admin = Dwimmer::Client->new( host => $url );
+is_deeply($admin->login( 'admin', 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
+is_deeply($admin->login( 'admin', $password ), { success => 1 }, 'login success');
 
+my $guest = Dwimmer::Client->new( host => $url );
+is_deeply($guest->list_users, { 
+	dwimmer_version => $Dwimmer::Client::VERSION, 
+	error => 'not_logged_in',
+#	userid => undef,
+#	username => undef,
+#	logged_in => undef,
+	}, 'to list_users page');
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok($url);
@@ -87,6 +95,7 @@ $w->content_like(qr{/_dwimmer/show_user\?id=2">$users[0]{uname}}, "$users[0]{una
 #diag(read_file($ENV{DWIMMER_MAIL}));
 my $u = Test::WWW::Mechanize->new;
 $u->get_ok("$url/_dwimmer/manage");
+#diag($u->content);
 $u->content_like( qr{have to be logged in}, 'not logged in');
 $u->get_ok("$url/_dwimmer/manage");
 $u->content_like( qr{have to be logged in}, 'not logged in');

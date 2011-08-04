@@ -57,3 +57,6 @@ No ID given.
 No such user
 <% END %>
 
+<% IF not_logged_in %>
+To view this page you have to be logged in.
+<% END %>

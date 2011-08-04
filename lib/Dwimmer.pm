@@ -17,7 +17,11 @@ hook before => sub {
     return if $open{$path};
     
     if (not session->{logged_in}) {
-        request->path_info('/_dwimmer/needs_login');
+        if ($path =~ /json$/) {
+            request->path_info('/_dwimmer/needs_login.json');
+        } else {
+            request->path_info('/_dwimmer/needs_login');
+        }
     }
     return;
 };

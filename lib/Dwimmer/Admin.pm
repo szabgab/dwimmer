@@ -20,9 +20,11 @@ sub render_response {
     my ($template, $data) = @_;
 
     $data ||= {};
-    foreach my $field (qw(logged_in username userid)) {
-        $data->{$field} = session->{$field};
-    };
+    if (session->{logged_in}) {
+        foreach my $field (qw(logged_in username userid)) {
+            $data->{$field} = session->{$field};
+        };
+    }
     
     debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
@@ -163,20 +165,31 @@ get '/page' => sub {
     # redirect '/';
 # };
 
+get '/list_users.json' => sub {
+    my $db = _get_db();
+    my @users = $db->resultset('User')->all(); #{ select => [ qw/id uname/ ] });
+die;
+    return { users => \@users };
+};
 get '/list_users' => sub {
     my $db = _get_db();
     my @users = $db->resultset('User')->all(); #{ select => [ qw/id uname/ ] });
-    #my $html = $users[0]->uname;
-    #return $html;
     render_response 'list_users', {users => \@users};
 };
 
 # static pages , 
-foreach my $page ('add_user', 'needs_login') {
+foreach my $page ('add_user') {
     get "/$page" => sub {
         render_response $page;
     };
 }
+
+get '/needs_login' => sub {
+    return render_response 'error', { not_logged_in => 1 };
+};
+get '/needs_login.json' => sub {
+    return render_response 'error', { error => 'not_logged_in' };
+};
 
 get '/show_user' => sub {
     my $id = params->{id};
