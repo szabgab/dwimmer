@@ -17,7 +17,13 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 28);
+plan(tests => 30);
+
+use Dwimmer::Client;
+my $c = Dwimmer::Client->new( host => $url );
+is_deeply($c->login( 'admin', 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
+is_deeply($c->login( 'admin', $password ), { success => 1 }, 'login success');
+
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok($url);

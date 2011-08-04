@@ -10,7 +10,7 @@ use Dwimmer::Tools qw(_get_db _get_site);
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
  
-my %open = map { $_ => 1 } qw(/ /_dwimmer/login);
+my %open = map { $_ => 1 } qw(/ /_dwimmer/login /_dwimmer/login.json);
 
 hook before => sub {
     my $path = request->path_info;

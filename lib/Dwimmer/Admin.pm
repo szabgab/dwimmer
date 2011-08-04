@@ -27,7 +27,7 @@ sub render_response {
     debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
     my $content_type = request->content_type || params->{content_type} || '';
-    if ($content_type =~ /json/) {
+    if ($content_type =~ /json/ or request->{path} =~ /\.json/) {
        content_type 'text/plain';
        debug('json', $data);
        return to_json $data, { utf8 => 0, convert_blessed => 1, allow_blessed => 1 };
@@ -58,7 +58,7 @@ post '/save' => sub {
     return '{ "success" : "1" }';
 };
 
-post '/login' => sub {
+sub _authenticate {
     my $username = params->{username};
     my $password = params->{password};
     
@@ -78,6 +78,51 @@ post '/login' => sub {
     session userid   => $user->id;
     session logged_in => 1;
 
+    return;
+}
+
+post '/login.json' => sub {
+    my $username = params->{username};
+    my $password = params->{password};
+    
+    return to_json { error => 'missing_username' } if not $username;
+    return to_json { error => 'missing_password' } if not $password;
+
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( {name => $username});
+    return to_json { error => 'no_such_user' } if not $user;
+
+    my $sha1 = sha1_base64($password);
+    return to_json { error => 'invalid_password' } if $sha1 ne $user->sha1;
+  
+    return { error => 'not_verified' } if not $user->verified;
+
+    session username => $username;
+    session userid   => $user->id;
+    session logged_in => 1;
+
+    return to_json { success => 1 };
+};
+
+post '/login' => sub {
+    my $username = params->{username};
+    my $password = params->{password};
+    
+    return render_response 'error', {missing_username => 1} if not $username;
+    return render_response 'error', {missing_password => 1} if not $password;
+
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( {name => $username});
+    return render_response 'error', {no_such_user => 1} if not $user;
+
+    my $sha1 = sha1_base64($password);
+    return render_response 'error', {invalid_password => 1} if $sha1 ne $user->sha1;
+  
+    return render_response 'error', {not_verified => 1} if not $user->verified;
+
+    session username => $username;
+    session userid   => $user->id;
+    session logged_in => 1;
 
     # redirect to the referer except if that was 
     # the logout page or one of the error pages.

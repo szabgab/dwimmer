@@ -23,7 +23,7 @@ $ENV{DWIMMER_PORT} = 3001;
 $ENV{DWIMMER_MAIL} = File::Spec->catfile($dir, 'mail.txt');
 
 my $root = File::Spec->catdir($dir, 'dwimmer');
-system "$^X script/dwimmer_setup.pl --root $root --email test\@dwimmer.org --password $password";
+system "$^X -Ilib script/dwimmer_setup.pl --root $root --email test\@dwimmer.org --password $password";
 
 
     if ($^O =~ /win32/i) {
@@ -31,7 +31,7 @@ system "$^X script/dwimmer_setup.pl --root $root --email test\@dwimmer.org --pas
         #import Win32::Process;
 
         Win32::Process::Create($process, $^X,
-                            "perl -It\\lib $root\\bin\\app.pl",
+                            "perl -Ilib -It\\lib $root\\bin\\app.pl",
                             0,
                             Win32::Process::NORMAL_PRIORITY_CLASS(),
                             ".") || die ErrorReport();
