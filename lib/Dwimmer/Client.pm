@@ -35,5 +35,11 @@ sub get_user {
 	return from_json $m->content;
 }
 
+sub add_user {
+	my ($self, %args) = @_;
+	my $m = $self->mech;
+	$m->post( $self->host . "/_dwimmer/add_user.json", \%args );
+	return from_json $m->content;
+}
 
 1;

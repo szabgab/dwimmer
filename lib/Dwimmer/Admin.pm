@@ -208,6 +208,26 @@ get '/show_user' => sub {
     return render_response  'show_user', {user => $user};
 };
 
+post '/add_user.json' => sub {
+    my %args;
+    foreach my $field ( qw(uname fname lname email pw1 pw2 verify) ) {
+        $args{$field} = params->{$field} || '';
+        trim($args{$field});
+    }
+    #return $args{verify};
+
+    if ($args{pw1} eq '' and $args{pw2} eq '') {
+        $args{pw1} = $args{pw2} = String::Random->new->randregex('[a-zA-Z0-9]{10}');
+    }
+    $args{tos} = 'on'; # TODO not really the right thing, mark in the database that the user was added by the admin
+
+    return to_json { error => 'invalid_verify' } if $args{verify} !~ /^(send_email|verified)$/;
+
+    my $ret = register_user(%args);
+    return to_json { error => $ret } if $ret;
+
+    return to_json { success => 1 };
+};
 post '/add_user' => sub {
     my %args;
     foreach my $field ( qw(uname fname lname email pw1 pw2 verify) ) {

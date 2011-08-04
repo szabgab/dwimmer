@@ -16,7 +16,7 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 5);
+plan(tests => 8);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
@@ -30,6 +30,14 @@ is_deeply($admin->get_user(id => 1), {
 	name => 'admin',
 	email => $admin_mail,
 	}, 'show user details');
+
+is_deeply($admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'no verify field provided');
+$users[0]{verify} = 'abc';
+is_deeply($admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'really invalid verify field provided');
+
+$users[0]{verify} = 'verified';
+is_deeply($admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail');
+
 
 my $guest = Dwimmer::Client->new( host => $url );
 is_deeply($guest->list_users, { 
