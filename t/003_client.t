@@ -16,7 +16,7 @@ require Test::WWW::Mechanize;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 14);
+plan(tests => 17);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
@@ -64,13 +64,24 @@ is_deeply($user->list_users, {
 	error => 'not_logged_in',
 	}, 'to list_users page');
 is_deeply($user->login($users[0]{uname}, $users[0]{password}), { success => 1}, 'user logged in');
+is_deeply($user->get_user(id => 2), {
+	id => 2,
+	name => $users[0]{uname},
+	email => $users[0]{email},
+	}, 'show user own details');
 # TODO should this user be able to see the list of user?
 # TODO this user should NOT be able to add new users
 
+is_deeply($user->logout, { success => 1 }, 'logout');
+is_deeply($user->get_user(id => 2), {
+	dwimmer_version => $Dwimmer::Client::VERSION, 
+	error => 'not_logged_in',
+}, 'cannot get user data afer logout');
 
 my $guest = Dwimmer::Client->new( host => $url );
 is_deeply($guest->list_users, { 
 	dwimmer_version => $Dwimmer::Client::VERSION, 
 	error => 'not_logged_in',
 	}, 'to list_users page');
+
 

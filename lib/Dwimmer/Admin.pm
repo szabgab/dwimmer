@@ -146,6 +146,10 @@ post '/login' => sub {
     redirect $referer;
 };
 
+get '/logout.json' => sub {
+     session->destroy;
+     return to_json {success => 1};
+};
 get '/logout' => sub {
      session->destroy;
      render_response 'goodbye';

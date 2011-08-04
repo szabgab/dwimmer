@@ -20,6 +20,13 @@ sub login {
 	return from_json $m->content;
 }
 
+sub logout {
+	my ($self) = @_;
+	my $m = $self->mech;
+	$m->get($self->host . '/_dwimmer/logout.json');
+	return from_json $m->content;
+}
+
 sub list_users {
 	my ($self) = @_;
 	my $m = $self->mech;
