@@ -100,4 +100,6 @@ is_deeply($guest->list_users, {
 	error => 'not_logged_in',
 	}, 'to list_users page');
 
+#diag(read_file($ENV{DWIMMER_MAIL}));
 
+# TODO configure smtp server for email
