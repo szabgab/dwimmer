@@ -21,7 +21,12 @@ plan(tests => 19);
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
 is_deeply($admin->login( 'admin', 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
-is_deeply($admin->login( 'admin', $password ), { success => 1 }, 'login success');
+is_deeply($admin->login( 'admin', $password ), { 
+	success => 1, 
+	username => 'admin',
+	userid   => 1,
+	logged_in => 1,
+	}, 'login success');
 is_deeply($admin->list_users, { users => [
 		{ id => 1, name => 'admin', }
 	] }, 'list_users');
@@ -63,7 +68,12 @@ is_deeply($user->list_users, {
 	dwimmer_version => $Dwimmer::Client::VERSION, 
 	error => 'not_logged_in',
 	}, 'to list_users page');
-is_deeply($user->login($users[0]{uname}, $users[0]{password}), { success => 1}, 'user logged in');
+is_deeply($user->login($users[0]{uname}, $users[0]{password}), { 
+	success => 1,
+	username => $users[0]{uname},
+	userid   => 2,
+	logged_in => 1,
+	}, 'user logged in');
 is_deeply($user->get_session, { logged_in => 1, username => $users[0]{uname}, userid => 2 }, 'not logged in');
 is_deeply($user->get_user(id => 2), {
 	id => 2,

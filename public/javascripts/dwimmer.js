@@ -1,3 +1,6 @@
+var username;
+var userid;
+
  $(document).ready(function() {
    $('#editor').hide();
    $('#preview').hide();
@@ -7,6 +10,9 @@
    $.getJSON('/_dwimmer/session.json', function(resp) {
        if (resp["logged_in"] == 1) {
            $('#logged_in_bar').show();
+           $("#logged-in").html(resp["username"]);
+           username = resp["username"];
+           userid   = resp["userid"];
        } else {
            $('#guest_bar').show();
        }
@@ -68,6 +74,7 @@
     $('.logout').click(function(){
         var url = '/_dwimmer/logout.json';
         $.get(url, function(resp) {
+            $("#logged-in").html('');
              $('#logged_in_bar').hide();
              $('#guest_bar').show();
         });
@@ -77,17 +84,28 @@
     $("form.login").submit(function() {
      // var url = $(this).attr('action') + '?' + $(this).serialize();
         var url = "/_dwimmer/login.json";
-        $.post(url, $(this).serialize(), function(r) {
-            if (r["success"] == 1) {
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
                 // TODO update the username, userid in the browser, should come with the success response
                 $('#guest_bar').hide();
                 $('#logged_in_bar').show();
+                $("#logged-in").html(resp["username"]);
+                username = resp["username"];
+                userid   = resp["userid"];
             } else {
-                alert(r["error"]);
+                alert(resp["error"]);
             }
         }, 'json');
         return false;
      });
+     
+     $("#logged-in").click(function() {
+         alert('TODO: show user details');
+         // get data of current user
+         // enlarge the admin area
+         // display the user info for now, later the user admin form
+         return false;
+      });
 });
 
 

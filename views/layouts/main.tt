@@ -13,7 +13,7 @@
 <body>
 <div id="admin">
 <div id="logged_in_bar">
-logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a> 
+logged in as <a id="logged-in"></a> 
 | <a class="logout" href="">logout</a>
 | <a href="/_dwimmer/manage">manage</a>
 | <a class="edit_this_page" href="">edit this page</a>
@@ -24,8 +24,11 @@ logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a>
 <span class="login-label"> Password: </span><input type="password" name="password" />
 <input type="submit" value="Login" />
 </form>
+<!--
+Not yet implemented
 <span><a href="/_dwimmer/lost_password">Lost password</a></span>
 <span><a href="/_dwimmer/register">Register</a></span>
+-->
 </div>
 </div>
 

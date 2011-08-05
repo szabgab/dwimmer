@@ -111,7 +111,9 @@ post '/login.json' => sub {
     session userid   => $user->id;
     session logged_in => 1;
 
-    return to_json { success => 1 };
+    my $data = { success => 1 };
+    include_session($data);
+    return to_json $data;
 };
 
 post '/login' => sub {
