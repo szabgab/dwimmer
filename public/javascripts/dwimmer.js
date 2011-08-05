@@ -106,6 +106,12 @@ var userid;
          // display the user info for now, later the user admin form
          return false;
       });
+
+      $(".topnav").dropDownPanels({
+	speed: 250,
+	resetTimer: 1000
+      });
+
 });
 
 
