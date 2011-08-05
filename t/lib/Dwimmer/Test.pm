@@ -15,6 +15,7 @@ my $process;
 
 sub start {
     my ($password) = @_;
+    return if $^O !~ /win32/i; # this test is for windows only now
 
 my $dir = tempdir( CLEANUP => 1 );
 
@@ -48,18 +49,19 @@ system "$^X -Ilib script/dwimmer_setup.pl --root $root --email $admin_mail --pas
                             Win32::Process::NORMAL_PRIORITY_CLASS(),
                             ".") || die ErrorReport();
     } else {
-        die "Unsupported OS";
+        #warn "Unsupported OS\n";
+	return;
     }
 
-    return;
+    return 1;
 }
 
 sub stop {
     return if not $process;
     if ($^O =~ /win32/i) {
         $process->Kill(0);
-    } else {
-        warn "Unsupported OS";
+    #} else {
+    #    warn "Unsupported OS\n";
     }
 }
 

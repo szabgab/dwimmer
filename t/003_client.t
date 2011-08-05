@@ -8,11 +8,11 @@ use Data::Dumper qw(Dumper);
 
 my $password = 'dwimmer';
 
-start($password);
-
+my $run = start($password);
 
 eval "use Test::More";
 require Test::WWW::Mechanize;
+plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
