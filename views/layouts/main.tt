@@ -19,7 +19,7 @@ logged in as <a href="/_dwimmer/show_user?id=<% userid %>"><% username %></a>
 | <a class="edit_this_page" href="">edit this page</a>
 </div>
 <div id="guest_bar">
-<form method="POST" action="/_dwimmer/login">
+<form class="login">
 <span class="login-label"> Username: </span><input name="username" />
 <span class="login-label"> Password: </span><input type="password" name="password" />
 <input type="submit" value="Login" />

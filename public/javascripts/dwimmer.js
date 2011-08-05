@@ -64,14 +64,30 @@
         $('#preview').html(html);
     });
 
+
     $('.logout').click(function(){
         var url = '/_dwimmer/logout.json';
         $.get(url, function(resp) {
-
+             $('#logged_in_bar').hide();
+             $('#guest_bar').show();
         });
         return false;
     });
 
+    $("form.login").submit(function() {
+     // var url = $(this).attr('action') + '?' + $(this).serialize();
+        var url = "/_dwimmer/login.json";
+        $.post(url, $(this).serialize(), function(r) {
+            if (r["success"] == 1) {
+                // TODO update the username, userid in the browser, should come with the success response
+                $('#guest_bar').hide();
+                $('#logged_in_bar').show();
+            } else {
+                alert(r["error"]);
+            }
+        }, 'json');
+        return false;
+     });
 });
 
 
