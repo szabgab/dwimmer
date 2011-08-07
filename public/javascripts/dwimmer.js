@@ -82,22 +82,40 @@ var userid;
         return false;
     });
 
-    $(".close_manage_bar").click(function(){
-//        alert("TODO save changes made or alert if not yet saved?");
-        $('#manage-bar').hide();
-        return false;
-    });
 
     $(".manage").click(function(){
         // TODO do something here?
         return false;
     });
+
+    $(".show_user").click(function(){
+        alert("TODO: show_user");
+    });
+
     $(".list_users").click(function(){
         $('#manage-bar').show();
-//        $('#manage-bar').html('xx');
-//        $('#manage-bar').html('<a class="close_manage_bar" href="">close</a>');
-//        alert("TODO: list users");
-        // resize the managemen bar (or add another bar?)
+        $.getJSON('/_dwimmer/list_users.json', function(resp) {
+            add_close();
+            var html = '<ul>';
+            for(var i=0; i < resp["users"].length; i++) {
+               html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
+            }
+            html += '</ul>';
+            $('#manage-bar').append(html);
+            
+            // Setup the events only after the html was appended!
+            $('#manage-bar  a[value!="close"]').click(function() {
+            var value = $(this).attr('value');
+            if (value == "close") {
+                alert("not good");
+            } else {
+                alert(value); // TODO fetch the user info of this id.
+            }
+        return false;
+    });
+        });
+
+        //alert("TODO: list users");
         return false;
     });
     $(".add_user").click(function(){
@@ -149,6 +167,18 @@ var userid;
 
 });
 
+function add_close() {
+    var html = '<a class="close_manage_bar" href="" value="close">close</a>';
+    $('#manage-bar').append(html);
+
+    $(".close_manage_bar").click(function(){
+//        alert("TODO save changes made or alert if not yet saved?");
+        $('#manage-bar').empty();
+        $('#manage-bar').hide();
+        $
+        return false;
+    });
+}
 
 
 

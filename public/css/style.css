@@ -228,7 +228,7 @@ font-size: 10px;
 	background-color: #FFF;
 	border-bottom: 3px solid #222;
 	color: #000;
-	z-index: 100;
+/*	z-index: 100; */
 	position: relative;
 }
 
