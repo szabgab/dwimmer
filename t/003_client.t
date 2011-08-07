@@ -17,11 +17,14 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 21);
+plan(tests => 24);
 
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok($url);
+$w->content_like( qr{Welcome to your Dwimmer installation}, 'content ok' );
+$w->get_ok("$url/other");
+$w->content_like( qr{Page does not exist}, 'content of missing pages is ok' );
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );

@@ -36,15 +36,19 @@ sub route_index {
     return "Could not find site called '$site_name' in the database" if not $site;
 
     my $path = request->path_info;
-    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path});
+    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
 
-    my %data= (
-        title  => $page->title,
-        body   => $page->body,
-        author => $page->author->name,
-        filename => $page->filename,
-    );
-    Dwimmer::Admin::render_response('index', {page => \%data});
+    if ($page) {
+        my %data = (
+            title  => $page->title,
+            body   => $page->body,
+            author => $page->author->name,
+            filename => $page->filename,
+        );
+        return Dwimmer::Admin::render_response('index', {page => \%data});
+    } else {
+        return Dwimmer::Admin::render_response('error', { page_does_not_exist => 1 });
+    }
 };
 get qr{^/([a-zA-Z0-9]\w*)?$} => \&route_index;
 

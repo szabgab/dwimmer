@@ -60,3 +60,7 @@ No such user
 <% IF not_logged_in %>
 To view this page you have to be logged in.
 <% END %>
+
+<% IF page_does_not_exist %>
+Page does not exist.
+<% END %>
