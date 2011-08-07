@@ -129,20 +129,6 @@ get '/logout.json' => sub {
      return to_json {success => 1};
 };
 
-get '/page' => sub {
-    render_response 'page';
-};
-
-# post '/page' =>  sub {
-    # my $now   = time;
-    # $data->{$now} = {
-        # title => params->{title},
-        # text  => params->{text},
-    # };
-# 
-    # redirect '/';
-# };
-
 get '/list_users.json' => sub {
     my $db = _get_db();
     my @users = map { { id => $_->id, name => $_->name }  }  $db->resultset('User')->all();
@@ -192,26 +178,6 @@ post '/add_user.json' => sub {
     return to_json { error => $ret } if $ret;
 
     return to_json { success => 1 };
-};
-post '/add_user' => sub {
-    my %args;
-    foreach my $field ( qw(uname fname lname email pw1 pw2 verify) ) {
-        $args{$field} = params->{$field} || '';
-        trim($args{$field});
-    }
-    #return $args{verify};
-
-    if ($args{pw1} eq '' and $args{pw2} eq '') {
-        $args{pw1} = $args{pw2} = String::Random->new->randregex('[a-zA-Z0-9]{10}');
-    }
-    $args{tos} = 'on'; # TODO not really the right thing, mark in the database that the user was added by the admin
-
-    return render_response 'error', { invalid_verify => 1} if $args{verify} !~ /^(send_email|verified)$/;
-
-    my $ret = register_user(%args);
-    return render_response 'error', {$ret => 1} if $ret;
-
-    render_response '/user_added';
 };
 
 get '/register' => sub {
@@ -293,17 +259,6 @@ sub register_user {
     return;
 }
 
-
-get '/manage' => sub {
-    render_response 'manage';
-};
-
-
-get '/edit_this_page' => sub {
-    my $referer = request->referer || '';
-    return $referer;
-    return 'edit this page';
-};
 
 get '/get_pages.json' => sub {
     my ($site_name, $site) = _get_site();
