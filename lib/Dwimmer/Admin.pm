@@ -47,7 +47,7 @@ sub render_response {
 
 ###### routes
 
-post '/save' => sub {
+post '/save_page.json' => sub {
     my ($site_name, $site) = _get_site();
 
     return '{ "error" : "no_site" }' if not $site;

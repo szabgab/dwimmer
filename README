@@ -4,14 +4,12 @@ Stand alone installation:
 - Run database creation script that will ask for admin password
 
 TODO before minimal usability:
-- Add user: UI
 - Add a new page: Test + UI
-- List pages: Test + UI
 - Edit this page: Test 
 - Restrict html to minimal interesting
 - Markup in Perl (links) Test
-- Landing on a page that does not exist yet?
-  (if the referer is internal offer creation. otherwise just show error?)
+- Landing on a page that does not exist yet? show error OK
+  (if the referer is internal and if user is logged it offer creation?. otherwise just show error?)
 - Revisions of pages: Test, UI
 - Show older version
 - Show diff ???

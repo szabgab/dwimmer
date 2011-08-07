@@ -1,9 +1,8 @@
 var username;
 var userid;
+var original_content; // to make editor cancellation quick
 
  $(document).ready(function() {
-   $('#editor').hide();
-   $('#preview').hide();
    $('#content').show();
    $('#logged_in_bar').hide();
    $('#guest_bar').hide();
@@ -29,11 +28,13 @@ var userid;
 
    // fill editor with content fetched from the server
    $(".edit_this_page").click(function() {
+       manage_bar();
+       original_content = $('#content').html(); 
        var url = $(location).attr('href') + '?content_type=json';
        $.getJSON(url, function(resp) {
-            $('#content').hide();
-            $('#editor').show();
-            $('#preview').show();
+//            $('#content').hide();
+            $('#admin-editor').show();
+            //$('#admin-preview').show();
             $('#formtitle').val( resp["page"]["title"] );
             $('#text').val( resp["page"]["body"] );
             $('#text').keyup();    // update preview
@@ -45,10 +46,12 @@ var userid;
     $('#cancel').click(function(){
         $('#formtitle').val('');
         $('#text').val('');
-        $('#content').show();
-        $('#editor').hide();
-        $('#preview').hide();
-
+        //$('#content').show();
+        $('#content').html(original_content);
+        original_content = '';
+        $('#admin-editor').hide();
+        //$('#admin-preview').hide();
+        $(".close_manage_bar").click();
         return false;
     });
 
@@ -56,7 +59,7 @@ var userid;
        var text = $('#text').val();
        var title = $('#formtitle').val();
 
-        var url = '/_dwimmer/save';
+        var url = '/_dwimmer/save_page.json';
         var data = $("#frm").serialize();
 //        alert(data);
         $.post(url, data, function(resp) {
@@ -76,7 +79,7 @@ var userid;
     $('#text').keyup(function(){
         var text = $('#text').val();
         var html = markup(text);
-        $('#preview').html(html);
+        $('#content').html(html); // preview
     });
 
 

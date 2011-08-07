@@ -38,9 +38,10 @@ margin-right: auto;
 background-color: white;
 border: 3px solid #aaa;
 border-top: none;
+margin-top: 15px;
 margin-left: 4%;
 margin-right: 4%;
-padding: 5px;
+padding: 1px;
 width: 90%;
 }
 
@@ -190,11 +191,6 @@ font-family: sans-serif;
 font-size: 10px;
 }
 
-/*
-#editor {
-    visibility: hidden;
-}
-*/
 
 #admin {
     font-size: 100%;
