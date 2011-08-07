@@ -1,5 +1,0 @@
-<ul>
-<% FOR u IN users %>
-<li><a href="/_dwimmer/show_user?id=<% u.id %>"><% u.name %></a></li>
-<% END %>
-</ul> 
