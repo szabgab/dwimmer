@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 27);
+plan(tests => 29);
 
 
 my $w = Test::WWW::Mechanize->new;
@@ -93,10 +93,10 @@ cmp_deeply($admin->get_pages, { rows => [
 
 
 is_deeply($admin->get_page('/'), {
-	dwimmer_version => $Dwimmer::Client::VERSION,
-	userid => 1,
-	logged_in => 1,
-	username => 'admin',
+#	dwimmer_version => $Dwimmer::Client::VERSION,
+#	userid => 1,
+#	logged_in => 1,
+#	username => 'admin',
 	page => {
 		body     => '<h1>Dwimmer</h1>',
 		title    => 'Welcome to your Dwimmer installation',
@@ -106,24 +106,25 @@ is_deeply($admin->get_page('/'), {
 	}, 'page data');
 
 is_deeply($admin->save_page(
-		body     => 'New text',
+		body     => 'New text [link] here',
 		title    => 'New title',
 		filename => '/',
 		), { success => 1 }, 'save_page');
 is_deeply($admin->get_page('/'), {
-	dwimmer_version => $Dwimmer::Client::VERSION,
-	userid => 1,
-	logged_in => 1,
-	username => 'admin',
+#	dwimmer_version => $Dwimmer::Client::VERSION,
+#	userid => 1,
+#	logged_in => 1,
+#	username => 'admin',
 	page => {
-		body     => 'New text',
+		body     => 'New text [link] here',
 		title    => 'New title',
 		filename => '/',
 		author   => 'admin',
 	},
 	}, 'page data after save');
 
-
+$w->get_ok($url);
+$w->content_like( qr{New text <a href="link">link</a> here}, 'link markup works' );
 
 my $user = Dwimmer::Client->new( host => $url );
 is_deeply($user->list_users, { 

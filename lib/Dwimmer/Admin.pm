@@ -45,24 +45,19 @@ sub render_response {
     }
 }
 
-sub get_page {
+sub get_page_data {
     my ($site, $path) = @_;
 
     my $db = _get_db();
     my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
 
-   if ($page) {
-        my %data = (
-                title  => $page->title,
-                body   => $page->body,
-                author => $page->author->name,
-                filename => $page->filename,
-        );
-
-        return render_response('index', {page => \%data});
-    } else {
-        return render_response('error', { page_does_not_exist => 1 });
-    }
+    return if not $page;
+    return {
+            title  => $page->title,
+            body   => $page->body,
+            author => $page->author->name,
+            filename => $page->filename,
+    };
 
 
 }
@@ -74,7 +69,12 @@ get '/page.json' => sub {
     my $path = params->{filename};
     return to_json {error => 'no_site_found' } if not $site;
     
-    return get_page($site, $path);
+    my $data = get_page_data($site, $path);
+    if ($data) {
+        return to_json { page => $data };
+    } else {
+        return to_json { error => 'page_does_not_exist' };
+    }
 };
 
 post '/save_page.json' => sub {

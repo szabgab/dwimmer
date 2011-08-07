@@ -33,7 +33,13 @@ sub route_index {
     return "Could not find site called '$site_name' in the database" if not $site;
 
     my $path = request->path_info;
-    return Dwimmer::Admin::get_page($site, $path);
+    my $data = Dwimmer::Admin::get_page_data($site, $path);
+    if ($data) {
+        $data->{body} =~ s{\[(\w+)\]}{<a href="$1">$1</a>}g;
+        return Dwimmer::Admin::render_response('index', { page => $data });
+    } else {
+        return Dwimmer::Admin::render_response('error', { page_does_not_exist => 1 });
+    }
 };
 get qr{^/([a-zA-Z0-9]\w*)?$} => \&route_index;
 
