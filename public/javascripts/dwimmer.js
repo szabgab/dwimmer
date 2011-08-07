@@ -116,7 +116,6 @@ var userid;
             });
         });
 
-        //alert("TODO: list users");
         return false;
     });
 
@@ -147,7 +146,17 @@ var userid;
     });
 
     $(".list_pages").click(function(){
-        alert("TODO: list pages");
+        manage_bar();
+        $.getJSON('/_dwimmer/get_pages.json', function(resp) {
+            var html = '<ul>';
+            for(var i=0; i < resp["rows"].length; i++) {
+               html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + resp["rows"][i]["title"] + '</li>';
+            }
+            html += '</ul>';
+            $('#manage-display').show();
+            $('#manage-display').html(html);
+        });
+
         return false;
     });
 
