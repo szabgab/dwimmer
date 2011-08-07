@@ -7,6 +7,7 @@ var userid;
    $('#content').show();
    $('#logged_in_bar').hide();
    $('#guest_bar').hide();
+   $('#manage-bar').hide();
    $.getJSON('/_dwimmer/session.json', function(resp) {
        if (resp["logged_in"] == 1) {
            $('#logged_in_bar').show();
@@ -81,12 +82,21 @@ var userid;
         return false;
     });
 
+    $(".close_manage_bar").click(function(){
+//        alert("TODO save changes made or alert if not yet saved?");
+        $('#manage-bar').hide();
+        return false;
+    });
+
     $(".manage").click(function(){
         // TODO do something here?
         return false;
     });
     $(".list_users").click(function(){
-        alert("TODO: list users");
+        $('#manage-bar').show();
+//        $('#manage-bar').html('xx');
+//        $('#manage-bar').html('<a class="close_manage_bar" href="">close</a>');
+//        alert("TODO: list users");
         // resize the managemen bar (or add another bar?)
         return false;
     });

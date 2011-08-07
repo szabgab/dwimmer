@@ -54,6 +54,9 @@ Not yet implemented
 -->
 </div>
 </div>
+<div id="manage-bar">
+<a class="close_manage_bar" href="">close</a>
+</div>
 
 <p>
 <a href="/">home</a>
