@@ -11,7 +11,7 @@ var original_content; // to make editor cancellation quick
    
 //   $('#manage-bar div').hide();
 //   $('#manage-bar').show();
-//   $('#manage-display').html('text');
+//   $('#manage-display').html('editor_body');
 //   $('#manage-display').show();
 //   $('#manage-close').show();
 
@@ -36,17 +36,18 @@ var original_content; // to make editor cancellation quick
 //            $('#content').hide();
             $('#admin-editor').show();
             //$('#admin-preview').show();
-            $('#formtitle').val( resp["page"]["title"] );
-            $('#text').val( resp["page"]["body"] );
-            $('#text').keyup();    // update preview
-            //$('#text').html(resp);
+            $('#filename').val( resp["page"]["filename"] );
+            $('#editor_title').val( resp["page"]["title"] );
+            $('#editor_body').val( resp["page"]["body"] );
+            $('#editor_body').keyup();    // update preview
+            //$('#editor_body').html(resp);
        });
        return false;
    });
 
     $('#cancel').click(function(){
-        $('#formtitle').val('');
-        $('#text').val('');
+        $('#editor_title').val('');
+        $('#editor_body').val('');
         //$('#content').show();
         $('#content').html(original_content);
         original_content = '';
@@ -57,12 +58,12 @@ var original_content; // to make editor cancellation quick
     });
 
     $('#save').click(function(){
-       var text = $('#text').val();
-       var title = $('#formtitle').val();
+       var body = $('#editor_body').val();
+       var title = $('#editor_title').val();
 
         var url = '/_dwimmer/save_page.json';
-        var data = $("#frm").serialize();
-//        alert(data);
+        var data = $("#editor_form").serialize();
+
         $.post(url, data, function(resp) {
             var data = eval('(' + resp + ')');
             if (data["error"] == "no_file_supplied") {
@@ -77,9 +78,9 @@ var original_content; // to make editor cancellation quick
         return false;
     });
 
-    $('#text').keyup(function(){
-        var text = $('#text').val();
-        var html = markup(text);
+    $('#editor_body').keyup(function(){
+        var body = $('#editor_body').val();
+        var html = markup(body);
         $('#content').html(html); // preview
     });
 

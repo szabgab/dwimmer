@@ -80,17 +80,17 @@ get '/page.json' => sub {
 post '/save_page.json' => sub {
     my ($site_name, $site) = _get_site();
 
-    return '{ "error" : "no_site" }' if not $site;
+    return to_json { error => "no_site" } if not $site;
     my $file = params->{filename};
-    return '{ "error" : "no_file_supplied" }' if not $file;
+    return to_json { error => "no_file_supplied" } if not $file;
 
     # TODO check if the user has the right to save this page!
-    debug( params->{text} );
-    debug( params->{formtitle} );
+#    debug( params->{editor_body} );
+#    debug( params->{editor_title} );
     my $db = _get_db();
     my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $file});
-    $page->body( params->{text} );
-    $page->title( params->{formtitle} );
+    $page->body( params->{editor_body} );
+    $page->title( params->{editor_title} );
     # TODO save to history
     # TODO update author
     # TODO update timestamp

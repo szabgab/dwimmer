@@ -71,5 +71,14 @@ sub get_page {
 	return from_json $m->content;
 }
 
+sub save_page {
+	my ($self, %args) = @_;
+	my $m = $self->mech;
+	$args{editor_body} = delete $args{body};
+	$args{editor_title} = delete $args{title};
+	$m->post( $self->host . "/_dwimmer/save_page.json", \%args );
+	return from_json $m->content;
+}
+
 1;
 

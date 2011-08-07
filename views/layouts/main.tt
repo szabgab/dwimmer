@@ -78,16 +78,16 @@ Set verified bit <input type="radio" name="verify" value="verified" />
 </div>
 
 <div id="admin-editor">
-  <form id="frm" action="/_dwimmer/save" method="POST">
+  <form id="editor_form" action="/_dwimmer/save" method="POST">
   <input type="button" id="save" value="Save" />
   <input type="button" id="cancel" value="Cancel" />
-  <input type="hidden" name="filename" value="<% page.filename %>" />
+  <input type="hidden" id="filename" name="filename" />
   <br />
-  <input name="formtitle" id="formtitle" size="80" />
+  <input name="editor_title" id="editor_title" size="80" />
   <br />
-  <textarea rows="10" cols="70" name="text" id="text"></textarea>
+  <textarea rows="10" cols="70" name="editor_body" id="editor_body"></textarea>
 <!--  <br />
-  Comma separated tags: <input id="formtags" size="80" />
+  Comma separated tags: <input name="editor_tags" id="editor_tags" size="80" />
 -->
   </form>
 </div>
