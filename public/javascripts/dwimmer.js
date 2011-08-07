@@ -105,14 +105,20 @@ var userid;
             
             // Setup the events only after the html was appended!
             $('#manage-bar  a[value!="close"]').click(function() {
-            var value = $(this).attr('value');
-            if (value == "close") {
-                alert("not good");
-            } else {
-                alert(value); // TODO fetch the user info of this id.
-            }
-        return false;
-    });
+                var value = $(this).attr('value');
+                //alert(value); // TODO fetch the user info of this id.
+                $.getJSON('/_dwimmer/get_user.json?id=' + value, function(resp) {
+                    $('#manage-bar').empty();
+                    add_close();
+                    var html = '<ul>';
+                    html += '<li>id = ' + resp["id"] + '</li>';
+                    html += '<li>name = ' + resp["name"] + '</li>';
+                    html += '<li>email = ' + resp["email"] + '</li>';
+                    html += '</ul>';
+                    $('#manage-bar').append(html);
+                });
+                return false;
+            });
         });
 
         //alert("TODO: list users");
@@ -168,7 +174,7 @@ var userid;
 });
 
 function add_close() {
-    var html = '<a class="close_manage_bar" href="" value="close">close</a>';
+    var html = '<a class="close_manage_bar" href="" value="close">close</a><br>';
     $('#manage-bar').append(html);
 
     $(".close_manage_bar").click(function(){
