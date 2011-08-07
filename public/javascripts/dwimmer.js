@@ -88,9 +88,6 @@ var userid;
         return false;
     });
 
-    $(".show_user").click(function(){
-        alert("TODO: show_user");
-    });
 
     $(".list_users").click(function(){
         $('#manage-bar').show();
@@ -106,21 +103,7 @@ var userid;
             // Setup the events only after the html was appended!
             $('#manage-bar  a[value!="close"]').click(function() {
                 var value = $(this).attr('value');
-                //alert(value); // TODO fetch the user info of this id.
-                $.getJSON('/_dwimmer/get_user.json?id=' + value, function(resp) {
-                    $('#manage-bar').empty();
-                    add_close();
-                    var html = '<ul>';
-                    html += '<li>id = ' + resp["id"] + '</li>';
-                    html += '<li>name = ' + resp["name"] + '</li>';
-                    html += '<li>fname = ' + resp["fname"] + '</li>';
-                    html += '<li>lname = ' + resp["lname"] + '</li>';
-                    html += '<li>email = ' + resp["email"] + '</li>';
-                    html += '<li>verified = ' + resp["verified"] + '</li>';
-                    html += '<li>register_ts = ' + resp["register_ts"] + '</li>';
-                    html += '</ul>';
-                    $('#manage-bar').append(html);
-                });
+                get_and_show_user(value);
                 return false;
             });
         });
@@ -163,10 +146,7 @@ var userid;
      });
      
      $("#logged-in").click(function() {
-         alert('TODO: show user details');
-         // get data of current user
-         // enlarge the admin area
-         // display the user info for now, later the user admin form
+         get_and_show_user(userid);
          return false;
       });
 
@@ -176,6 +156,26 @@ var userid;
       });
 
 });
+
+function get_and_show_user (value) {
+    $.getJSON('/_dwimmer/get_user.json?id=' + value, function(resp) {
+        $('#manage-bar').show();
+        $('#manage-bar').empty();
+        add_close();
+        var html = '<ul>';
+        html += '<li>id = ' + resp["id"] + '</li>';
+        html += '<li>name = ' + resp["name"] + '</li>';
+        html += '<li>fname = ' + resp["fname"] + '</li>';
+        html += '<li>lname = ' + resp["lname"] + '</li>';
+        html += '<li>email = ' + resp["email"] + '</li>';
+        html += '<li>verified = ' + resp["verified"] + '</li>';
+        html += '<li>register_ts = ' + resp["register_ts"] + '</li>';
+        html += '</ul>';
+        $('#manage-bar').append(html);
+    });
+
+    return;
+}
 
 function add_close() {
     var html = '<a class="close_manage_bar" href="" value="close">close</a><br>';
