@@ -60,8 +60,9 @@ Not yet implemented
 
 <div id="manage-display">
 </div>
-<div id="add-user">
-<form METHOD="POST">
+
+<div id="manage-add-user">
+<form id="add-user-form">
 Username: <input name="uname" /><br />
 First name: <input name="fname" /><br />
 Last name: <input name="lname" /><br />
@@ -75,6 +76,7 @@ Set verified bit <input type="radio" name="verify" value="verified" />
 <input type="submit" value="Add user" /><br />
 </form>
 </div>
+
 </div>
 
 <p>

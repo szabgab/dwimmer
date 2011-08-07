@@ -119,13 +119,6 @@ get '/list_users.json' => sub {
     return to_json { users => \@users };
 };
 
-# static pages , 
-foreach my $page ('add_user') {
-    get "/$page" => sub {
-        render_response $page;
-    };
-}
-
 get '/needs_login' => sub {
     return render_response 'error', { not_logged_in => 1 };
 };

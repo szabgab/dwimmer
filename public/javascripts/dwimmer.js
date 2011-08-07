@@ -123,9 +123,22 @@ var userid;
     $(".add_user").click(function(){
         //alert("TODO: add user");
         manage_bar();
-        $('#add-user').show();
+        $('#manage-add-user').show();
         return false;
     });
+    $("#add-user-form").submit(function() {
+     // var url = $(this).attr('action') + '?' + $(this).serialize();
+        var url = "/_dwimmer/add_user.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
 
     $(".add_page").click(function(){
         alert("TODO: add page");
@@ -164,7 +177,7 @@ var userid;
 
       $(".topnav").dropDownPanels({
 	speed: 250,
-	resetTimer: 1000
+	resetTimer: 500
       });
 
       $(".close_manage_bar").click(function(){
