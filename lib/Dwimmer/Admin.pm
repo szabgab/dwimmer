@@ -275,6 +275,13 @@ get '/edit_this_page' => sub {
     return 'edit this page';
 };
 
+get '/get_pages.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+    my @rows = map { { id => $_->id, filename => $_->filename, title => $_->title }  }  $db->resultset('Page')->find( {siteid => $site->id} );
+    return to_json { rows => \@rows };
+};
+
 
 ###### helper methods
 

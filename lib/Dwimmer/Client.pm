@@ -56,5 +56,13 @@ sub get_session {
 	return from_json $m->content;
 }
 
+
+sub get_pages {
+	my ($self) = @_;
+	my $m = $self->mech;
+	$m->get($self->host . '/_dwimmer/get_pages.json');
+	return from_json $m->content;
+}
+
 1;
 

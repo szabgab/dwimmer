@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 19);
+plan(tests => 20);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
@@ -75,6 +75,15 @@ cmp_deeply($admin->get_user(id => 2), {
 	verified => 1,
 	register_ts => re('^\d{10}$'),
 	}, 'show user details');
+
+cmp_deeply($admin->get_pages, { rows => [
+	{
+		id       => 1,
+		filename => '/',
+		title    => 'Welcome to your Dwimmer installation',
+	},
+	]}, 'get pages');
+
 
 my $user = Dwimmer::Client->new( host => $url );
 is_deeply($user->list_users, { 
