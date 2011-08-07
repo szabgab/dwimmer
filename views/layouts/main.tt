@@ -15,52 +15,31 @@
 <div id="admin">
 <div id="logged_in_bar">
 <ul class="topnav">
-	<li><a href="http://www.scriptbreaker.com" target="scriptbreaker" class="current">Home</a></li>
+	<li><a href="/" class="current">Home</a></li>
+        <li><a id="logged-in"></a></li>
+<!--
 	<li><a href="#">JavaScript</a>
 		<div class="submenu submenu_javascript">
 			<ul>
-				<li><a href="">Link title</a><br><span>Link description</span></li>
-				<li><a href="">Link title</a><br><span>Link description</span></li>
-				<li><a href="">Link title</a><br><span>Link description</span></li>
-				<li><a href="">Link title</a><br><span>Link description</span></li>
-				<li><a href="">Link title</a><br><span>Link description</span></li>
 				<li><a href="">Link title</a><br><span>Link description</span></li>
 			</ul>
 
 		</div>
 	</li>
-	<li><a href="#">Tutorials</a>
+-->
+	<li><a href="#">Manage</a>
 		<div class="submenu submenu_tutorial">
 			<ul>
-				    <li><a href="#">June 2010</a></li>
-				    <li><a href="#">May 2010</a></li>
-				    <li><a href="#">April 2010</a></li>
-				    <li><a href="#">March 2010</a></li>
-				    <li><a href="#">February 2010</a></li>
-				    <li><a href="#">January 2010</a></li>
-				    <li><a href="#">December 2009</a></li>
-				    <li><a href="#">November 2009</a></li>
-				    <li><a href="#">October 2009</a></li>
-				    <li><a href="#">September 2009</a></li>
-				    <li><a href="#">August 2009</a></li>
-				    <li><a href="#">July 2009</a></li>
+			<li><a class="list_users" href="">list users</a></li>
+			<li><a class="add_user"   href="">add user</a></li>
+			<li><a class="add_page"   href="">add a new page</a></li>
+			<li><a class="list_pages" href="">list pages</a></li>
 			</ul>
 		</div>
 	</li>
-	<li>
-		<a href="http://www.scriptbreaker.com/contact/" target="_blank">Contact</a>
-		<div class="submenu" style="left:50px;">
-			<img src="free-icons-round-up-69.jpg"/>
-		</div>
-	</li>
-	<li><a href="#">Upload script</a></li>
+        <li><a class="edit_this_page" href="">edit this page</a></li>
+	<li><a class="logout" href="">logout</a></li>
 </ul>
-</div>
-<div>
-logged in as <a id="logged-in"></a> 
-| <a class="logout" href="">logout</a>
-| <a href="/_dwimmer/manage">manage</a>
-| <a class="edit_this_page" href="">edit this page</a>
 </div>
 <div id="guest_bar">
 <form class="login">
