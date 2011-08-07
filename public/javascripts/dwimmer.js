@@ -30,8 +30,7 @@ var original_content; // to make editor cancellation quick
    $(".edit_this_page").click(function() {
        manage_bar();
        original_content = $('#content').html();
-       $(location).attr('pathname')
-       var url = $(location).attr('href') + '?content_type=json';
+       var url = '/_dwimmer/page.json?filename=' + $(location).attr('pathname');
        $.getJSON(url, function(resp) {
 //            $('#content').hide();
             $('#admin-editor').show();
