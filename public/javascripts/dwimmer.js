@@ -85,6 +85,9 @@ var userid;
         $.get(url, function(resp) {
             $("#logged-in").html('');
              $('#logged_in_bar').hide();
+             $('#manage-bar').hide();
+             $('#manage-bar > div').hide();
+             $('#manage-display').empty();
              $('#guest_bar').show();
         });
         return false;
