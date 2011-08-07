@@ -10,12 +10,13 @@ use Dwimmer::Tools qw(_get_db _get_site);
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
  
-my %open = map { $_ => 1 } qw(/ /_dwimmer/login.json /_dwimmer/session.json);
+my %open = map { $_ => 1 } qw(/_dwimmer/login.json /_dwimmer/session.json);
 
 hook before => sub {
     my $path = request->path_info;
     return if $open{$path};
-    
+    return if $path !~ m{/_}; # only the pages starting with /_ are management pages that need restriction
+
     if (not session->{logged_in}) {
         if ($path =~ /json$/) {
             request->path_info('/_dwimmer/needs_login.json');
@@ -45,8 +46,7 @@ sub route_index {
     );
     Dwimmer::Admin::render_response('index', {page => \%data});
 };
-get '/' => \&route_index;
-get '/index' => \&route_index; # temp measure to allow the current configuration to work in CGI mode
+get qr{^/([a-zA-Z0-9]\w*)?$} => \&route_index;
 
 
 true;
