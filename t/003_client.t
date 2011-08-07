@@ -17,7 +17,11 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 20);
+plan(tests => 21);
+
+
+my $w = Test::WWW::Mechanize->new;
+$w->get_ok($url);
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
