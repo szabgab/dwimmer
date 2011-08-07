@@ -81,6 +81,31 @@ var userid;
         return false;
     });
 
+    $(".manage").click(function(){
+        // TODO do something here?
+        return false;
+    });
+    $(".list_users").click(function(){
+        alert("TODO: list users");
+        // resize the managemen bar (or add another bar?)
+        return false;
+    });
+    $(".add_user").click(function(){
+        alert("TODO: add user");
+        // resize the managemen bar (or add another bar?)
+        return false;
+    });
+    $(".add_page").click(function(){
+        alert("TODO: add page");
+        // resize the managemen bar (or add another bar?)
+        return false;
+    });
+    $(".list_pages").click(function(){
+        alert("TODO: list pages");
+        return false;
+    });
+
+
     $("form.login").submit(function() {
      // var url = $(this).attr('action') + '?' + $(this).serialize();
         var url = "/_dwimmer/login.json";
