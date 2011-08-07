@@ -18,7 +18,7 @@
 	<li><a href="/" class="current">Home</a></li>
         <li><a id="logged-in"></a></li>
 <!--
-	<li><a href="#">JavaScript</a>
+	<li><a href="">JavaScript</a>
 		<div class="submenu submenu_fancy">
 			<ul>
 				<li><a href="">Link title</a><br><span>Link description</span></li>
@@ -49,8 +49,8 @@
 </form>
 <!--
 Not yet implemented
-<span><a href="/_dwimmer/lost_password">Lost password</a></span>
-<span><a href="/_dwimmer/register">Register</a></span>
+<span><a class="lost_password" href="">Lost password</a></span>
+<span><a class="register_form" href="">Register</a></span>
 -->
 </div>
 </div>

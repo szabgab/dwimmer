@@ -216,15 +216,9 @@ get '/get_user.json' => sub {
     my $db = _get_db();
     my $user = $db->resultset('User')->find( $id );
     return to_josn { error => 'no_such_user' } if not defined $id;
-    return to_json { id => $user->id, name => $user->name, email => $user->email };
-};
-get '/show_user' => sub {
-    my $id = params->{id};
-    return render_response 'error', { no_id => 1} if not defined $id;
-    my $db = _get_db();
-    my $user = $db->resultset('User')->find( $id );
-    return render_response 'error', { no_such_user => 1} if not defined $id;
-    return render_response  'show_user', {user => $user};
+    my @fields = qw(id name email fname lname verified register_ts);
+    my %data = map { $_ => $user->$_ } @fields;
+    return to_json \%data;
 };
 
 post '/add_user.json' => sub {
@@ -323,7 +317,8 @@ sub register_user {
         email => $args{email},
         sha1  => sha1_base64($args{pw1}),
         validation_key => $validation_key,
-        verified => ($args{verify} eq 'verified' ? 1 : 0), 
+        verified => ($args{verify} eq 'verified' ? 1 : 0),
+        register_ts => $time,
     });
 
     if ($args{verify} eq 'send_email') {

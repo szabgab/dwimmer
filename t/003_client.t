@@ -11,6 +11,7 @@ my $password = 'dwimmer';
 my $run = start($password);
 
 eval "use Test::More";
+eval "use Test::Deep";
 require Test::WWW::Mechanize;
 plan(skip_all => 'Unsupported OS') if not $run;
 
@@ -30,10 +31,14 @@ is_deeply($admin->login( 'admin', $password ), {
 is_deeply($admin->list_users, { users => [
 		{ id => 1, name => 'admin', }
 	] }, 'list_users');
-is_deeply($admin->get_user(id => 1), {
+cmp_deeply($admin->get_user(id => 1), {
 	id => 1,
 	name => 'admin',
 	email => $admin_mail,
+	fname => undef,
+	lname => undef,
+	verified => 1,
+	register_ts => re('^\d{10}$'),
 	}, 'show user details');
 
 is_deeply($admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'no verify field provided');
@@ -52,15 +57,23 @@ is_deeply($admin->list_users, { users => [
 		{ id => 2, name => $users[0]{uname} },
 	] }, 'list_users');
 
-is_deeply($admin->get_user(id => 1), {
+cmp_deeply($admin->get_user(id => 1), {
 	id => 1,
 	name => 'admin',
 	email => $admin_mail,
+	fname => undef,
+	lname => undef,
+	verified => 1,
+	register_ts => re('^\d{10}$'),
 	}, 'show user details');
-is_deeply($admin->get_user(id => 2), {
+cmp_deeply($admin->get_user(id => 2), {
 	id => 2,
 	name => $users[0]{uname},
 	email => $users[0]{email},
+	fname => undef,
+	lname => undef,
+	verified => 1,
+	register_ts => re('^\d{10}$'),
 	}, 'show user details');
 
 my $user = Dwimmer::Client->new( host => $url );
@@ -75,10 +88,14 @@ is_deeply($user->login($users[0]{uname}, $users[0]{password}), {
 	logged_in => 1,
 	}, 'user logged in');
 is_deeply($user->get_session, { logged_in => 1, username => $users[0]{uname}, userid => 2 }, 'not logged in');
-is_deeply($user->get_user(id => 2), {
+cmp_deeply($user->get_user(id => 2), {
 	id => 2,
 	name => $users[0]{uname},
 	email => $users[0]{email},
+	fname => undef,
+	lname => undef,
+	verified => 1,
+	register_ts => re('^\d{10}$'),
 	}, 'show user own details');
 # TODO should this user be able to see the list of user?
 # TODO this user should NOT be able to add new users

@@ -79,9 +79,9 @@ sub setup_db {
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
     my $time = time;
     my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified) VALUES(?, ?, ?, ?, ?)', 
+    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)', 
         {}, 
-        'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1);
+        'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1, $time);
 
     $dbh->do("INSERT INTO site (name, owner) VALUES ('www', 1)");
     $dbh->do("INSERT INTO page (siteid, title, body, filename, author) VALUES (1, 'Welcome to your Dwimmer installation', '<h1>Dwimmer</h1>', '/', 1)");
