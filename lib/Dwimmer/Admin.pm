@@ -14,7 +14,6 @@ use Template        ();
 use Dwimmer::DB;
 use Dwimmer::Tools qw(sha1_base64 _get_db _get_site);
 
-###### routes
 
 sub include_session {
     my ($data) = @_;
@@ -46,6 +45,8 @@ sub render_response {
     }
 }
 
+###### routes
+
 post '/save' => sub {
     my ($site_name, $site) = _get_site();
 
@@ -67,29 +68,6 @@ post '/save' => sub {
 
     return '{ "success" : "1" }';
 };
-
-sub _authenticate {
-    my $username = params->{username};
-    my $password = params->{password};
-    
-    return render_response 'error', {missing_username => 1} if not $username;
-    return render_response 'error', {missing_password => 1} if not $password;
-
-    my $db = _get_db();
-    my $user = $db->resultset('User')->find( {name => $username});
-    return render_response 'error', {no_such_user => 1} if not $user;
-
-    my $sha1 = sha1_base64($password);
-    return render_response 'error', {invalid_password => 1} if $sha1 ne $user->sha1;
-  
-    return render_response 'error', {not_verified => 1} if not $user->verified;
-
-    session username => $username;
-    session userid   => $user->id;
-    session logged_in => 1;
-
-    return;
-}
 
 post '/login.json' => sub {
     my $username = params->{username};
@@ -114,46 +92,6 @@ post '/login.json' => sub {
     my $data = { success => 1 };
     include_session($data);
     return to_json $data;
-};
-
-post '/login' => sub {
-    my $username = params->{username};
-    my $password = params->{password};
-    
-    return render_response 'error', {missing_username => 1} if not $username;
-    return render_response 'error', {missing_password => 1} if not $password;
-
-    my $db = _get_db();
-    my $user = $db->resultset('User')->find( {name => $username});
-    return render_response 'error', {no_such_user => 1} if not $user;
-
-    my $sha1 = sha1_base64($password);
-    return render_response 'error', {invalid_password => 1} if $sha1 ne $user->sha1;
-  
-    return render_response 'error', {not_verified => 1} if not $user->verified;
-
-    session username => $username;
-    session userid   => $user->id;
-    session logged_in => 1;
-
-    # redirect to the referer except if that was 
-    # the logout page or one of the error pages.
-    my $referer = request->referer || '';
-    my $host    = request->host;
-
-    my $ref_path = '';
-    if ($referer =~ m{^https?://$host(.*)}) {
-        $ref_path = $1;
-    } else {
-        return redirect '/';    
-    }
-
-    my $noland_pages = join '|', ('logout');
-    if ($ref_path =~ m{^/($noland_pages)}) {
-        return redirect '/';
-    }
-
-    redirect $referer;
 };
 
 get '/logout.json' => sub {
