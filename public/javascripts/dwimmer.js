@@ -8,6 +8,14 @@ var userid;
    $('#logged_in_bar').hide();
    $('#guest_bar').hide();
    $('#manage-bar').hide();
+   $('#manage-bar > div').hide();
+   
+//   $('#manage-bar div').hide();
+//   $('#manage-bar').show();
+//   $('#manage-display').html('text');
+//   $('#manage-display').show();
+//   $('#manage-close').show();
+
    $.getJSON('/_dwimmer/session.json', function(resp) {
        if (resp["logged_in"] == 1) {
            $('#logged_in_bar').show();
@@ -90,18 +98,18 @@ var userid;
 
 
     $(".list_users").click(function(){
-        $('#manage-bar').show();
+        manage_bar();
         $.getJSON('/_dwimmer/list_users.json', function(resp) {
-            add_close();
             var html = '<ul>';
             for(var i=0; i < resp["users"].length; i++) {
                html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
             }
             html += '</ul>';
-            $('#manage-bar').append(html);
-            
-            // Setup the events only after the html was appended!
-            $('#manage-bar  a[value!="close"]').click(function() {
+            $('#manage-display').show();
+            $('#manage-display').html(html);
+
+            // Setup the events only after the html was added!
+            $('#manage-display  a').click(function() {
                 var value = $(this).attr('value');
                 get_and_show_user(value);
                 return false;
@@ -111,16 +119,20 @@ var userid;
         //alert("TODO: list users");
         return false;
     });
+
     $(".add_user").click(function(){
-        alert("TODO: add user");
-        // resize the managemen bar (or add another bar?)
+        //alert("TODO: add user");
+        manage_bar();
+        $('#add-user').show();
         return false;
     });
+
     $(".add_page").click(function(){
         alert("TODO: add page");
         // resize the managemen bar (or add another bar?)
         return false;
     });
+
     $(".list_pages").click(function(){
         alert("TODO: list pages");
         return false;
@@ -155,13 +167,17 @@ var userid;
 	resetTimer: 1000
       });
 
+      $(".close_manage_bar").click(function(){
+//        alert("TODO save changes made or alert if not yet saved?");
+          $('#manage-display').empty();
+          $('#manage-bar').hide();
+          return false;
+     });
 });
 
 function get_and_show_user (value) {
     $.getJSON('/_dwimmer/get_user.json?id=' + value, function(resp) {
-        $('#manage-bar').show();
-        $('#manage-bar').empty();
-        add_close();
+        manage_bar();
         var html = '<ul>';
         html += '<li>id = ' + resp["id"] + '</li>';
         html += '<li>name = ' + resp["name"] + '</li>';
@@ -171,26 +187,20 @@ function get_and_show_user (value) {
         html += '<li>verified = ' + resp["verified"] + '</li>';
         html += '<li>register_ts = ' + resp["register_ts"] + '</li>';
         html += '</ul>';
-        $('#manage-bar').append(html);
+        $('#manage-display').show();
+        $('#manage-display').html(html);
     });
 
     return;
 }
 
-function add_close() {
-    var html = '<a class="close_manage_bar" href="" value="close">close</a><br>';
-    $('#manage-bar').append(html);
-
-    $(".close_manage_bar").click(function(){
-//        alert("TODO save changes made or alert if not yet saved?");
-        $('#manage-bar').empty();
-        $('#manage-bar').hide();
-        $
-        return false;
-    });
+function manage_bar() {
+        $('#manage-bar').show();
+        $('#manage-bar > div').hide();
+        $('#manage-display').empty();
+        $('#manage-close').show();
+        //alert('manage_bar');
 }
-
-
 
 function markup(text) {
     var html = text;
