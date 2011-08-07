@@ -45,7 +45,37 @@ sub render_response {
     }
 }
 
+sub get_page {
+    my ($site, $path) = @_;
+
+    my $db = _get_db();
+    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
+
+   if ($page) {
+        my %data = (
+                title  => $page->title,
+                body   => $page->body,
+                author => $page->author->name,
+                filename => $page->filename,
+        );
+
+        return render_response('index', {page => \%data});
+    } else {
+        return render_response('error', { page_does_not_exist => 1 });
+    }
+
+
+}
+
 ###### routes
+
+get '/page.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $path = params->{filename};
+    return to_json {error => 'no_site_found' } if not $site;
+    
+    return get_page($site, $path);
+};
 
 post '/save_page.json' => sub {
     my ($site_name, $site) = _get_site();

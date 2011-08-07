@@ -29,26 +29,11 @@ hook before => sub {
 
 
 sub route_index {
-    my $db = _get_db();
-
-
     my ($site_name, $site) = _get_site();
     return "Could not find site called '$site_name' in the database" if not $site;
 
     my $path = request->path_info;
-    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
-
-    if ($page) {
-        my %data = (
-            title  => $page->title,
-            body   => $page->body,
-            author => $page->author->name,
-            filename => $page->filename,
-        );
-        return Dwimmer::Admin::render_response('index', {page => \%data});
-    } else {
-        return Dwimmer::Admin::render_response('error', { page_does_not_exist => 1 });
-    }
+    return Dwimmer::Admin::get_page($site, $path);
 };
 get qr{^/([a-zA-Z0-9]\w*)?$} => \&route_index;
 
