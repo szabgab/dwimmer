@@ -81,22 +81,44 @@ post '/save_page.json' => sub {
     my ($site_name, $site) = _get_site();
 
     return to_json { error => "no_site" } if not $site;
-    my $file = params->{filename};
-    return to_json { error => "no_file_supplied" } if not $file;
+    my $filename = params->{filename};
+    return to_json { error => "no_file_supplied" } if not $filename;
 
     # TODO check if the user has the right to save this page!
 #    debug( params->{editor_body} );
 #    debug( params->{editor_title} );
     my $db = _get_db();
-    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $file});
-    $page->body( params->{editor_body} );
-    $page->title( params->{editor_title} );
-    # TODO save to history
-    # TODO update author
-    # TODO update timestamp
-    $page->update;
+    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $filename});
 
-    return '{ "success" : "1" }';
+    my $create = params->{create};
+    if ($page) {
+        if ($create) {
+            return to_json { error => 'page_already_exists' };
+        } else {
+            $page->body( params->{editor_body} );
+            $page->title( params->{editor_title} );
+            # TODO save to history
+            # TODO update author
+            # TODO update timestamp
+            $page->update;
+            return to_json { success => 1 };
+        }
+    } else {
+        if ($create) {
+            my $time = time;
+            $db->resultset('Page')->create({
+                title    => params->{editor_title},
+                filename => $filename,
+                body     => params->{editor_body},
+                author   => session->{userid},
+                siteid   => $site->id,
+                timestamp => $time,
+            });
+            return to_json { success => 1 };
+        } else {
+            return to_json { error => 'page_does_not_exist' };
+        }
+    }
 };
 
 post '/login.json' => sub {
@@ -263,7 +285,9 @@ sub register_user {
 get '/get_pages.json' => sub {
     my ($site_name, $site) = _get_site();
     my $db = _get_db();
-    my @rows = map { { id => $_->id, filename => $_->filename, title => $_->title }  }  $db->resultset('Page')->find( {siteid => $site->id} );
+    my @res = $db->resultset('Page')->search( {siteid => $site->id} );
+
+    my @rows = map { { id => $_->id, filename => $_->filename, title => $_->title } }  @res;
     return to_json { rows => \@rows };
 };
 

@@ -6,7 +6,6 @@ Stand alone installation:
 TODO before minimal usability:
 - Add a new page: Test + UI
 - Restrict html to minimal interesting
-- Markup in Perl (links) Test
 - Landing on a page that does not exist yet? show error OK
   (if the referer is internal and if user is logged it offer creation?. otherwise just show error?)
 - Revisions of pages: Test, UI

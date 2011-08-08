@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 29);
+plan(tests => 33);
 
 
 my $w = Test::WWW::Mechanize->new;
@@ -125,6 +125,43 @@ is_deeply($admin->get_page('/'), {
 
 $w->get_ok($url);
 $w->content_like( qr{New text <a href="link">link</a> here}, 'link markup works' );
+
+# for creating new page we require a special field to reduce the risk of
+# accidental page creation
+is_deeply($admin->save_page(
+		body     => 'New text',
+		title    => 'New title of xyz',
+		filename => '/xyz',
+		), { error => 'page_does_not_exist' }, 'save_page');
+cmp_deeply($admin->get_pages, { rows => [
+	{
+		id       => 1,
+		filename => '/',
+		title    => 'New title',
+	},
+	]}, 'get pages');
+is_deeply($admin->save_page(
+		body     => 'New text',
+		title    => 'New title of xyz',
+		filename => '/xyz',
+		create   => 1,
+		), { success => 1 }, 'create new page');
+cmp_deeply($admin->get_pages, { rows => [
+	{
+		id       => 1,
+		filename => '/',
+		title    => 'New title',
+	},
+	{
+		id       => 2,
+		filename => '/xyz',
+		title    => 'New title of xyz',
+	},
+	]}, 'get pages');
+
+
+
+
 
 my $user = Dwimmer::Client->new( host => $url );
 is_deeply($user->list_users, { 
