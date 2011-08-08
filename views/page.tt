@@ -1,7 +1,0 @@
-<form method="POST">
-<input name="title" size="80"/><br />
-<textarea name="text" rows="20" cols="80">
-</textarea><br />
-<input type="submit" value="Post" />
-</form>
-
