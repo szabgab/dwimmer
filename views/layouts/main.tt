@@ -81,7 +81,10 @@ Set verified bit <input type="radio" name="verify" value="verified" />
   <form id="editor_form" action="/_dwimmer/save" method="POST">
   <input type="button" id="save" value="Save" />
   <input type="button" id="cancel" value="Cancel" />
-  <input type="hidden" id="filename" name="filename" />
+  <div id="admin-editor-filename">
+  Filename: <input id="filename" name="filename" />
+  </div>
+  <input type="hidden" id="create" name="create" />
   <br />
   <input name="editor_title" id="editor_title" size="80" />
   <br />

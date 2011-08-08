@@ -109,9 +109,14 @@ var original_content; // to make editor cancellation quick
 
 
     $(".add_page").click(function(){
-       //manage_bar();
-        alert("TODO: add page");
-        return false;
+       manage_bar();
+       original_content = $('#content').html();
+       $('#create').val( 1 );
+       $('#admin-editor').show();
+       $('#admin-editor-filename').show();
+       $('#editor_body').keyup();    // update preview
+
+       return false;
     });
 
     $(".list_pages").click(function(){
@@ -138,6 +143,7 @@ var original_content; // to make editor cancellation quick
        $.getJSON(url, function(resp) {
             $('#admin-editor').show();
             $('#admin-editor-filename').hide();
+            $('#create').val( 0 );
             $('#filename').val( resp["page"]["filename"] );
             $('#editor_title').val( resp["page"]["title"] );
             $('#editor_body').val( resp["page"]["body"] );
