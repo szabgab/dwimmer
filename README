@@ -3,7 +3,10 @@ Stand alone installation:
 - Install everyting
 - Run database creation script that will ask for admin password
 
-TODO before minimal usability:
+
+
+TODO before minimal usability as in-house wiki
+==============================================
 - Add a new page: Test + UI
 - Restrict html to minimal interesting
 - Landing on a page that does not exist yet? show error OK
@@ -13,9 +16,36 @@ TODO before minimal usability:
 - Show diff ???
 - Set older version to be the newest
 
+TODO: Misc
+===============
+- allow each user to write free text in a profile.
+- add multiple e-mail addresses
+- allow only lowercas usernames or at least make them unique in a case insensitive way
 
 
-From the web interface
+TODO: Authorization
+===============
+- Groups and authorization, each site should be able to allow/disallow users to do things on their site
+  but there are some global permissions so we might need to have two tables:
+user - global_permission
+user - site - permission
+
+  - Super dupper - initial user belongs to this, can do anything anywhere (or maybe just admin tasks?)
+  - can comment
+
+
+- users
+- groups (that can hold either users or other groups)
+- actions (comment, edit page)
+
+- each page has its properties
+  1) a blog page normally has one editor but allows comments
+  2) a wiki page normally can be edited by anyone and has no comments (though it could)
+- each site can have global
+
+
+TODO From the web interface
+=======================
 - Configure email sending (local delivery or using an SMTP server)
 - Admin can add user
 - Move all the dwimmer pages to be under /_dwimmer/
@@ -25,6 +55,8 @@ From the web interface
   2) list of comma separated tags
   3) title
 
+Markup language
+=====================
 - Use a very simple markup language and allow any HTML.
   [linkname]
   [linkname link title]
@@ -34,8 +66,6 @@ From the web interface
 - When arriving at a page that does not exist yet,
   display this info and if the user is logged in then offer the page
   to be edited/created.
-
-- Maybe add groups and group permissions?
 
 
 - From the web site allow the creation of a site with basic usage.
