@@ -107,7 +107,7 @@ is_deeply($admin->get_page('/'), {
 
 is_deeply($admin->save_page(
 		body     => 'New text [link] here',
-		title    => 'New title',
+		title    => 'New main title',
 		filename => '/',
 		), { success => 1 }, 'save_page');
 is_deeply($admin->get_page('/'), {
@@ -117,7 +117,7 @@ is_deeply($admin->get_page('/'), {
 #	username => 'admin',
 	page => {
 		body     => 'New text [link] here',
-		title    => 'New title',
+		title    => 'New main title',
 		filename => '/',
 		author   => 'admin',
 	},
@@ -137,7 +137,7 @@ cmp_deeply($admin->get_pages, { rows => [
 	{
 		id       => 1,
 		filename => '/',
-		title    => 'New title',
+		title    => 'New main title',
 	},
 	]}, 'get pages');
 is_deeply($admin->save_page(
@@ -150,7 +150,7 @@ cmp_deeply($admin->get_pages, { rows => [
 	{
 		id       => 1,
 		filename => '/',
-		title    => 'New title',
+		title    => 'New main title',
 	},
 	{
 		id       => 2,
