@@ -36,7 +36,7 @@ if (-e $opt{root} and not $opt{dbonly}) {
     die "Root directory ($opt{root}) already exists"
 }
 
-my $dist_dir = File::ShareDir::dist_dir('Dwimmer');
+my $dist_dir = $opt{dbonly} ? "$opt{root}/share" : File::ShareDir::dist_dir('Dwimmer');
 
 # When we are in the development environment set this to the root there
 if (-e File::Spec->catdir(dirname(dirname abs_path($0)) , '.git') ) {
