@@ -131,24 +131,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 pages
+=head2 page_histories
 
 Type: has_many
 
-Related object: L<Dwimmer::DB::Result::Page>
+Related object: L<Dwimmer::DB::Result::PageHistory>
 
 =cut
 
 __PACKAGE__->has_many(
-  "pages",
-  "Dwimmer::DB::Result::Page",
+  "page_histories",
+  "Dwimmer::DB::Result::PageHistory",
   { "foreign.author" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-07-24 18:37:12
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:P55UGWZS5rUSwekJKGg6Ug
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-28 11:43:57
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hx1GsZd877sHcJLHx4mqig
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

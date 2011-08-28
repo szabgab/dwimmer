@@ -34,14 +34,28 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_site_name ON site (name);
 
 CREATE TABLE page (
     id          INTEGER PRIMARY KEY,
-    siteid      INTEGER,
-    title       VARCHAR(255),
+    revision    INTEGER NOT NULL,
+    siteid      INTEGER NOT NULL,
+    filename    VARCHAR(255) NOT NULL,
+    redirect    VARCHAR(255),
+    FOREIGN KEY (siteid) REFERENCES site(id)
+);
+-- the revision should be the max revision in the page_history of the same id
+
+CREATE TABLE page_history (
+    id          INTEGER PRIMARY KEY,
+    pageid      INTEGER NOT NULL,
+    revision    INTEGER NOT NULL,
+    siteid      INTEGER NOT NULL,
+    title       VARCHAR(255) NOT NULL,
     body        BLOB,
     description VARCHAR(255),
     abstract    BLOB,
-    filename    VARCHAR(255),
-    timestamp   INTEGER,
-    author      INTEGER,
+    filename    VARCHAR(255) NOT NULL,
+    timestamp   INTEGER NOT NULL,
+    author      INTEGER NOT NULL,
     FOREIGN KEY (siteid) REFERENCES site(id),
-    FOREIGN KEY (author) REFERENCES user(id)
+    FOREIGN KEY (author) REFERENCES user(id),
+    FOREIGN KEY (pageid) REFERENCES page(id)
 );
+

@@ -43,6 +43,8 @@ cmp_deeply($admin->get_pages, { rows => [
 	},
 	]}, 'get pages');
 
+#diag explain $admin->get_history('/');
+
 
 is_deeply($admin->get_page('/'), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,

@@ -80,5 +80,13 @@ sub save_page {
 	return from_json $m->content;
 }
 
+
+sub get_history {
+	my ($self, $filename) = @_;
+	my $m = $self->mech;
+	$m->get($self->host . '/_dwimmer/history.json?filename=' . $filename);
+	return from_json $m->content;
+}
+
 1;
 

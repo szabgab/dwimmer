@@ -25,96 +25,46 @@ __PACKAGE__->table("page");
   is_auto_increment: 1
   is_nullable: 0
 
+=head2 revision
+
+  data_type: 'integer'
+  is_nullable: 0
+
 =head2 siteid
 
   data_type: 'integer'
   is_foreign_key: 1
-  is_nullable: 1
-
-=head2 title
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 255
-
-=head2 body
-
-  data_type: 'blob'
-  is_nullable: 1
-
-=head2 description
-
-  data_type: 'varchar'
-  is_nullable: 1
-  size: 255
-
-=head2 abstract
-
-  data_type: 'blob'
-  is_nullable: 1
+  is_nullable: 0
 
 =head2 filename
 
   data_type: 'varchar'
-  is_nullable: 1
+  is_nullable: 0
   size: 255
 
-=head2 timestamp
+=head2 redirect
 
-  data_type: 'integer'
+  data_type: 'varchar'
   is_nullable: 1
-
-=head2 author
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 1
+  size: 255
 
 =cut
 
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "revision",
+  { data_type => "integer", is_nullable => 0 },
   "siteid",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
-  "title",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "body",
-  { data_type => "blob", is_nullable => 1 },
-  "description",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "abstract",
-  { data_type => "blob", is_nullable => 1 },
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "filename",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "redirect",
   { data_type => "varchar", is_nullable => 1, size => 255 },
-  "timestamp",
-  { data_type => "integer", is_nullable => 1 },
-  "author",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
-
-=head2 author
-
-Type: belongs_to
-
-Related object: L<Dwimmer::DB::Result::User>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "author",
-  "Dwimmer::DB::Result::User",
-  { id => "author" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "CASCADE",
-  },
-);
 
 =head2 siteid
 
@@ -128,18 +78,36 @@ __PACKAGE__->belongs_to(
   "siteid",
   "Dwimmer::DB::Result::Site",
   { id => "siteid" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "CASCADE",
-    on_update     => "CASCADE",
-  },
+  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+);
+
+=head2 page_histories
+
+Type: has_many
+
+Related object: L<Dwimmer::DB::Result::PageHistory>
+
+=cut
+
+__PACKAGE__->has_many(
+  "page_histories",
+  "Dwimmer::DB::Result::PageHistory",
+  { "foreign.pageid" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-07-24 17:27:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:fliIH5a0CeGBf42uXRw3Gg
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-28 13:00:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VjjL/uh0wwbqAQ71lz+ByQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+__PACKAGE__->has_one(
+  'details',
+  "Dwimmer::DB::Result::PageHistory",
+  { "foreign.pageid" => "self.id", "foreign.revision" => "self.revision" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 1;
