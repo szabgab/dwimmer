@@ -134,6 +134,36 @@ var original_content; // to make editor cancellation quick
         return false;
     });
 
+   $(".show_history").click(function(){
+        manage_bar();
+       var url = '/_dwimmer/history.json?filename=' + $(location).attr('pathname');
+       $.getJSON(url, function(resp) {
+            //$('#admin-editor').show();
+            var html = '<ul>';
+            for(var i=0; i < resp["rows"].length; i++) {
+               html += '<li><a class="show_page_rev" href="/_dwimmer/page.json?filename=' + resp["rows"][i]["filename"] + '&revision=' + resp["rows"][i]["revision"]  + '">' + resp["rows"][i]["revision"] + ' ' + resp["rows"][i]["author"] + ' ' + + resp["rows"][i]["timestamp"] + '</li>';
+            }
+            html += '</ul>';
+            $('#manage-display').show();
+            $('#manage-display').html(html);
+
+            $(".show_page_rev").click(function() {
+                var url = $(this).attr('href');
+                $.getJSON(url, function(resp) {
+                    var body = resp["page"]["body"];
+                    var revision = resp["page"]["revision"];
+                    var html = "<p>Showing revision " + revision  + "<hr></p>" + markup(body);
+                    $('#content').html(html); // preview
+                    
+                    //alert('hi');
+                    // show the content of the specific revision of the file
+                });
+                return false;
+            });
+        });
+        return false;
+   });
+
 
    // fill editor with content fetched from the server
    $(".edit_this_page").click(function() {

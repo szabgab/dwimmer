@@ -8,8 +8,9 @@ use inc::Module::Install 1.00;
 # WON'T load modules to determine the version.
 # This _SHOULD_ theoretically make the "require Test::NoWarnings".
 # stuff above here no longer needed.
-configure_requires 'ExtUtils::MakeMaker' => '6.52';
-
+configure_requires 'ExtUtils::MakeMaker'   => '6.52';
+configure_requires 'File::Copy::Recursive' => 0;
+configure_requires 'File::Spec'            => 0;
 
 name     'Dwimmer';
 license  'perl';
@@ -28,8 +29,6 @@ my %prereq = (
         'Email::Valid'         => 0,
         'File::ShareDir'       => '1.00',
         'File::Slurp'          => 0,
-        'File::Spec'           => 0,
-        'File::Copy::Recursive' => 0,
         'Getopt::Long'         => 0,
         'MIME::Lite'           => 0,
         'Pod::Usage'           => 0,
@@ -58,8 +57,10 @@ repository 'http://github.com/szabgab/dwimmer';
 install_script 'script/dwimmer_setup.pl';
 
 # Copy files to share before installing (but it is not included in the distribution)
-require File::Copy::Recursive;
-require File::Spec;
+foreach my $module (qw(File::Copy::Recursive File::Spec)) {
+        eval "use $module";
+        die "Need to install $module before running Makefile.PL again\n" if $@;
+}
 foreach my $dir (qw(bin views schema public environments)) {
         File::Copy::Recursive::dircopy( $dir, File::Spec->catdir('share', $dir) );
 }

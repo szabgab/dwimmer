@@ -65,9 +65,11 @@ sub get_pages {
 }
 
 sub get_page {
-	my ($self, $filename) = @_;
+	my ($self, $filename, $revision) = @_;
 	my $m = $self->mech;
-	$m->get($self->host . '/_dwimmer/page.json?filename=' . $filename);
+	my $url = $self->host . '/_dwimmer/page.json?filename=' . $filename;
+	$url .= "&revision=$revision" if defined $revision;
+	$m->get($url);
 	return from_json $m->content;
 }
 
@@ -77,6 +79,14 @@ sub save_page {
 	$args{editor_body} = delete $args{body};
 	$args{editor_title} = delete $args{title};
 	$m->post( $self->host . "/_dwimmer/save_page.json", \%args );
+	return from_json $m->content;
+}
+
+
+sub get_history {
+	my ($self, $filename) = @_;
+	my $m = $self->mech;
+	$m->get($self->host . '/_dwimmer/history.json?filename=' . $filename);
 	return from_json $m->content;
 }
 

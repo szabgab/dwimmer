@@ -15,7 +15,7 @@ use Getopt::Long qw(GetOptions);
 use String::Random;
 use Pod::Usage  qw(pod2usage);
 
-use Dwimmer::Tools qw(get_dbfile sha1_base64);
+use Dwimmer::Tools qw(sha1_base64 save_page);
 
 my %opt;
 GetOptions(\%opt,
@@ -24,6 +24,7 @@ GetOptions(\%opt,
     'root=s',
     'dbonly',
     'silent',
+    'share=s',
 );
 usage() if not $opt{email};
 die 'Invalid e-mail' if not Email::Valid->address($opt{email});
@@ -36,31 +37,34 @@ if (-e $opt{root} and not $opt{dbonly}) {
     die "Root directory ($opt{root}) already exists"
 }
 
-my $dist_dir = File::ShareDir::dist_dir('Dwimmer');
+my $dist_dir;
 
-# When we are in the development environment set this to the root there
-if (-e File::Spec->catdir(dirname(dirname abs_path($0)) , '.git') ) {
+# When we are in the development environment (have .git) set this to the root directory
+# When we are in the installation environment (have Makefile.PL) set this to the root directory
+if (grep { -e File::Spec->catdir(dirname(dirname abs_path($0)) , $_) } ('.git', 'Makefile.PL')) {
     $dist_dir = dirname(dirname abs_path($0))
+} else {
+    $dist_dir = File::ShareDir::dist_dir('Dwimmer');
 }
 # die $dist_dir;
 
 my $db_dir = File::Spec->catdir($opt{root}, 'db');
 mkpath $db_dir if not -e $db_dir;
 
-setup_db();
-
-exit if $opt{dbonly};
- 
-foreach my $dir (qw(views public bin environments)) {
-    File::Copy::Recursive::dircopy(
-        File::Spec->catdir( $dist_dir, $dir), 
-        File::Spec->catdir( $opt{root}, $dir )
-    );
+if (not $opt{dbonly}) {
+    foreach my $dir (qw(views public bin environments)) {
+        File::Copy::Recursive::dircopy(
+            File::Spec->catdir( $dist_dir, $dir), 
+            File::Spec->catdir( $opt{root}, $dir )
+        );
+    }
+    File::Copy::Recursive::fcopy(
+            File::Spec->catdir( $dist_dir, 'config.yml'), 
+            File::Spec->catdir( $opt{root} )
+        );
 }
-File::Copy::Recursive::fcopy(
-        File::Spec->catdir( $dist_dir, 'config.yml'), 
-        File::Spec->catdir( $opt{root} )
-    );
+
+setup_db();
 
 exit;
 
@@ -83,8 +87,17 @@ sub setup_db {
         {}, 
         'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1, $time);
 
+    $Dwimmer::Tools::dbfile = $dbfile;
+
+    my $site = 1;
     $dbh->do("INSERT INTO site (name, owner) VALUES ('www', 1)");
-    $dbh->do("INSERT INTO page (siteid, title, body, filename, author) VALUES (1, 'Welcome to your Dwimmer installation', '<h1>Dwimmer</h1>', '/', 1)");
+    save_page($site, {
+            create       => 1,
+            editor_title => 'Welcome to your Dwimmer installation',
+            editor_body  => '<h1>Dwimmer</h1>',
+            author       => 1,
+            filename     => '/',
+    });
 
     return if $opt{silent};
 

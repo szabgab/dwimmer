@@ -16,11 +16,12 @@ use lib $lib;
 
 #use Dwimmer::Tools;
 
-my $root = tempdir( CLEANUP => 0 );
-mkdir "$root/db";
+my $temp = tempdir( CLEANUP => 0 );
+my $root = File::Spec->catdir($temp, 'root');
+
 system "$^X -I$lib script/dwimmer_setup.pl --email dev\@dwimmer.org --password dwimmer --root $root";
 
-my $dbfile = "$root\\db\\dwimmer.db";
+my $dbfile = File::Spec->catfile($root, 'db', 'dwimmer.db');
 
 make_schema_at(
 	'Dwimmer::DB',

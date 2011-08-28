@@ -90,9 +90,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 page_histories
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-07-24 17:27:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2yDjPIYkV4Q2aIp+di8FlA
+Type: has_many
+
+Related object: L<Dwimmer::DB::Result::PageHistory>
+
+=cut
+
+__PACKAGE__->has_many(
+  "page_histories",
+  "Dwimmer::DB::Result::PageHistory",
+  { "foreign.siteid" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-28 13:00:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:2FpODMYEFW+mNNerdskbvQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

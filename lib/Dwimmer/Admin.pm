@@ -12,7 +12,7 @@ use String::Random  ();
 use Template        ();
 
 use Dwimmer::DB;
-use Dwimmer::Tools qw(sha1_base64 _get_db _get_site);
+use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page);
 
 
 sub include_session {
@@ -46,30 +46,57 @@ sub render_response {
 }
 
 sub get_page_data {
-    my ($site, $path) = @_;
+    my ($site, $path, $revision) = @_;
 
     my $db = _get_db();
-    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
+    my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
+    return if not $cpage;
 
-    return if not $page;
+    if (not defined $revision) {
+        $revision = $cpage->revision;
+    }
+    my $page = $db->resultset('PageHistory')->find( { siteid => $site->id, pageid => $cpage->id, revision => $revision }); 
+
+    return if not $page; # TODO that's some serious trouble here! 
     return {
             title  => $page->title,
             body   => $page->body,
             author => $page->author->name,
             filename => $page->filename,
+            revision => $revision,
     };
 
 
 }
 
 ###### routes
+get '/history.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $path = params->{filename};
+    return to_json {error => 'no_site_found' } if not $site;
+
+    my $db = _get_db();
+#    my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
+#    my @history = 
+#    die $history;
+    my @history = reverse map { { 
+            revision  => $_->revision,
+            timestamp => $_->timestamp,
+            author    => $_->author->name,
+            filename  => $path,
+        } }
+        $db->resultset('PageHistory')->search( {siteid => $site->id, filename => $path} ); # sort by revision!?
+    return to_json { rows => \@history };
+};
 
 get '/page.json' => sub {
     my ($site_name, $site) = _get_site();
     my $path = params->{filename};
     return to_json {error => 'no_site_found' } if not $site;
-    
-    my $data = get_page_data($site, $path);
+
+    my $revision = params->{revision};
+
+    my $data = get_page_data($site, $path, $revision);
     if ($data) {
         return to_json { page => $data };
     } else {
@@ -84,41 +111,13 @@ post '/save_page.json' => sub {
     my $filename = params->{filename};
     return to_json { error => "no_file_supplied" } if not $filename;
 
-    # TODO check if the user has the right to save this page!
-#    debug( params->{editor_body} );
-#    debug( params->{editor_title} );
-    my $db = _get_db();
-    my $page = $db->resultset('Page')->find( {siteid => $site->id, filename => $filename});
-
-    my $create = params->{create};
-    if ($page) {
-        if ($create) {
-            return to_json { error => 'page_already_exists' };
-        } else {
-            $page->body( params->{editor_body} );
-            $page->title( params->{editor_title} );
-            # TODO save to history
-            # TODO update author
-            # TODO update timestamp
-            $page->update;
-            return to_json { success => 1 };
-        }
-    } else {
-        if ($create) {
-            my $time = time;
-            $db->resultset('Page')->create({
-                title    => params->{editor_title},
-                filename => $filename,
-                body     => params->{editor_body},
-                author   => session->{userid},
-                siteid   => $site->id,
-                timestamp => $time,
-            });
-            return to_json { success => 1 };
-        } else {
-            return to_json { error => 'page_does_not_exist' };
-        }
-    }
+    return save_page($site->id, {
+            create       => params->{create},
+            editor_title => params->{editor_title},
+            editor_body  => params->{editor_body},
+            author       => session->{userid},
+            filename     => $filename,
+    })
 };
 
 post '/login.json' => sub {
@@ -287,7 +286,8 @@ get '/get_pages.json' => sub {
     my $db = _get_db();
     my @res = $db->resultset('Page')->search( {siteid => $site->id} );
 
-    my @rows = map { { id => $_->id, filename => $_->filename, title => $_->title } }  @res;
+    my @rows = map { { id => $_->id, filename => $_->filename, title => $_->details->title } }  @res;
+
     return to_json { rows => \@rows };
 };
 
