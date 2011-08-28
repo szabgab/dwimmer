@@ -7,7 +7,6 @@ Stand alone installation:
 
 TODO before minimal usability as in-house wiki
 ==============================================
-- Add a new page: Test + UI
 - Restrict html to minimal interesting
 - Landing on a page that does not exist yet? show error OK
   (if the referer is internal and if user is logged it offer creation?. otherwise just show error?)
