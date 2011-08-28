@@ -24,6 +24,7 @@ GetOptions(\%opt,
     'root=s',
     'dbonly',
     'silent',
+    'share=s',
 );
 usage() if not $opt{email};
 die 'Invalid e-mail' if not Email::Valid->address($opt{email});
@@ -36,11 +37,16 @@ if (-e $opt{root} and not $opt{dbonly}) {
     die "Root directory ($opt{root}) already exists"
 }
 
-my $dist_dir = $opt{dbonly} ? "$opt{root}/share" : File::ShareDir::dist_dir('Dwimmer');
+my $dist_dir;
 
-# When we are in the development environment set this to the root there
-if (-e File::Spec->catdir(dirname(dirname abs_path($0)) , '.git') ) {
+
+
+# When we are in the development environment (have .git) set this to the root directory
+# When we are in the installation environment (have Makefile.PL) set this to the root directory
+if (grep { -e File::Spec->catdir(dirname(dirname abs_path($0)) , $_) } ('.git', 'Makefile.PL')) {
     $dist_dir = dirname(dirname abs_path($0))
+} else {
+    $dist_dir = File::ShareDir::dist_dir('Dwimmer');
 }
 # die $dist_dir;
 
