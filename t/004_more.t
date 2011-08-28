@@ -49,6 +49,7 @@ cmp_deeply($admin->get_history('/'), {
 			author => 'admin',
 			revision => 1,
 			timestamp => re('\d'),
+			filename  => '/',
 		},
 	]}, 'history');
 
@@ -63,6 +64,7 @@ is_deeply($admin->get_page('/'), {
 		title    => 'Welcome to your Dwimmer installation',
 		filename => '/',
 		author   => 'admin',
+		revision => 1,
 	},
 	}, 'page data');
 
@@ -81,6 +83,7 @@ is_deeply($admin->get_page('/'), {
 		title    => 'New main title',
 		filename => '/',
 		author   => 'admin',
+		revision => 2,
 	},
 	}, 'page data after save');
 

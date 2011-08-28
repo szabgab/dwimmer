@@ -46,13 +46,16 @@ sub render_response {
 }
 
 sub get_page_data {
-    my ($site, $path) = @_;
+    my ($site, $path, $revision) = @_;
 
     my $db = _get_db();
     my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
     return if not $cpage;
 
-    my $page = $db->resultset('PageHistory')->find( { siteid => $site->id, pageid => $cpage->id, revision => $cpage->revision }); 
+    if (not defined $revision) {
+        $revision = $cpage->revision;
+    }
+    my $page = $db->resultset('PageHistory')->find( { siteid => $site->id, pageid => $cpage->id, revision => $revision }); 
 
     return if not $page; # TODO that's some serious trouble here! 
     return {
@@ -60,6 +63,7 @@ sub get_page_data {
             body   => $page->body,
             author => $page->author->name,
             filename => $page->filename,
+            revision => $revision,
     };
 
 
@@ -79,7 +83,8 @@ get '/history.json' => sub {
             revision  => $_->revision,
             timestamp => $_->timestamp,
             author    => $_->author->name,
-        } } 
+            filename  => $path,
+        } }
         $db->resultset('PageHistory')->search( {siteid => $site->id, filename => $path} ); # sort by revision!?
     return to_json { rows => \@history };
 };
@@ -88,8 +93,10 @@ get '/page.json' => sub {
     my ($site_name, $site) = _get_site();
     my $path = params->{filename};
     return to_json {error => 'no_site_found' } if not $site;
-    
-    my $data = get_page_data($site, $path);
+
+    my $revision = params->{revision};
+
+    my $data = get_page_data($site, $path, $revision);
     if ($data) {
         return to_json { page => $data };
     } else {
