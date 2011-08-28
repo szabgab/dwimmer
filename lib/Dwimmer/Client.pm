@@ -65,9 +65,11 @@ sub get_pages {
 }
 
 sub get_page {
-	my ($self, $filename) = @_;
+	my ($self, $filename, $revision) = @_;
 	my $m = $self->mech;
-	$m->get($self->host . '/_dwimmer/page.json?filename=' . $filename);
+	my $url = $self->host . '/_dwimmer/page.json?filename=' . $filename;
+	$url .= "&revision=$revision" if defined $revision;
+	$m->get($url);
 	return from_json $m->content;
 }
 

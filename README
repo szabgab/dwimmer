@@ -11,8 +11,6 @@ TODO before minimal usability as in-house wiki
 - Restrict html to minimal interesting
 - Landing on a page that does not exist yet? show error OK
   (if the referer is internal and if user is logged it offer creation?. otherwise just show error?)
-- Revisions of pages: Test, UI
-- Show older version
 - Show diff ???
 - Set older version to be the newest
 
