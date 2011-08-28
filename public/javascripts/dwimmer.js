@@ -134,6 +134,21 @@ var original_content; // to make editor cancellation quick
         return false;
     });
 
+   $(".show_history").click(function(){
+        manage_bar();
+       var url = '/_dwimmer/history.json?filename=' + $(location).attr('pathname');
+       $.getJSON(url, function(resp) {
+            //$('#admin-editor').show();
+            var html = '<ul>';
+            for(var i=0; i < resp["rows"].length; i++) {
+               html += '<li><a href="' + resp["rows"][i]["revision"]  + '">' + resp["rows"][i]["revision"] + ' ' + resp["rows"][i]["author"] + ' ' + + resp["rows"][i]["timestamp"] + '</li>';
+            }
+            html += '</ul>';
+            $('#manage-display').show();
+            $('#manage-display').html(html);
+        });
+        return false;
+   });
 
    // fill editor with content fetched from the server
    $(".edit_this_page").click(function() {

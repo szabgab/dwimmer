@@ -73,7 +73,15 @@ get '/history.json' => sub {
 
     my $db = _get_db();
 #    my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
-    my $history = $db->resultset('PageHistory')->search( {siteid => $site->id, filename => $path} ); # sort by revision!?
+#    my @history = 
+#    die $history;
+    my @history = reverse map { { 
+            revision  => $_->revision,
+            timestamp => $_->timestamp,
+            author    => $_->author->name,
+        } } 
+        $db->resultset('PageHistory')->search( {siteid => $site->id, filename => $path} ); # sort by revision!?
+    return to_json { rows => \@history };
 };
 
 get '/page.json' => sub {

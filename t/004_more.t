@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 13);
+plan(tests => 14);
 
 
 my $w = Test::WWW::Mechanize->new;
@@ -43,7 +43,14 @@ cmp_deeply($admin->get_pages, { rows => [
 	},
 	]}, 'get pages');
 
-#diag explain $admin->get_history('/');
+cmp_deeply($admin->get_history('/'), {
+	rows => [
+		{
+			author => 'admin',
+			revision => 1,
+			timestamp => re('\d'),
+		},
+	]}, 'history');
 
 
 is_deeply($admin->get_page('/'), {
