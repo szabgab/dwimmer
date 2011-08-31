@@ -15,7 +15,7 @@ my $process;
 
 sub start {
     my ($password) = @_;
-    return if $^O !~ /win32/i;    # this test is for windows only now
+    #return if $^O !~ /win32/i;    # this test is for windows only now
 
     my $dir = tempdir( CLEANUP => 1 );
 
@@ -49,11 +49,18 @@ sub start {
             "perl -Ilib -It\\lib $root\\bin\\app.pl",
             0, Win32::Process::NORMAL_PRIORITY_CLASS(), "." )
             || die ErrorReport();
-    }
-    else {
+    } else {
+	    $process = fork();
 
-        #warn "Unsupported OS\n";
-        return;
+        die "Could not fork() while running on $^O" if not defined $process;
+
+        if ($process) { # parent
+            sleep 1;
+            return $process;
+        }
+
+        my $cmd = "$^X -Ilib -It/lib $root/bin/app.pl";
+        exec $cmd;
     }
 
     return 1;
@@ -63,9 +70,8 @@ sub stop {
     return if not $process;
     if ( $^O =~ /win32/i ) {
         $process->Kill(0);
-
-        #} else {
-        #    warn "Unsupported OS\n";
+    } else {
+        kill 9, $process;
     }
 }
 
