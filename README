@@ -47,6 +47,22 @@ user - site - permission
 - each site can have global
 
 
+TODO Weekly
+=============
+- Setup, select from designs
+- Admin:
+  Add URL, title, date, text, tags,    warn if the URL is alrady in the database but allow it
+  status: new, included, excluded
+- Admin Send message
+- Admin can add users without confirmation
+- Admin can import CSV File?
+
+- User can register:
+  e-mail, name (optional), send confirmation e-mail with code, allow the confirmation
+  Unsubscribe: type in e-mail, send unsubscribe confirmation e-mail with code, allow the confirmation
+
+
+
 TODO From the web interface
 =======================
 - Configure email sending (local delivery or using an SMTP server)
