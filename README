@@ -12,12 +12,18 @@ TODO before minimal usability as in-house wiki
   (if the referer is internal and if user is logged it offer creation?. otherwise just show error?)
 - Show diff ???
 - Set older version to be the newest
+- allow only lowercase usernames or at least make them unique in a case insensitive way
+
+
+TODO - personal one page editor
+================================
+
+
 
 TODO: Misc
 ===============
 - allow each user to write free text in a profile.
 - add multiple e-mail addresses
-- allow only lowercas usernames or at least make them unique in a case insensitive way
 
 
 TODO: Authorization
