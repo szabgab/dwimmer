@@ -292,6 +292,22 @@ get '/get_pages.json' => sub {
 };
 
 
+get '/register_mail.json' => sub {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+
+    my $email = lc( params->{'email'} || '' );
+    return render_response 'error', {'no_email' => 1} if not $email;
+
+    # $user = $db->resultset('WeeklyUser')->create({
+        # site => 
+        # email => $email,
+    # });
+    return to_json { ok => 1 };
+};
+
+
+
 ###### helper methods
 
 

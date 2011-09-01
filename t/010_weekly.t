@@ -22,7 +22,14 @@ plan(tests => 1);
 
 use Dwimmer::Client::Weekly;
 my $user = Dwimmer::Client::Weekly->new( host => $url );
-#$user->register
+diag(explain($user->register_email('t1@dwimmer.com')));
+is_deeply($user->register_email('t1@dwimmer.com'),
+	{
+		dwimmer_version => $Dwimmer::VERSION,
+		success => 1,
+	}, "submit registration");
+#diag(read_file($ENV{DWIMMER_MAIL}));
+
 
 my $admin = Dwimmer::Client::Weekly->new( host => $url );
 is_deeply($admin->login( 'admin', $password ), { 
