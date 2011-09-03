@@ -6,7 +6,7 @@
 <title><% page.title %></title>
 <link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
 
-<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery-1.6.3.min.js"></script>
 <script type="text/javascript" src="<% request.uri_base %>/javascripts/dwimmer.js"></script>
 <script type="text/javascript" src="<% request.uri_base %>/javascripts/scriptbreaker-dropdownpanel-1.0.js"></script>
 
