@@ -20,7 +20,14 @@ if (-e $storage) {
 my $sources = from_json scalar read_file $file;
 
 for my $e ( @{ $sources->{feeds}{entries} } ) {
-	if ($e->{feed}) {
+	if (not $e->{feed}) {
+		LOG("ERROR: No feed for $e->{title}");
+		next;
+	}
+	eval {
+		local $SIG{ALRM} = sub { die 'TIMEOUT' };
+		alarm 10;
+		
 		LOG("Processing $e->{title}");
 		my $feed = XML::Feed->parse(URI->new($e->{feed}));
 		if (not $feed) {
@@ -62,8 +69,10 @@ for my $e ( @{ $sources->{feeds}{entries} } ) {
 				sendmail("Feed: $current{title}", $mail);
 			}
 		}
-	} else {
-		warn "No feed for $e->{title}\n";
+	};
+	alarm(0);
+	if ($@) {
+		LOG("EXCEPTION $@");
 	}
 }
 
