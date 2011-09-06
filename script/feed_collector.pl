@@ -3,11 +3,11 @@ use strict;
 use warnings;
 use v5.8;
 
-#use LWP::Simple  qw(get);
+use Encode       ();
 use File::Slurp  qw(read_file write_file);
 use JSON         qw(from_json to_json);
-use XML::Feed;
-use MIME::Lite;
+use XML::Feed    ();
+use MIME::Lite   ();
 
 my ($storage, $file) = @ARGV;
 die "Usage: $0 ../storage.json  .../sources.json\n" if not $file;
@@ -17,7 +17,9 @@ if (-e $storage) {
 	$data = from_json scalar read_file $storage;
 	#print keys %$data;
 }
+LOG("storage loaded");
 my $sources = from_json scalar read_file $file;
+LOG("sources loaded");
 
 for my $e ( @{ $sources->{feeds}{entries} } ) {
 	if (not $e->{feed}) {
@@ -63,8 +65,8 @@ for my $e ( @{ $sources->{feeds}{entries} } ) {
 				$mail .= "Tags: $current{tags}\n\n";
 				$mail .= "Author: $current{author}\n\n";
 				$mail .= "Date: $current{issued}\n\n";
-				$mail .= "Summary: $current{summary}\n\n";
-				$mail .= "Content: $current{content}\n\n";
+				$mail .= "Summary:\n$current{summary}\n\n";
+				$mail .=  Encode::encode('UTF-8', "Content:\n$current{content}\n\n");
 				$mail .= "-------------------------------\n\n";
 				sendmail("Feed: $current{title}", $mail);
 			}
