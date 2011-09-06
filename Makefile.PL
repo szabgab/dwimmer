@@ -27,16 +27,20 @@ my %prereq = (
         'DBIx::Class::Schema'  => 0,
         'DBIx::RunSQL'         => 0,
         'Email::Valid'         => 0,
+        'Encode'               => 0,
         'File::ShareDir'       => '1.00',
         'File::Slurp'          => 0,
         'Getopt::Long'         => 0,
+        'JSON'                 => 0,
         'MIME::Lite'           => 0,
         'Pod::Usage'           => 0,
         'String::Random'       => 0,
         'Template'             => 0,
+        'XML::Feed'            => 0,
         'XML::RSS'             => 0,
         'YAML'                 => 0,
 );
+
 if ($^O =~ /win32/i) {
     $prereq{'Win32::Process'} = 0;
 }
