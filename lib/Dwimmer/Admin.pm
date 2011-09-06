@@ -301,12 +301,20 @@ post '/create_feed_collector.json' => sub {
 
     my $time = time;
 
-    my $collector = $db->resultset('FeedCollector')->create({
-        name       => $name,
-        created_ts => $time,
-        owner      => session->{userid},
-    });
+    my $collector = $db->resultset('FeedCollector')->find( { name => $name } );
+    return to_json { error => 'feed_collector_exists' } if $collector;
 
+    eval {
+        my $collector = $db->resultset('FeedCollector')->create({
+            name       => $name,
+            created_ts => $time,
+            owner      => session->{userid},
+        });
+    };
+    if ($@) {
+        return to_json {error => 'failed' };
+    }
+    
     return to_json { success => 1 };
 };
 

@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 2);
+plan(tests => 3);
 
 
 use Dwimmer::Client;
@@ -35,4 +35,10 @@ is_deeply($admin->login( 'admin', $password ), {
 is_deeply($admin->create_feed_collector('Foo Bar'), {
 	success => 1,
 }, 'feed_collector_created');
+
+is_deeply($admin->create_feed_collector('Foo Bar'), {
+	error => 'feed_collector_exists',
+}, 'feed_collector_created already exists');
+
+
 
