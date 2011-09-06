@@ -146,9 +146,24 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 feed_collectors
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-08-28 11:43:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Hx1GsZd877sHcJLHx4mqig
+Type: has_many
+
+Related object: L<Dwimmer::DB::Result::FeedCollector>
+
+=cut
+
+__PACKAGE__->has_many(
+  "feed_collectors",
+  "Dwimmer::DB::Result::FeedCollector",
+  { "foreign.owner" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-09-06 11:19:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j5qscSMvjhfb+oQ1aSLLNw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

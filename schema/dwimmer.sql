@@ -59,3 +59,22 @@ CREATE TABLE page_history (
     FOREIGN KEY (pageid) REFERENCES page(id)
 );
 
+--- tables to collect RSS and Atom feeds
+
+CREATE TABLE feed_collector (
+    id          INTEGER PRIMARY KEY,
+    name        VARCHAR(100) UNIQUE NOT NULL,
+    owner       INTEGER NOT NULL,
+    created_ts  INTEGER NOT NULL,
+    FOREIGN KEY (owner) REFERENCES user(id)
+);
+
+CREATE TABLE feeds (
+    id          INTEGER PRIMARY KEY,
+    collector   INTEGER,
+    title       VARCHAR(100),
+    url         VARCHAR(255),
+    feed        VARCHAR(255),
+    FOREIGN KEY (collector) REFERENCES feed_collector(id)
+);
+

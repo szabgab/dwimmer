@@ -292,6 +292,25 @@ get '/get_pages.json' => sub {
 };
 
 
+post '/create_feed_collector.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+    my $name = (params->{name} || '');
+
+    return to_json {error => 'no_name_given' } if not $name;
+
+    my $time = time;
+
+    my $collector = $db->resultset('FeedCollector')->create({
+        name       => $name,
+        created_ts => $time,
+        owner      => session->{userid},
+    });
+
+    return to_json { success => 1 };
+};
+
+
 ###### helper methods
 
 
