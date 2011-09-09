@@ -8,14 +8,17 @@ var original_content; // to make editor cancellation quick
    $('#guest_bar').hide();
    $('#manage-bar').hide();
    $('#manage-bar > div').hide();
+   $('#admin').height(0);
    
    $.getJSON('/_dwimmer/session.json', function(resp) {
        if (resp["logged_in"] == 1) {
+           $('#admin').height("35px");
            $('#logged_in_bar').show();
            $("#logged-in").html(resp["username"]);
            username = resp["username"];
            userid   = resp["userid"];
-       } else {
+       } else if (window.location.href.indexOf('?_dwimmer') > 0) {
+           $('#admin').height("35px");
            $('#guest_bar').show();
        }
    });
