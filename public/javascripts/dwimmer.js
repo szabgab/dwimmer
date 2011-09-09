@@ -15,7 +15,7 @@ var original_content; // to make editor cancellation quick
            $("#logged-in").html(resp["username"]);
            username = resp["username"];
            userid   = resp["userid"];
-       } else {
+       } else if (window.location.href.indexOf('?_dwimmer') > 0) {
            $('#guest_bar').show();
        }
    });
