@@ -9,7 +9,7 @@ use YAML;
 
 use Dwimmer::DB;
 
-our @EXPORT_OK = qw(sha1_base64 _get_db _get_site save_page);
+our @EXPORT_OK = qw(sha1_base64 _get_db _get_site save_page create_site);
 
 our $dbfile;
 
@@ -29,7 +29,16 @@ sub _get_site {
 
     # based on hostname?
     my $host = request->host;
-    if ($host =~ /^([\w-]+)\./) {
+
+    # development and testing:
+    if ($host =~ /^localhost:\d+$/) {
+        $host = 'www';
+    }
+
+    if (params->{_dwimmer}) {
+        $host = params->{_dwimmer};
+    }
+    if ($host =~ /^([\w-]+)/) {
         $site_name = $1;
     }
 
@@ -87,5 +96,27 @@ sub save_page {
     });
     return to_json { success => 1 };
 };
+
+sub create_site {
+    my ($hostname, $title, $ownerid) = @_;
+
+    my $time = time;
+
+    my $db = _get_db();
+
+    my $site = $db->resultset('Site')->create({
+        name => $hostname, owner => $ownerid, creation_ts => $time
+    });
+
+    save_page($site, {
+            create       => 1,
+            editor_title => 'Welcome to your Dwimmer installation',
+            editor_body  => "<h1>Welcome to $title</h1>",
+            author       => $ownerid,
+            filename     => '/',
+    });
+
+    return;
+}
 
 1;
