@@ -35,6 +35,7 @@
 			<li><a class="add_page"     href="">add a new page</a></li>
 			<li><a class="list_pages"   href="">list pages</a></li>
 			<li><a class="show_history" href="">show history</a></li>
+			<li><a class="create_site"  href="">create site</a></li>
 			</ul>
 		</div>
 	</li>
@@ -93,6 +94,13 @@ Set verified bit <input type="radio" name="verify" value="verified" />
 <!--  <br />
   Comma separated tags: <input name="editor_tags" id="editor_tags" size="80" />
 -->
+  </form>
+</div>
+
+<div id="admin-create-site">
+  <form id="create-site-form" action="/_dwimmer/create_site.json" method="POST">
+  Hostname: <input name="name" size="30" />
+  <input type="submit" id="create-site" value="Create Site" />
   </form>
 </div>
 
