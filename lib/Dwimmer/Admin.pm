@@ -12,7 +12,7 @@ use String::Random  ();
 use Template        ();
 
 use Dwimmer::DB;
-use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page);
+use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page create_site);
 
 
 sub include_session {
@@ -289,6 +289,21 @@ get '/get_pages.json' => sub {
     my @rows = map { { id => $_->id, filename => $_->filename, title => $_->details->title } }  @res;
 
     return to_json { rows => \@rows };
+};
+
+
+post '/create_site.json' => sub {
+    my %args;
+    foreach my $field ( qw(name) ) {
+        $args{$field} = params->{$field} || '';
+        trim($args{$field});
+    }
+
+    return to_json {error => 'missing_name' } if not $args{name};
+
+    create_site($args{name}, $args{name}, session->{userid});
+
+    return to_json { success => 1 };
 };
 
 

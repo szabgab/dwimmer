@@ -90,5 +90,12 @@ sub get_history {
 	return from_json $m->content;
 }
 
+sub create_site {
+	my ($self, %args) = @_;
+	my $m = $self->mech;
+	$m->post( $self->host . "/_dwimmer/create_site.json", \%args );
+	return from_json $m->content;
+}
+
 1;
 

@@ -122,6 +122,26 @@ var original_content; // to make editor cancellation quick
        return false;
     });
 
+    $(".create_site").click(function(){
+       manage_bar();
+       original_content = $('#content').html();
+       $('#admin-create-site').show();
+
+       return false;
+    });
+    $("#create-site-form").submit(function() {
+        var url = "/_dwimmer/create_site.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
+
     $(".list_pages").click(function(){
         manage_bar();
         $.getJSON('/_dwimmer/get_pages.json', function(resp) {
