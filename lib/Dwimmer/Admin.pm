@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.01';
+our $VERSION = '0.11';
 
 use Data::Dumper    qw(Dumper);
 use Email::Valid    ();

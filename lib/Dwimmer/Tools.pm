@@ -9,6 +9,8 @@ use YAML;
 
 use Dwimmer::DB;
 
+our $VERSION = '0.11';
+
 our @EXPORT_OK = qw(sha1_base64 _get_db _get_site save_page create_site);
 
 our $dbfile;

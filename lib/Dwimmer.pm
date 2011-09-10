@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.01';
+our $VERSION = '0.11';
 
 use Dwimmer::DB;
 use Dwimmer::Tools qw(_get_db _get_site);
