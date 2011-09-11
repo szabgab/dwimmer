@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.01';
+our $VERSION = '0.11';
 
 use Dwimmer::DB;
 use Dwimmer::Tools qw(_get_db _get_site);
@@ -45,3 +45,23 @@ get qr{^/([a-zA-Z0-9]\w*)?$} => \&route_index;
 
 
 true;
+
+=head1 NAME
+
+Dwimmer - A platform to develop things
+
+=head1 COPYRIGHT
+
+(c) 2011 Gabor Szabo
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl 5 itself.
+
+=cut
+
+# Copyright 2011 Gabor Szabo
+# LICENSE
+# This program is free software; you can redistribute it and/or
+# modify it under the same terms as Perl 5 itself.

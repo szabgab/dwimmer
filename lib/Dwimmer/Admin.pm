@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.01';
+our $VERSION = '0.11';
 
 use Data::Dumper    qw(Dumper);
 use Email::Valid    ();
@@ -47,6 +47,11 @@ sub render_response {
 
 sub get_page_data {
     my ($site, $path, $revision) = @_;
+
+    # make it easy to deploy in CGI environment.
+    if ($path eq '/index' or $path eq '/index.html') {
+        $path = '/';
+    }
 
     my $db = _get_db();
     my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
