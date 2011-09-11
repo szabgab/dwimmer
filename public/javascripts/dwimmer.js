@@ -8,14 +8,17 @@ var original_content; // to make editor cancellation quick
    $('#guest_bar').hide();
    $('#manage-bar').hide();
    $('#manage-bar > div').hide();
+   $('#admin').height(0);
    
    $.getJSON('/_dwimmer/session.json', function(resp) {
        if (resp["logged_in"] == 1) {
+           $('#admin').height("35px");
            $('#logged_in_bar').show();
            $("#logged-in").html(resp["username"]);
            username = resp["username"];
            userid   = resp["userid"];
-       } else {
+       } else if (window.location.href.indexOf('?_dwimmer') > 0) {
+           $('#admin').height("35px");
            $('#guest_bar').show();
        }
    });
@@ -118,6 +121,26 @@ var original_content; // to make editor cancellation quick
 
        return false;
     });
+
+    $(".create_site").click(function(){
+       manage_bar();
+       original_content = $('#content').html();
+       $('#admin-create-site').show();
+
+       return false;
+    });
+    $("#create-site-form").submit(function() {
+        var url = "/_dwimmer/create_site.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
 
     $(".list_pages").click(function(){
         manage_bar();

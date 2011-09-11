@@ -8,7 +8,7 @@ has host => (is => 'ro', isa => 'Str', required => 1);
 has mech => (is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.01';
+our $VERSION = '0.11';
 
 sub login {
 	my ($self, $username, $password) = @_;
@@ -87,6 +87,13 @@ sub get_history {
 	my ($self, $filename) = @_;
 	my $m = $self->mech;
 	$m->get($self->host . '/_dwimmer/history.json?filename=' . $filename);
+	return from_json $m->content;
+}
+
+sub create_site {
+	my ($self, %args) = @_;
+	my $m = $self->mech;
+	$m->post( $self->host . "/_dwimmer/create_site.json", \%args );
 	return from_json $m->content;
 }
 
