@@ -40,12 +40,18 @@ sub _get_site {
     if (params->{_dwimmer}) {
         $host = params->{_dwimmer};
     }
-    if ($host =~ /^([\w-]+)/) {
+    if ($host =~ /^([\w.-]+)/) {
         $site_name = $1;
     }
 
     my $db = _get_db();
     my $site = $db->resultset('Site')->find( { name => $site_name } );
+
+    # for now, let's default to www if the site isn't in the database
+    if (not $site) {
+        $site_name = 'www';
+        $site = $db->resultset('Site')->find( { name => $site_name } );
+    }
 
     return ($site_name, $site);
 }
