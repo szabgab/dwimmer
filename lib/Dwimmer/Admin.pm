@@ -48,6 +48,11 @@ sub render_response {
 sub get_page_data {
     my ($site, $path, $revision) = @_;
 
+    # make it easy to deploy in CGI environment.
+    if ($path eq '/index' or $path eq '/index.html') {
+        $path = '/';
+    }
+
     my $db = _get_db();
     my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
     return if not $cpage;
