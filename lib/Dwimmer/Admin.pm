@@ -318,6 +318,44 @@ post '/create_feed_collector.json' => sub {
     return to_json { success => 1 };
 };
 
+get '/feed_collectors.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my @result = map { {
+            id    => $_->id,
+            name  => $_->name,
+        } } $db->resultset('FeedCollector')->search( { owner => session->{userid} } );
+
+    return to_json { result => \@result };
+};
+
+post '/add_feed.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my %args;
+    foreach my $f (qw(title url feed)) {
+        $args{$f} = (params->{$f} || '');
+        return to_json { error => "missing_$f" } if not $args{$f};
+    }
+
+#    my $collector = $db->resultset('FeedCollector')->find( { name => $name } );
+
+#    session->{userid}
+
+    eval {
+        my $collector = $db->resultset('Feed')->create({
+            %args,
+            collector      => session->{userid},
+        });
+    };
+    if ($@) {
+        return to_json {error => 'failed' };
+    }
+
+    return to_json { success => 1 };
+};
 
 ###### helper methods
 
