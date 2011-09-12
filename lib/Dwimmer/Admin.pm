@@ -323,8 +323,9 @@ get '/feed_collectors.json' => sub {
     my $db = _get_db();
 
     my @result = map { {
-            id    => $_->id,
-            name  => $_->name,
+            id      => $_->id,
+            name    => $_->name,
+            ownerid => $_->owner->id,
         } } $db->resultset('FeedCollector')->search( { owner => session->{userid} } );
 
     return to_json { result => \@result };
@@ -335,23 +336,26 @@ post '/add_feed.json' => sub {
     my $db = _get_db();
 
     my %args;
-    foreach my $f (qw(title url feed)) {
+    foreach my $f (qw(title url feed collector)) {
         $args{$f} = (params->{$f} || '');
         return to_json { error => "missing_$f" } if not $args{$f};
     }
 
-#    my $collector = $db->resultset('FeedCollector')->find( { name => $name } );
+    my $collector = $db->resultset('FeedCollector')->find( { id => $args{collector} } );
+    return to_json { error => 'invalid_collector_id' } if not $collector;
+    # is it owned by the same user?
 
-#    session->{userid}
+    return to_json { error => 'collector_not_owned_by_user' }
+        if $collector->owner->id ne session->{userid};
 
     eval {
-        my $collector = $db->resultset('Feed')->create({
+        my $feed = $db->resultset('Feed')->create({
             %args,
             collector      => session->{userid},
         });
     };
     if ($@) {
-        return to_json {error => 'failed' };
+        return to_json {error => $@ };
     }
 
     return to_json { success => 1 };

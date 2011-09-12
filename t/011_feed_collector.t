@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 4);
+plan(tests => 5);
 
 
 use Dwimmer::Client;
@@ -46,13 +46,14 @@ is_deeply($admin->get_feed_collectors(), {
 		{
 			id => 1,
 			name => 'Foo Bar',
+			ownerid => 1,
 		},
 	],
 	}, 'list feed collectors of current user');
 
 
-__END__
 is_deeply($admin->add_feed(
+	collector => 1,
 	title => 'Title of Feed',
 	url   => 'http://dwimmer.org/',
 	feed  => 'http://dwimmer.org/feed.rss',
