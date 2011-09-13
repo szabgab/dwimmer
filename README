@@ -36,17 +36,6 @@ TODO Weekly
 - Admin can import CSV File?
 
 
-TODO From the web interface
-=======================
-- Configure email sending (local delivery or using an SMTP server)
-- Admin can add user
-- Move all the dwimmer pages to be under /_dwimmer/
-- Allow creating and editing of pages.
-  each page should have
-  1) body text
-  2) list of comma separated tags
-  3) title
-
 Markup language
 =====================
 - Use a very simple markup language and allow any HTML.
@@ -59,14 +48,9 @@ Markup language
   display this info and if the user is logged in then offer the page
   to be edited/created.
 
-
 - From the web site allow the creation of a site with basic usage.
   - At first only the admin can create sites but later we might allow
     regular users as well to create sites using the main site.
-
-
-Allow the admin to disable a user or even to delete it? Or we rather keep the user around for accounting purposes.
-
 
 Sources:
 JQuery http://jquery.com/
