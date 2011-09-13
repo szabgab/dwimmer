@@ -4,28 +4,6 @@ Stand alone installation:
 - Run database creation script that will ask for admin password
 
 
-
-TODO before minimal usability as in-house wiki
-==============================================
-- Restrict html to minimal interesting
-- Landing on a page that does not exist yet? show error OK
-  (if the referer is internal and if user is logged it offer creation?. otherwise just show error?)
-- Show diff ???
-- Set older version to be the newest
-- allow only lowercase usernames or at least make them unique in a case insensitive way
-
-
-TODO - personal one page editor
-================================
-
-
-
-TODO: Misc
-===============
-- allow each user to write free text in a profile.
-- add multiple e-mail addresses
-
-
 TODO: Authorization
 ===============
 - Groups and authorization, each site should be able to allow/disallow users to do things on their site
@@ -56,11 +34,6 @@ TODO Weekly
 - Admin Send message
 - Admin can add users without confirmation
 - Admin can import CSV File?
-
-- User can register:
-  e-mail, name (optional), send confirmation e-mail with code, allow the confirmation
-  Unsubscribe: type in e-mail, send unsubscribe confirmation e-mail with code, allow the confirmation
-
 
 
 TODO From the web interface
