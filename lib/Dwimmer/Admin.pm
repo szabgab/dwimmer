@@ -303,7 +303,7 @@ get '/register_mail.json' => sub {
         # site => 
         # email => $email,
     # });
-    return to_json { ok => 1 };
+    return to_json { success => 1 };
 };
 
 

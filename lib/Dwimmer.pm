@@ -9,8 +9,9 @@ use Dwimmer::DB;
 use Dwimmer::Tools qw(_get_db _get_site);
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
- 
-my %open = map { $_ => 1 } qw(/_dwimmer/login.json /_dwimmer/session.json);
+
+# list of pages that can be accessed withot any login 
+my %open = map { $_ => 1 } qw(/_dwimmer/login.json /_dwimmer/session.json /_dwimmer/register_mail.json);
 
 hook before => sub {
     my $path = request->path_info;

@@ -17,15 +17,15 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 1);
+plan(tests => 2);
 
 
 use Dwimmer::Client::Weekly;
 my $user = Dwimmer::Client::Weekly->new( host => $url );
-diag(explain($user->register_email('t1@dwimmer.com')));
+#diag(explain($user->register_email('t1@dwimmer.com')));
 is_deeply($user->register_email('t1@dwimmer.com'),
 	{
-		dwimmer_version => $Dwimmer::VERSION,
+#		dwimmer_version => $Dwimmer::VERSION,
 		success => 1,
 	}, "submit registration");
 #diag(read_file($ENV{DWIMMER_MAIL}));
