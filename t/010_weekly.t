@@ -20,8 +20,8 @@ my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 plan(tests => 2);
 
 
-use Dwimmer::Client::Weekly;
-my $user = Dwimmer::Client::Weekly->new( host => $url );
+use Dwimmer::Client;
+my $user = Dwimmer::Client->new( host => $url );
 #diag(explain($user->register_email('t1@dwimmer.com')));
 is_deeply($user->register_email('t1@dwimmer.com'),
 	{
@@ -31,7 +31,7 @@ is_deeply($user->register_email('t1@dwimmer.com'),
 #diag(read_file($ENV{DWIMMER_MAIL}));
 
 
-my $admin = Dwimmer::Client::Weekly->new( host => $url );
+my $admin = Dwimmer::Client->new( host => $url );
 is_deeply($admin->login( 'admin', $password ), { 
 	success => 1, 
 	username => 'admin',
