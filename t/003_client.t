@@ -17,8 +17,24 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 33);
+plan(tests => 37);
 
+my @pages = (
+	{},
+	{},
+	{
+		body     => 'File with space and dot',
+		title    => 'dotspace',
+		filename => '/space and.dot and $@% too',
+	}
+);
+my @exp_pages = map { {
+          id       => $_+1,
+          filename => $pages[$_]->{filename},
+          title    => $pages[$_]->{title},
+     } } 0..@pages-1;
+my @links = map { $_->{filename} ? substr($_->{filename}, 1) : '' } @pages;
+my @exp_links = map { quotemeta($_) } @links;
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok($url);
@@ -107,7 +123,7 @@ is_deeply($admin->get_page('/'), {
 	}, 'page data');
 
 is_deeply($admin->save_page(
-		body     => 'New text [link] here',
+		body     => "New text [link] here and [$links[2]] here",
 		title    => 'New main title',
 		filename => '/',
 		), { success => 1 }, 'save_page');
@@ -117,7 +133,7 @@ is_deeply($admin->get_page('/'), {
 #	logged_in => 1,
 #	username => 'admin',
 	page => {
-		body     => 'New text [link] here',
+		body     => "New text [link] here and [$links[2]] here",
 		title    => 'New main title',
 		filename => '/',
 		author   => 'admin',
@@ -126,7 +142,8 @@ is_deeply($admin->get_page('/'), {
 	}, 'page data after save');
 
 $w->get_ok($url);
-$w->content_like( qr{New text <a href="link">link</a> here}, 'link markup works' );
+
+$w->content_like( qr{New text <a href="link">link</a> here and <a href="$exp_links[2]">$exp_links[2]</a> here}, 'link markup works' );
 
 # for creating new page we require a special field to reduce the risk of
 # accidental page creation
@@ -161,8 +178,25 @@ cmp_deeply($admin->get_pages, { rows => [
 	},
 	]}, 'get pages');
 
-
-
+is_deeply($admin->save_page(
+		%{$pages[2]},
+		create   => 1,
+		), { success => 1 }, 'create new page');
+cmp_deeply($admin->get_pages, { rows => [
+	{
+		id       => 1,
+		filename => '/',
+		title    => 'New main title',
+	},
+	{
+		id       => 2,
+		filename => '/xyz',
+		title    => 'New title of xyz',
+	},
+	$exp_pages[2],
+	]}, 'get pages');
+$w->get_ok("$url$pages[2]{filename}");
+$w->content_like( qr{$pages[2]{body}} );
 
 
 my $user = Dwimmer::Client->new( host => $url );
