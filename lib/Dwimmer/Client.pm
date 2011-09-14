@@ -8,7 +8,7 @@ has host => (is => 'ro', isa => 'Str', required => 1);
 has mech => (is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.11';
+our $VERSION = '0.1101';
 
 sub login {
 	my ($self, $username, $password) = @_;
