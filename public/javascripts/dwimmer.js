@@ -2,6 +2,12 @@ var username;
 var userid;
 var original_content; // to make editor cancellation quick
 
+function _url(url) {
+   url = url + '?cache=' + new Date().getTime();
+   //alert(url);
+   return url;
+}
+
  $(document).ready(function() {
    $('#content').show();
    $('#logged_in_bar').hide();
@@ -10,7 +16,7 @@ var original_content; // to make editor cancellation quick
    $('#manage-bar > div').hide();
    $('#admin').height(0);
    
-   $.getJSON('/_dwimmer/session.json', function(resp) {
+   $.getJSON(_url('/_dwimmer/session.json'), function(resp) {
        if (resp["logged_in"] == 1) {
            $('#admin').height("35px");
            $('#logged_in_bar').show();
@@ -52,8 +58,7 @@ var original_content; // to make editor cancellation quick
 
 
     $('.logout').click(function(){
-        var url = '/_dwimmer/logout.json';
-        $.get(url, function(resp) {
+        $.getJSON(_url('/_dwimmer/logout.json'), function(resp) {
             $("#logged-in").html('');
              $('#logged_in_bar').hide();
              $('#manage-bar').hide();
@@ -73,7 +78,7 @@ var original_content; // to make editor cancellation quick
 
     $(".list_users").click(function(){
         manage_bar();
-        $.getJSON('/_dwimmer/list_users.json', function(resp) {
+        $.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
             var html = '<ul>';
             for(var i=0; i < resp["users"].length; i++) {
                html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
@@ -144,7 +149,7 @@ var original_content; // to make editor cancellation quick
 
     $(".list_pages").click(function(){
         manage_bar();
-        $.getJSON('/_dwimmer/get_pages.json', function(resp) {
+        $.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
             var html = '<ul>';
             for(var i=0; i < resp["rows"].length; i++) {
                html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + resp["rows"][i]["title"] + '</li>';
@@ -159,7 +164,7 @@ var original_content; // to make editor cancellation quick
 
    $(".show_history").click(function(){
         manage_bar();
-       var url = '/_dwimmer/history.json?filename=' + $(location).attr('pathname');
+       var url = _url('/_dwimmer/history.json') + '&filename=' + $(location).attr('pathname');
        $.getJSON(url, function(resp) {
             //$('#admin-editor').show();
             var html = '<ul>';
@@ -171,7 +176,7 @@ var original_content; // to make editor cancellation quick
             $('#manage-display').html(html);
 
             $(".show_page_rev").click(function() {
-                var url = $(this).attr('href');
+                var url = _url( $(this).attr('href') );
                 $.getJSON(url, function(resp) {
                     var body = resp["page"]["body"];
                     var revision = resp["page"]["revision"];
@@ -192,7 +197,7 @@ var original_content; // to make editor cancellation quick
    $(".edit_this_page").click(function() {
        manage_bar();
        original_content = $('#content').html();
-       var url = '/_dwimmer/page.json?filename=' + $(location).attr('pathname');
+       var url = _url('/_dwimmer/page.json') + '&filename=' + $(location).attr('pathname');
        $.getJSON(url, function(resp) {
             $('#admin-editor').show();
             $('#admin-editor-filename').hide();
@@ -253,7 +258,7 @@ var original_content; // to make editor cancellation quick
 });
 
 function get_and_show_user (value) {
-    $.getJSON('/_dwimmer/get_user.json?id=' + value, function(resp) {
+    $.getJSON(_url('/_dwimmer/get_user.json') + '&id=' + value, function(resp) {
         manage_bar();
         var html = '<ul>';
         html += '<li>id = ' + resp["id"] + '</li>';
