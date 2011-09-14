@@ -1,4 +1,5 @@
 
+   Add script/dwimmer to enable adding user from the command line.
    Enable some special characters in the filename: space ( ), dot (.), $, @ and %.
    Eliminate cache from the Ajax get requests as IE (both 8 and 9) would cache by default.
 
