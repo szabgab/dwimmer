@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long qw(GetOptions);
+use Pod::Usage   qw(pod2usage);
+
+my %opt;
+GetOptions(\%opt,
+	'url=s',
+	'username=s',
+	'password=s',
+) or pod2usage();
+
+$opt{username} ||= 'admin';
+pod2usage() if not $opt{url} or not $opt{username} or not $opt{password};
+
+my %commands = (
+	add_user =>  [qw(uname email password)],
+);
+
+use Dwimmer::Client;
+
+
+my $cmd = shift;
+
+pod2usage() if not $cmd or $cmd eq 'help';
+
+if ($commands{$cmd}) {
+	my %data;
+	my @fields = @{ $commands{$cmd} };
+	@data{ @fields } = @ARGV;
+	# TODO check if all the params are available
+
+	if ($cmd eq 'add_user') {
+		$data{verify} = 'verified';
+	}
+
+	my $dw = Dwimmer::Client->new( host => $opt{url} );
+	$dw->login( $opt{username}, $opt{password} );
+	my $r = $dw->$cmd(%data);
+	print Dumper $r;
+} else {
+	pod2usage();
+}
+
+=head1 SYNOPSIS
+
+REQUIRED PARAMETERS:
+
+   add_user USERNAME EMAIL PASSWORD
+
+   --username  OF_CURRENT_USER    (admin by default)
+   --password  OF_CURRENT_USER
+   --url       OF_DWIMMER_SITE
+
+=cut
+
