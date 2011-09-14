@@ -25,7 +25,7 @@ my @pages = (
 	{
 		body     => 'File with space and dot',
 		title    => 'dotspace',
-		filename => '/space and.dot',
+		filename => '/space and.dot and $@% too',
 	}
 );
 my @exp_pages = map { {
@@ -34,6 +34,7 @@ my @exp_pages = map { {
           title    => $pages[$_]->{title},
      } } 0..@pages-1;
 my @links = map { $_->{filename} ? substr($_->{filename}, 1) : '' } @pages;
+my @exp_links = map { quotemeta($_) } @links;
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok($url);
@@ -141,7 +142,8 @@ is_deeply($admin->get_page('/'), {
 	}, 'page data after save');
 
 $w->get_ok($url);
-$w->content_like( qr{New text <a href="link">link</a> here and <a href="$links[2]">$links[2]</a> here}, 'link markup works' );
+
+$w->content_like( qr{New text <a href="link">link</a> here and <a href="$exp_links[2]">$exp_links[2]</a> here}, 'link markup works' );
 
 # for creating new page we require a special field to reduce the risk of
 # accidental page creation
