@@ -35,6 +35,8 @@ sub route_index {
     my $path = request->path_info;
     my $data = Dwimmer::Admin::get_page_data($site, $path);
     if ($data) {
+        $data->{body} =~ s{\[(\w+)://([^]]+)\]}{_process($1, $2)}eg;
+        
         $data->{body} =~ s{\[([\w .\$@%]+)\]}{<a href="$1">$1</a>}g;
         return Dwimmer::Admin::render_response('index', { page => $data });
     } else {
@@ -43,6 +45,14 @@ sub route_index {
 };
 get qr{^/([a-zA-Z0-9][\w .\$@%]*)?$} => \&route_index;
 
+sub _process {
+    my ($scheme, $action) = @_;
+    if ($scheme eq 'http' or $scheme eq 'https') {
+        return qq{<a href="$scheme://$action">$action</a>};
+    }
+
+    return '';
+}
 
 true;
 

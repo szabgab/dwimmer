@@ -1,0 +1,68 @@
+use strict;
+use warnings;
+
+use t::lib::Dwimmer::Test qw(start $admin_mail @users);
+
+use Cwd qw(abs_path);
+use Data::Dumper qw(Dumper);
+
+my $password = 'dwimmer';
+
+my $run = start($password);
+
+eval "use Test::More";
+eval "use Test::Deep";
+require Test::WWW::Mechanize;
+plan(skip_all => 'Unsupported OS') if not $run;
+
+my $url = "http://localhost:$ENV{DWIMMER_PORT}";
+
+plan(tests => 5);
+
+my @pages = (
+	{},
+	{
+		body     => 'before [http://www.dwimmer.org/selftest] between [https://www.security.org/] after',
+		title    => 'dotspace',
+		filename => '/mypoll',
+	}
+);
+my @exp_pages = map { {
+          id       => $_+1,
+          filename => $pages[$_]->{filename},
+          title    => $pages[$_]->{title},
+     } } 0..@pages-1;
+my @links = map { $_->{filename} ? substr($_->{filename}, 1) : '' } @pages;
+my @exp_links = map { quotemeta($_) } @links;
+
+
+use Dwimmer::Client;
+my $admin = Dwimmer::Client->new( host => $url );
+is_deeply($admin->login( 'admin', $password ), { 
+	success => 1, 
+	username => 'admin',
+	userid   => 1,
+	logged_in => 1,
+	}, 'login success');
+
+is_deeply($admin->save_page(
+		%{$pages[1]},
+		create   => 1,
+		), { success => 1 }, 'create new page');
+# diag(explain($admin->get_pages));
+cmp_deeply($admin->get_pages, { rows => [
+	{
+		id       => 1,
+		filename => '/',
+		title    => 'Welcome to your Dwimmer installation',
+	},
+	$exp_pages[1],
+	]}, 'get pages');
+
+my $w = Test::WWW::Mechanize->new;
+$w->get_ok("$url$pages[1]{filename}");
+# diag($w->content);
+$w->content_like( qr{before <a href="http://www.dwimmer.org/selftest">www.dwimmer.org/selftest</a> between <a href="https://www.security.org/">www.security.org/</a> after} );
+
+
+#my $user = Dwimmer::Client->new( host => $url );

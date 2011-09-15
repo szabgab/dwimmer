@@ -1,3 +1,4 @@
+   Enable [http://address] and [https://address].
 
    Add script/dwimmer to enable adding user from the command line.
    Enable some special characters in the filename: space ( ), dot (.), $, @ and %.
