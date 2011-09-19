@@ -5,8 +5,11 @@ use 5.008005;
 
 our $VERSION = '0.1101';
 
+use Data::Dumper qw(Dumper);
 use Dwimmer::DB;
-use Dwimmer::Tools qw(_get_db _get_site);
+use Dwimmer::Tools qw(_get_db _get_site read_file);
+
+use Template;
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
  
@@ -51,7 +54,39 @@ sub _process {
         return qq{<a href="$scheme://$action">$action</a>};
     }
 
-    return '';
+    if ($scheme eq 'poll') {
+        if ($action !~ m{^[\w-]+$}) {
+            return qq{Invalid poll name "$action"};
+        }
+        my $json_file = path(config->{appdir}, 'polls', "$action.json");
+        
+        if (not -e $json_file) {
+            debug("File '$json_file' not found");
+            return "Poll Not found";
+        }
+        my $data = eval { from_json scalar read_file $json_file };
+        if ($@) {
+            debug("Could not read json file '$json_file': $@");
+            return "Could not read poll data";
+        }
+
+       my $html;
+       open my $out, '>', \$html or die;
+        my $t = Template->new(
+            ABSOLUTE => 1,
+#                encoding:  'utf8'
+                START_TAG => '<%',
+                END_TAG   =>'%>',
+        );
+        #return path(config->{appdir}, 'views', 'poll.tt') . -s path(config->{appdir}, 'views', 'poll.tt');
+        $t->process(path(config->{appdir}, 'views', 'poll.tt'), {poll => $data}, $out);
+        #use Capture::Tiny qw();
+        #my ($out, $err) = Capture::Tiny::capture { $t->process(path(config->{appdir}, 'views', 'poll.tt'), {poll => $data}) };
+        close $out;
+        return $html;
+    }
+
+    return qq{Unknown scheme: "$scheme"};
 }
 
 true;

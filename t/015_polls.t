@@ -17,12 +17,21 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 5);
+plan(tests => 9);
 
 my @pages = (
-	{},
+	{
+		body     => 'some body',
+		title    => 'Welcome to your Dwimmer installation',
+		filename => '/',
+	},
 	{
 		body     => 'before [http://www.dwimmer.org/selftest] between [https://www.security.org/] after',
+		title    => 'dotspace',
+		filename => '/mylinks',
+	},
+	{
+		body     => '[poll://testing-polls]',
 		title    => 'dotspace',
 		filename => '/mypoll',
 	}
@@ -51,18 +60,32 @@ is_deeply($admin->save_page(
 		), { success => 1 }, 'create new page');
 # diag(explain($admin->get_pages));
 cmp_deeply($admin->get_pages, { rows => [
-	{
-		id       => 1,
-		filename => '/',
-		title    => 'Welcome to your Dwimmer installation',
-	},
+	$exp_pages[0],
 	$exp_pages[1],
+	]}, 'get pages');
+
+is_deeply($admin->save_page(
+		%{$pages[2]},
+		create   => 1,
+		), { success => 1 }, 'create new page');
+# diag(explain($admin->get_pages));
+cmp_deeply($admin->get_pages, { rows => [
+	$exp_pages[0],
+	$exp_pages[1],
+	$exp_pages[2],
 	]}, 'get pages');
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok("$url$pages[1]{filename}");
-# diag($w->content);
 $w->content_like( qr{before <a href="http://www.dwimmer.org/selftest">www.dwimmer.org/selftest</a> between <a href="https://www.security.org/">www.security.org/</a> after} );
-
+$w->get_ok("$url$pages[2]{filename}");
+#$w->content_like( qr{.} );
+#diag($w->content);
+isa_ok($w->form_id('poll'), 'HTML::Form');
+#diag($w->form_id('poll'));
 
 #my $user = Dwimmer::Client->new( host => $url );
+
+#TODO : copy the json poll file to the test directory
+#check if the file could be found
+#create the form
