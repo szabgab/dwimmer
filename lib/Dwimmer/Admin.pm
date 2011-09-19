@@ -12,7 +12,7 @@ use String::Random  ();
 use Template        ();
 
 use Dwimmer::DB;
-use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page create_site);
+use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page create_site read_file trim);
 
 
 sub include_session {
@@ -311,20 +311,6 @@ post '/create_site.json' => sub {
     return to_json { success => 1 };
 };
 
-
-###### helper methods
-
-
-sub trim {  $_[0] =~ s/^\s+|\s+$//g };
-
-sub read_file {
-    my $file = shift;
-    open my $fh, '<', $file or die "Could not open '$file' $!";
-    local $/ = undef;
-    my $cont = <$fh>;
-    close $fh;
-    return $cont;
-}
 
 true;
 
