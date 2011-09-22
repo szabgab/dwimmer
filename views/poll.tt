@@ -1,7 +1,7 @@
 <h1><% poll.title %></h1>
 
-<form id="poll" method="GET">
-
+<form id="poll" method="POST" action="/poll">
+<input name="id" type="hidden" value="<% poll.id %>" />
 <ul>
 <% FOR q IN poll.questions %>
   <li><div class="poll_question_title"><% q.text %></div>

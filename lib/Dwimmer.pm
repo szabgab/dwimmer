@@ -13,7 +13,7 @@ use Template;
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
  
-my %open = map { $_ => 1 } qw(/_dwimmer/login.json /_dwimmer/session.json);
+my %open = map { $_ => 1 } qw(/_dwimmer/login.json /_dwimmer/session.json /poll);
 
 hook before => sub {
     my $path = request->path_info;
@@ -47,6 +47,23 @@ sub route_index {
     }
 };
 get qr{^/([a-zA-Z0-9][\w .\$@%]*)?$} => \&route_index;
+
+post '/poll' => sub {
+    my $id = params->{id};
+    return Dwimmer::Admin::render_response('error', { invalid_poll_id => $id })
+        if $id !~ /^[\w-]+$/;
+    
+    my $json_file = path(config->{appdir}, 'polls', "$id.json");
+    return Dwimmer::Admin::render_response('error', { poll_not_found => $id })
+        if not -e $json_file;
+    my $log_file = path(config->{appdir}, 'polls', "$id.txt");
+    my $data = to_json params();
+    if (open my $fh, '>>', $log_file) {
+        print $fh $data, "\n"; 
+        close;
+    }
+    return "OK";
+};
 
 sub _process {
     my ($scheme, $action) = @_;
