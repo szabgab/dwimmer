@@ -40,13 +40,13 @@ sub route_index {
     if ($data) {
         $data->{body} =~ s{\[(\w+)://([^]]+)\]}{_process($1, $2)}eg;
         
-        $data->{body} =~ s{\[([\w .\$@%]+)\]}{<a href="$1">$1</a>}g;
+        $data->{body} =~ s{\[([\w .\$@%-]+)\]}{<a href="$1">$1</a>}g;
         return Dwimmer::Admin::render_response('index', { page => $data });
     } else {
         return Dwimmer::Admin::render_response('error', { page_does_not_exist => 1 });
     }
 };
-get qr{^/([a-zA-Z0-9][\w .\$@%]*)?$} => \&route_index;
+get qr{^/([a-zA-Z0-9][\w .\$@%-]*)?$} => \&route_index;
 
 post '/poll' => sub {
     my $id = params->{id};
