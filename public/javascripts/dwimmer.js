@@ -152,7 +152,8 @@ function _url(url) {
         $.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
             var html = '<ul>';
             for(var i=0; i < resp["rows"].length; i++) {
-               html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + resp["rows"][i]["title"] + '</li>';
+               var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
+               html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
             }
             html += '</ul>';
             $('#manage-display').show();
