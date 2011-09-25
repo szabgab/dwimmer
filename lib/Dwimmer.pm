@@ -82,7 +82,7 @@ post '/poll' => sub {
         print $fh to_json(\%data), "\n"; 
         close $fh;
     }
-    redirect request->uri . "?submitted=1";
+    redirect request->uri_base . "/$id?submitted=1";
 };
 
 sub _poll {
