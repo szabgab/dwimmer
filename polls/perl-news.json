@@ -22,7 +22,7 @@
         ]
      },
      {
-        "text" : "How do you improve your perl knowledge?",
+        "text" : "How do you improve your Perl knowledge?",
         "id"   : "how_improves_perl",
         "type" : "multiple_choice",
         "limit" : 5,
@@ -49,13 +49,13 @@
         "other" : 1,
         "answers" : [
            "Examples how to use Perl for Unix/Linux system administration",
-           "Generic examples on how to to use perl. (data structures, I/O, files, conditions etc)",
+           "Generic examples on how to use Perl. (data structures, I/O, files, conditions etc)",
            "Introduction to Moose",
            "Advanced topics about Moose",
            "How to maintain old code",
            "How to write (unit) tests?",
            "How to write a modern web application in Perl?",
-           "Advanced topic in core Perl",
+           "Advanced core Perl topics",
            "Regular expressions",
            "Perl for bioinformatics",
            "Perl for testers",
