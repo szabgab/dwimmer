@@ -18,7 +18,8 @@
            "Perl Foundation news blog",
            "perlnews.org",
            "Following Perl on Reddit",
-           "Planet Perl 6"
+           "Planet Perl 6",
+           "None of the above"
         ]
      },
      {
@@ -62,7 +63,8 @@
            "Regular expressions",
            "Perl for bioinformatics",
            "Perl for testers",
-           "About Plack"
+           "About Plack",
+           "About Perl 6"
         ]
      }
   ]
