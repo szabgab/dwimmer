@@ -38,7 +38,10 @@
            "Reading The Effective Perler blog",
            "Reading the Modern Perl books blog",
            "Asking questions on PerlMonks",
-           "Asking questions on StackOverflow"
+           "Asking questions on StackOverflow",
+           "Reading source code of CPAN modules",
+           "Asking questions on Perl related mailing lists",
+           "Using Perl related IRC channels"
         ]
      },
      {
