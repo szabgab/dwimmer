@@ -64,3 +64,11 @@ To view this page you have to be logged in.
 <% IF page_does_not_exist %>
 Page does not exist.
 <% END %>
+
+<% IF invalid_poll_id %>
+Invalid poll id <% invalid_poll_id %>
+<% END %>
+
+<% IF poll_not_found %>
+Poll not found: <% poll_not_found %>
+<% END %>
