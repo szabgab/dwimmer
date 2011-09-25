@@ -9,6 +9,7 @@ use Data::Dumper qw(Dumper);
 use Dwimmer::DB;
 use Dwimmer::Tools qw(_get_db _get_site read_file);
 
+use Fcntl qw(:flock);
 use Template;
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
@@ -77,6 +78,7 @@ post '/poll' => sub {
     $data{TS} = time;
     $data{SID} = session->id;
     if (open my $fh, '>>', $log_file) {
+        flock($fh, LOCK_EX);
         print $fh to_json(\%data), "\n"; 
         close $fh;
     }

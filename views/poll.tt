@@ -13,7 +13,7 @@
      <li><input type="checkbox" name="<% q.id %>" value="<% loop.index %>" /><% a %></li>
      <% END %>
      <% IF q.other %>
-     <li>Other: <input type="text" name="other__<% q.id %>" />
+     <li>Other: <input type="text" name="other__<% q.id %>" size="50" />
      <% END %>
   </ul>
   </li>
