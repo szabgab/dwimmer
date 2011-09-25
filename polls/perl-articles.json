@@ -31,7 +31,8 @@
            "Attending Perl Monger meetings",
            "On the job from more experienced peers",
            "On the job while trying to figure out how to implement things",
-           "Attending courses with live trainers",
+           "Attending in-house courses",
+           "Attending courses at training companies",
            "Reading books about Perl",
            "Reading The Effective Perler blog",
            "Reading the Modern Perl books blog",
@@ -56,7 +57,8 @@
            "Advanced topic in core Perl",
            "Regular expressions",
            "Perl for bioinformatics",
-           "Perl for testers"
+           "Perl for testers",
+           "About Plack"
         ]
      }
   ]
