@@ -13,7 +13,7 @@ sessions
 logs
 /db
 /share
-/polls
+#/polls
 
 SETUP.bat
 Dwimmer-*
