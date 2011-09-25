@@ -56,11 +56,15 @@ post '/poll' => sub {
     my $json_file = path(config->{appdir}, 'polls', "$id.json");
     return Dwimmer::Admin::render_response('error', { poll_not_found => $id })
         if not -e $json_file;
+
     my $log_file = path(config->{appdir}, 'polls', "$id.txt");
-    my $data = to_json params();
+    my %data = params();
+    $data{IP} = request->address;
+    $data{TS} = time;
+    $data{SID} = session->id;
     if (open my $fh, '>>', $log_file) {
-        print $fh $data, "\n"; 
-        close;
+        print $fh to_json(\%data), "\n"; 
+        close $fh;
     }
     return "OK";
 };

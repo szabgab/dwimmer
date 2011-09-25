@@ -1,6 +1,6 @@
 {
   "title" : "Testing polls",
-  "id"    : "testing-poll",
+  "id"    : "perl-articles",
   "questions" : [
      {
         "text" : "Where do you get your Perl related news from?",
