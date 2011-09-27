@@ -19,12 +19,16 @@ $(document).ready(function() {
   $.getJSON(_url('/_dwimmer/session.json'), function(resp) {
     if (resp["logged_in"] == 1) {
       $('#admin').height("35px");
+      $('#admin').show();
+      //$('#manage-bar').show();
       $('#logged_in_bar').show();
       $("#logged-in").html(resp["username"]);
       username = resp["username"];
       userid   = resp["userid"];
     } else if (window.location.href.indexOf('?_dwimmer') > 0) {
       $('#admin').height("35px");
+      $('#admin').show();
+      //$('#manage-bar').show();
       $('#guest_bar').show();
     }
   });
