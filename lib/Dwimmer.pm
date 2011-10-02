@@ -52,7 +52,13 @@ sub route_index {
         $data->{body} =~ s{\[([\w .\$@%-]+)\]}{<a href="$1">$1</a>}g;
         return Dwimmer::Admin::render_response('index', { page => $data });
     } else {
-        return Dwimmer::Admin::render_response('error', { page_does_not_exist => 1 });
+        # TODO: actually this should check if the user has the right to create a new page 
+        # on this site
+        if (session->{logged_in}) {
+            return Dwimmer::Admin::render_response('error', { page_does_not_exist => 1, creation_offer => 1 });
+        } else {
+            return Dwimmer::Admin::render_response('error', { page_does_not_exist => 1 });
+        }
     }
 };
 get qr{^/([a-zA-Z0-9][\w .\$@%-]*)?$} => \&route_index;

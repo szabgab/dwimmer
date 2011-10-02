@@ -5,6 +5,7 @@ use t::lib::Dwimmer::Test qw(start $admin_mail @users);
 
 use Cwd qw(abs_path);
 use Data::Dumper qw(Dumper);
+use JSON qw(from_json);
 
 my $password = 'dwimmer';
 
@@ -17,7 +18,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 37);
+plan(tests => 44);
 
 my @pages = (
 	{},
@@ -41,6 +42,24 @@ $w->get_ok($url);
 $w->content_like( qr{Welcome to your Dwimmer installation}, 'content ok' );
 $w->get_ok("$url/other");
 $w->content_like( qr{Page does not exist}, 'content of missing pages is ok' );
+$w->content_unlike( qr{Would you like to create it}, 'no creation offer' );
+
+my $u = Test::WWW::Mechanize->new;
+$u->get_ok($url);
+$u->post_ok("$url/_dwimmer/login.json", {
+		username => 'admin',
+		password => $password,
+	});
+is_deeply(from_json($u->content), {
+    "success"    => 1,
+    "userid"     => 1,
+    "logged_in"  => 1,
+    "username"   => "admin",
+    }, 'logged in');
+$u->get_ok("$url/other");
+$u->content_like( qr{Page does not exist}, 'content of missing pages is ok' );
+$u->content_like( qr{Would you like to <a class="create_page" href="">create</a> it}, 'creation offer' );
+
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
