@@ -25,6 +25,7 @@ GetOptions(\%opt,
     'dbonly',
     'silent',
     'share=s',
+    'upgrade',
 );
 usage() if not $opt{email};
 die 'Invalid e-mail' if not Email::Valid->address($opt{email});
@@ -33,8 +34,12 @@ die 'Password needs to be 6 characters' if length $opt{password} < 6;
 usage() if not $opt{root};
 
 
-if (-e $opt{root} and not $opt{dbonly}) { 
+if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) { 
     die "Root directory ($opt{root}) already exists"
+}
+
+if ($opt{upgrade} and not -e $opt{root}) {
+    die "Root directory ($opt{root}) does NOT exist."
 }
 
 my $dist_dir;
@@ -64,16 +69,35 @@ if (not $opt{dbonly}) {
         );
 }
 
-setup_db();
+my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
+if (not $opt{upgrade}) {
+    setup_db($dbfile);
+}
+
+my @upgrade_from;
+push @upgrade_from, sub {
+    my $dbfile = shift;
+
+    my $sql = File::Spec->catfile($dist_dir, 'schema', '1.sql');
+    DBIx::RunSQL->create(
+        dsn => "dbi:SQLite:dbname=$dbfile",
+        sql => $sql,
+        verbose => 0,
+    );
+};
+
+
+upgrades($dbfile);
 
 exit;
 
-
 sub setup_db {
-    my $sql = File::Spec->catfile($dist_dir, 'schema', 'dwimmer.sql');
-    my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
+    my $dbfile = shift;
+    
     die "Database file '$dbfile' already exists\n" if -e $dbfile;
 
+    # 0
+    my $sql = File::Spec->catfile($dist_dir, 'schema', 'dwimmer.sql');
     DBIx::RunSQL->create(
         dsn => "dbi:SQLite:dbname=$dbfile",
         sql => $sql,
@@ -99,6 +123,7 @@ sub setup_db {
             filename     => '/',
     });
 
+
     return if $opt{silent};
 
     print <<"END_MSG";
@@ -108,6 +133,16 @@ You can now launch the application and visit the web site
 END_MSG
 
     return;
+}
+
+sub upgrades {
+    my $dbfile = shift;
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
+
+    my ($version) = $dbh->selectrow_array('PRAGMA user_version');
+    foreach my $v ($version .. @upgrade_from-1) {
+        $upgrade_from[$v]->($dbfile);
+    }
 }
 
 
