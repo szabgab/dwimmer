@@ -64,6 +64,9 @@ To view this page you have to be logged in.
 <% IF page_does_not_exist %>
 Page does not exist.
 <% END %>
+<% IF creation_offer %>
+Would you like to <a class="create_page" href="">create</a> it.
+<% END %>
 
 <% IF invalid_poll_id %>
 Invalid poll id <% invalid_poll_id %>
