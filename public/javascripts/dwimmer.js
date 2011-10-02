@@ -85,6 +85,20 @@ $(document).ready(function() {
     $("#editor-italic").click(function(){
       insert_markup('i');
     })
+    $("#editor-link").click(function(){
+      var link = prompt('Please paste the link here: (http://www.some.com/ or c:\dir\name\file.txt)');
+      if (link) {
+        var text = $("#editor_body").getSelection().text;
+        if (text == '') {
+            $("#editor_body").insertAtCaretPos('<a href="' + link + '">' + link + '</a>');
+        } else {
+           $("#editor_body").replaceSelection('<a href="' + link + '">' + text + '</a>');
+        }
+        $('#editor_body').keyup();
+         
+        //alert(link);
+      }
+    })
    
     $(".list_users").click(function(){
       manage_bar();
