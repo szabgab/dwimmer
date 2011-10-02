@@ -291,6 +291,30 @@ get '/get_pages.json' => sub {
     return to_json { rows => \@rows };
 };
 
+get '/create_list.json' => sub {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+
+    my $name = params->{'name'} || '';
+    trim($name);
+    #die "name='$name'";
+    return to_json { 'error' => 'no_name' } if not $name;
+
+    my $db = _get_db();
+    my $list = $db->resultset('MailingList')->create({
+        owner => session->{userid},
+        name  => $name,
+    });
+    return to_json { success => 1, listid => $list->id };
+};
+
+get '/fetch_lists.json' => sub {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+    my $db = _get_db();
+    my @list = map { {listid => $_->id, owner => $_->owner->id, name => $_->name} } $db->resultset('MailingList')->all();
+    return to_json {success => 1, lists => \@list};
+};
 
 get '/register_mail.json' => sub {
     my ($site_name, $site) = _get_site();

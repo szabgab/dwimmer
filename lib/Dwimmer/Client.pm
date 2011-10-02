@@ -90,6 +90,25 @@ sub get_history {
 	return from_json $m->content;
 }
 
+my %GET = map { $_ => $_ } qw(create_list fetch_lists);
+
+AUTOLOAD {
+	our $AUTOLOAD;
+	(my $sub = $AUTOLOAD) =~ s/^Dwimmer::Client:://;
+	my ($self, %attr) = @_;
+
+	if ($GET{$sub}) {
+            my $params = join "&", map { "$_=$attr{$_}" } keys %attr;
+	    my $m = $self->mech;
+	    my $url = $self->host . "/_dwimmer/$GET{$sub}.json?$params";
+	    #warn $url;
+	    $m->get($url);
+
+	    return from_json $m->content;
+	}
+	die "Could not locate method '$sub'\n";
+}
+
 sub register_email {
 	my ($self, $email) = @_;
 	my $m = $self->mech;
