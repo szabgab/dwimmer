@@ -80,23 +80,21 @@ $(document).ready(function() {
     //wrap it with <b></b>
     //replace selection with wrapped text
     $("#editor-bold").click(function(){
-      $("#editor_body").replaceSelection('<b>' + $("#editor_body").getSelection().text + '</b>');
-      $('#editor_body').keyup();
-    });
+      insert_markup('b');
+    })
     $("#editor-italic").click(function(){
-      $("#editor_body").replaceSelection('<i>' + $("#editor_body").getSelection().text + '</i>');
-      $('#editor_body').keyup();
-    });
+      insert_markup('i');
+    })
     
-function getSelectionStart(o) {
-	if (o.createTextRange) {
-		var r = document.selection.createRange().duplicate()
-		r.moveEnd('character', o.value.length)
-		if (r.text == '') return o.value.length
-		return o.value.lastIndexOf(r.text)
-	} else return o.selectionStart
+function insert_markup(c) {
+  if ($("#editor_body").getSelection().text == '') {
+     $("#editor_body").insertAtCaretPos('<' + c + '></' + c + '>');
+  } else {
+     $("#editor_body").replaceSelection('<' + c + '>' + $("#editor_body").getSelection().text + '</' + c + '>');
+  }
+  $('#editor_body').keyup();
 }
-
+    
     $(".list_users").click(function(){
       manage_bar();
       $.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
