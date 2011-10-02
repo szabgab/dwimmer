@@ -76,6 +76,26 @@ $(document).ready(function() {
       return false;
     });
 
+    //get selection from the editor
+    //wrap it with <b></b>
+    //replace selection with wrapped text
+    $("#editor-bold").click(function(){
+      $("#editor_body").replaceSelection('<b>' + $("#editor_body").getSelection().text + '</b>');
+      $('#editor_body').keyup();
+    });
+    $("#editor-italic").click(function(){
+      $("#editor_body").replaceSelection('<i>' + $("#editor_body").getSelection().text + '</i>');
+      $('#editor_body').keyup();
+    });
+    
+function getSelectionStart(o) {
+	if (o.createTextRange) {
+		var r = document.selection.createRange().duplicate()
+		r.moveEnd('character', o.value.length)
+		if (r.text == '') return o.value.length
+		return o.value.lastIndexOf(r.text)
+	} else return o.selectionStart
+}
 
     $(".list_users").click(function(){
       manage_bar();
@@ -306,4 +326,3 @@ function markup(text) {
     html = html.replace(/\[([\w\/\-]+)\]/g, '<a href="$1">$1</a>');
     return html;
 }
-
