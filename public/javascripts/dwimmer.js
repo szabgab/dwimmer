@@ -126,6 +126,17 @@ $(document).ready(function() {
 
        return false;
     });
+    $(".create_page").click(function(){
+       manage_bar();
+       original_content = $('#content').html();
+       $('#create').val( 1 );
+       $('#admin-editor').show();
+       $('#filename').val( $(location).attr('pathname') );
+       $('#admin-editor-filename').show();
+       $('#editor_body').keyup();    // update preview
+
+       return false;
+    });
 
     $(".create_site").click(function(){
        manage_bar();
