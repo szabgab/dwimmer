@@ -76,7 +76,30 @@ $(document).ready(function() {
       return false;
     });
 
-
+    //get selection from the editor
+    //wrap it with <b></b>
+    //replace selection with wrapped text
+    $("#editor-bold").click(function(){
+      insert_markup('b');
+    })
+    $("#editor-italic").click(function(){
+      insert_markup('i');
+    })
+    $("#editor-link").click(function(){
+      var link = prompt('Please paste the link here: (http://www.some.com/ or c:\dir\name\file.txt)');
+      if (link) {
+        var text = $("#editor_body").getSelection().text;
+        if (text == '') {
+            $("#editor_body").insertAtCaretPos('<a href="' + link + '">' + link + '</a>');
+        } else {
+           $("#editor_body").replaceSelection('<a href="' + link + '">' + text + '</a>');
+        }
+        $('#editor_body').keyup();
+         
+        //alert(link);
+      }
+    })
+   
     $(".list_users").click(function(){
       manage_bar();
       $.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
@@ -307,3 +330,11 @@ function markup(text) {
     return html;
 }
 
+function insert_markup(c) {
+  if ($("#editor_body").getSelection().text == '') {
+     $("#editor_body").insertAtCaretPos('<' + c + '></' + c + '>');
+  } else {
+     $("#editor_body").replaceSelection('<' + c + '>' + $("#editor_body").getSelection().text + '</' + c + '>');
+  }
+  $('#editor_body').keyup();
+}
