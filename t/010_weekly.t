@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use t::lib::Dwimmer::Test qw(start $admin_mail @users);
+use t::lib::Dwimmer::Test qw(start $admin_mail @users read_file);
 
 use Cwd qw(abs_path);
 use Data::Dumper qw(Dumper);
@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 5);
+plan(tests => 6);
 
 
 use Dwimmer::Client;
@@ -68,7 +68,17 @@ is_deeply($user->register_email(email => 't1@dwimmer.com', listid => 1),
 #		dwimmer_version => $Dwimmer::VERSION,
 		success => 1,
 	}, "submit registration");
-#diag(read_file($ENV{DWIMMER_MAIL}));
+my $mail = read_file($ENV{DWIMMER_MAIL});
+our $VAR1;
+eval $mail;
+#diag(explain($VAR1));
+is_deeply($VAR1, bless( {
+   'Data' => 'Please Confirm',
+   'From' => 'gabor@szabgab.com',
+   'Subject' => 'Hi',
+   'To' => 't1@dwimmer.com'
+}, 'MIME::Lite' ), 'expected e-mail structure'); 
+
 
 
 
