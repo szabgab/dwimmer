@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 6);
+plan(tests => 8);
 
 
 use Dwimmer::Client;
@@ -33,14 +33,47 @@ is_deeply($admin->login( 'admin', $password ), {
 # create a mailing list
 my $list_name = 'Test list';
 my $from_address = 'admin1@dwimmer.org';
-is_deeply_full($admin->create_list( name => $list_name, from_address => $from_address ), {
+my $validate_template = <<'END_VALIDATE';
+Opening: I am ready to send you updates.
+
+-----------------------------------------------------------
+CONFIRM BY VISITING THE LINK BELOW:
+
+<% url %>
+
+Click the link above to give me permission to send you
+information.  It's fast and easy!  If you cannot click the
+full URL above, please copy and paste it into your web
+browser.
+
+-----------------------------------------------------------
+If you do not want to confirm, simply ignore this message.
+
+Thank You Again!
+
+END_VALIDATE
+
+my $confirm_template = <<'END_CONFIRM';
+END_CONFIRM
+
+is_deeply_full($admin->create_list( 
+		name => $list_name,
+		from_address => $from_address,
+		validate_template => $validate_template,
+		confirm_template => $confirm_template,
+		), {
 	listid => 1,
 	success => 1,
    }, 'create_list');
 
 # TODO handle duplicate entries
 #diag(explain($admin->create_list( name => $list_name ) ));
-is_deeply_full($admin->create_list( name => 'Another list', from_address => 'other@dwimmer.org' ), {
+is_deeply_full($admin->create_list( 
+		name => 'Another list',
+		from_address => 'other@dwimmer.org',
+		validate_template => 'validate <% url %>',
+		confirm_template => '<% url %>',
+		), {
 	listid => 2,
 	success => 1,
    }, 'create_list');
@@ -67,20 +100,43 @@ is_deeply_full($admin->fetch_lists, {
 
 my $user = Dwimmer::Client->new( host => $url );
 #diag(explain($user->register_email(email => 't1@dwimmer.org', listid => 1)));
-is_deeply($user->register_email(email => 't1@dwimmer.org', listid => 1),
+is_deeply_full($user->register_email(email => 't1@dwimmer.org', listid => 1),
 	{
 		success => 1,
 	}, "submit registration");
-my $mail = read_file($ENV{DWIMMER_MAIL});
 our $VAR1;
-eval $mail;
+
+my $validate_mail = read_file($ENV{DWIMMER_MAIL});
+eval $validate_mail;
 #diag(explain($VAR1));
-is_deeply($VAR1, bless( {
-   'Data' => 'Please Confirm',
+# my $validate = $validate_template;
+my $found_code = '';
+if ($VAR1->{Data} =~ s{http://localhost:3001/validate_email\?listid=1&email=t1\@dwimmer\.org&code=(\w+)}{<% url %>}) {
+	$found_code = $1;
+}
+
+is_deeply_full($VAR1, bless( {
+   'Data' => $validate_template,
    'From' => $from_address,
-   'Subject' => "$list_name registration",
+   'Subject' => "$list_name registration - email validation",
    'To' => 't1@dwimmer.org'
 }, 'MIME::Lite' ), 'expected e-mail structure'); 
+$VAR1 = undef;
+
+diag("code='$found_code'");
+is_deeply_full($user->validate_email(listid => 1, email => 't1@dwimmer.org', code => $found_code), {
+	success => 1,
+	}, 'validate_email');
+my $confirm_mail = read_file($ENV{DWIMMER_MAIL});
+eval $confirm_mail;
+#diag(explain($VAR1));
+is_deeply_full($VAR1, bless( {
+   'Data' => $confirm_template,
+   'From' => $from_address,
+   'Subject' => "$list_name - Thank you for subscribing",
+   'To' => 't1@dwimmer.org'
+}, 'MIME::Lite' ), 'expected e-mail structure'); 
+
 
 
 
@@ -90,3 +146,7 @@ sub is_deeply_full {
 	diag(explain($result)) if not $ok;
 	return $ok;
 }
+
+# TODO validation mail: subject, template
+# TODO validation web page, error messages
+# TODO confirm mail: subject, template

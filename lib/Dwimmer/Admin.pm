@@ -303,12 +303,16 @@ get '/create_list.json' => sub {
     trim($from_address);
     return to_json { 'error' => 'no_from_address' } if not $from_address;
     
+    my $validate_template = params->{'validate_template'} || '';
+    my $confirm_template  = params->{'confirm_template'} || '';
 
     my $db = _get_db();
     my $list = $db->resultset('MailingList')->create({
         owner => session->{userid},
         name  => $name,
         from_address => $from_address,
+        validate_template => $validate_template,
+        confirm_template => $confirm_template,
     });
     return to_json { success => 1, listid => $list->id };
 };
@@ -347,20 +351,22 @@ get '/register_email.json' => sub {
     #return render_response 'error', {'list_not_open' => 1} if not $list->open;
 
     my $time = time;
-    my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
+    my $validation_code = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
+    my $url = 'http://' . request->host . "/validate_email?listid=$listid&email=$email&code=$validation_code";
 
     # add member (TODO what if the e-mail is already listed in the same list)
     eval {
         my $user = $db->resultset('MailingListMember')->create({
-            listid         => $listid,
-            email          => $email,
-            validation_key => $validation_key,
-            register_ts    => $time,
-            approved       => 0,
+            listid          => $listid,
+            email           => $email,
+            validation_code => $validation_code,
+            register_ts     => $time,
+            approved        => 0,
         });
 
-        my $subject = $list->name . " registration";
-        my $data    = 'Please Confirm'; # TODO content of the confirmation request
+        my $subject = $list->name . " registration - email validation";
+        my $data    = $list->validate_template;
+        $data =~ s/<% url %>/$url/g;
         my $msg = MIME::Lite->new(
             From    => $list->from_address,
             To      => $email,
@@ -370,33 +376,55 @@ get '/register_email.json' => sub {
         $msg->send;
     };
     if ($@) {
-#        warn "ERROR while trying to register ($email) $@";
+        die "ERROR while trying to register ($email) $@";
         return render_response 'error', {'internal_error_when_subscribing' => 1};
     }
 
     return to_json { success => 1 };
 };
 
-get '/confirm_email.json' => sub {
+get '/validate_email.json' => sub {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
 
-    my $key = params->{'key'} || '';
-    trim($key);
-    return to_json { 'error' => 'no_confirmation_key' } if not $key;
+    my $code = params->{'code'} || '';
+    trim($code);
+    return to_json { 'error' => 'no_confirmation_code' } if not $code;
 
+    my $email = lc( params->{'email'} || '' );
+    trim($email);
+    return render_response 'error', {'no_email' => 1} if not $email;
+
+    my $listid = params->{listid} || '';
+    trim($listid);
+    return render_response 'error', {'no_listid' => 1} if not $listid;
 
     eval {
         my $db = _get_db();
-        my $subs = 'TODO';
-        if (not $subs) {
-            return to_json { 'error' => 'invalid_confirmation_key' };
+        my $user = $db->resultset('MailingListMember')->find( {validation_code => $code, email => $email, listid => $listid} );
+        if (not $user) {
+            return to_json { 'error' => 'invalid_confirmation_code' };
         }
-        #$dbh->do('UPDATE people SET approved=1 WHERE email=?', {}, $email);
+        $user->{approved} = 1;
+        $user->update;
+
+        my $list = $db->resultset('MailingList')->find( { id => $listid } );
+        my $subject = $list->name . " - Thank you for subscribing";
+        my $data    = $list->confirm_template;
+        #$data =~ s/<% url %>/$url/g;
+        my $msg = MIME::Lite->new(
+            From    => $list->from_address,
+            To      => $email,
+            Subject => $subject,
+            Data    => $data,
+        );
+        $msg->send;
+
     };
     if ($@) {
         return render_response 'error', {'internal_error_when_confirming' => 1};
     }
+    return to_json { 'success' => 1 };
 };
 
 

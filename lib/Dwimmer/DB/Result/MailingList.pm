@@ -43,6 +43,16 @@ __PACKAGE__->table("mailing_list");
   is_nullable: 0
   size: 100
 
+=head2 validate_template
+
+  data_type: 'blob'
+  is_nullable: 1
+
+=head2 confirm_template
+
+  data_type: 'blob'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -54,6 +64,10 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "from_address",
   { data_type => "varchar", is_nullable => 0, size => 100 },
+  "validate_template",
+  { data_type => "blob", is_nullable => 1 },
+  "confirm_template",
+  { data_type => "blob", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("name_unique", ["name"]);
@@ -76,8 +90,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-04 09:14:00
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V0RQJu2mjVpZXRMNLWuSKg
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-04 10:16:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BKzk++LPZZEnQKK9+CIaCQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

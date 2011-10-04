@@ -3,13 +3,15 @@ CREATE TABLE mailing_list (
     name    VARCHAR(100) UNIQUE NOT NULL,
     owner   INTEGER NOT NULL,
     from_address VARCHAR(100) NOT NULL,
+    validate_template BLOB,
+    confirm_template BLOB,
     FOREIGN KEY (owner) REFERENCES user(id)
 );
 CREATE TABLE mailing_list_member (
     id              INTEGER PRIMARY KEY,
     listid          INTEGER NOT NULL,
     email           VARCHAR(100) NOT NULL,
-    validation_key  VARCHAR(255) UNIQUE,
+    validation_code VARCHAR(255) UNIQUE,
     approved        BOOL,
     register_ts     INTEGER,
     name            VARCHAR(100),
