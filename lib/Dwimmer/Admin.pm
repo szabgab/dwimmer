@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.01';
+our $VERSION = '0.1101';
 
 use Data::Dumper    qw(Dumper);
 use Email::Valid    ();
@@ -12,7 +12,7 @@ use String::Random  ();
 use Template        ();
 
 use Dwimmer::DB;
-use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page);
+use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page create_site read_file trim);
 
 
 sub include_session {
@@ -47,6 +47,11 @@ sub render_response {
 
 sub get_page_data {
     my ($site, $path, $revision) = @_;
+
+    # make it easy to deploy in CGI environment.
+    if ($path eq '/index' or $path eq '/index.html') {
+        $path = '/';
+    }
 
     my $db = _get_db();
     my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
@@ -428,19 +433,20 @@ get '/validate_email.json' => sub {
 };
 
 
-###### helper methods
+post '/create_site.json' => sub {
+    my %args;
+    foreach my $field ( qw(name) ) {
+        $args{$field} = params->{$field} || '';
+        trim($args{$field});
+    }
 
+    return to_json {error => 'missing_name' } if not $args{name};
 
-sub trim {  $_[0] =~ s/^\s+|\s+$//g };
+    create_site($args{name}, $args{name}, session->{userid});
 
-sub read_file {
-    my $file = shift;
-    open my $fh, '<', $file or die "Could not open '$file' $!";
-    local $/ = undef;
-    my $cont = <$fh>;
-    close $fh;
-    return $cont;
-}
+    return to_json { success => 1 };
+};
+
 
 true;
 

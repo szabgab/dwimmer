@@ -10,6 +10,7 @@ our @EXPORT = qw(start stop $admin_mail @users read_file);
 
 use File::Spec;
 use File::Temp qw(tempdir);
+use File::Copy qw(copy);
 
 my $process;
 
@@ -39,6 +40,10 @@ sub start {
     my $root = File::Spec->catdir( $dir, 'dwimmer' );
     system
         "$^X -Ilib script/dwimmer_setup.pl --root $root --email $admin_mail --password $password";
+
+    mkdir "$root/polls";
+    copy("t/files/testing-polls.json", "$root/polls");
+
 
     if ( $^O =~ /win32/i ) {
         require Win32::Process;

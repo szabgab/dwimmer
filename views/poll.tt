@@ -1,0 +1,24 @@
+<h1><% poll.title %></h1>
+
+<form id="poll" method="POST" action="/poll">
+<input name="id" type="hidden" value="<% poll.id %>" />
+<ul>
+<% FOR q IN poll.questions %>
+  <li><div class="poll_question_title"><% q.text %></div>
+  <% IF q.limit %>
+  Please select up to <% q.limit %> answers.
+  <% END %>
+  <ul>
+     <% FOR a IN q.answers %>
+     <li><input type="checkbox" name="<% q.id %>" value="<% loop.index %>" /><% a %></li>
+     <% END %>
+     <% IF q.other %>
+     <li>Other: <input type="text" name="other__<% q.id %>" size="50" />
+     <% END %>
+  </ul>
+  </li>
+<% END %>
+</ul>
+
+<input type="submit" value="Submit" />
+</form>

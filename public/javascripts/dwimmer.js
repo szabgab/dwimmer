@@ -2,111 +2,142 @@ var username;
 var userid;
 var original_content; // to make editor cancellation quick
 
- $(document).ready(function() {
-   $('#content').show();
-   $('#logged_in_bar').hide();
-   $('#guest_bar').hide();
-   $('#manage-bar').hide();
-   $('#manage-bar > div').hide();
-   
-   $.getJSON('/_dwimmer/session.json', function(resp) {
-       if (resp["logged_in"] == 1) {
-           $('#logged_in_bar').show();
-           $("#logged-in").html(resp["username"]);
-           username = resp["username"];
-           userid   = resp["userid"];
-       } else {
-           $('#guest_bar').show();
-       }
-   });
+function _url(url) {
+  url = url + '?cache=' + new Date().getTime();
+  //alert(url);
+  return url;
+}
 
-      $(".topnav").dropDownPanels({
-	speed: 250,
-	resetTimer: 500
-      });
+$(document).ready(function() {
+  $('#content').show();
+  $('#logged_in_bar').hide();
+  $('#guest_bar').hide();
+  $('#manage-bar').hide();
+  $('#manage-bar > div').hide();
+  $('#admin').height(0);
 
-    $("form.login").submit(function() {
-        var url = "/_dwimmer/login.json";
-        $.post(url, $(this).serialize(), function(resp) {
-            if (resp["success"] == 1) {
-                $('#guest_bar').hide();
-                $('#logged_in_bar').show();
-                $("#logged-in").html(resp["username"]);
-                username = resp["username"];
-                userid   = resp["userid"];
-            } else {
-                alert(resp["error"]);
-            }
-        }, 'json');
-        return false;
-     });
-     
-     $("#logged-in").click(function() {
-         get_and_show_user(userid);
-         return false;
-      });
+  $.getJSON(_url('/_dwimmer/session.json'), function(resp) {
+    if (resp["logged_in"] == 1) {
+      $('#admin').height("35px");
+      $('#admin').show();
+      //$('#manage-bar').show();
+      $('#logged_in_bar').show();
+      $("#logged-in").html(resp["username"]);
+      username = resp["username"];
+      userid   = resp["userid"];
+    } else if (window.location.href.indexOf('?_dwimmer') > 0) {
+      $('#admin').height("35px");
+      $('#admin').show();
+      //$('#manage-bar').show();
+      $('#guest_bar').show();
+    }
+  });
 
+  $(".topnav").dropDownPanels({
+    speed: 250,
+    resetTimer: 500
+  });
 
+  $("form.login").submit(function() {
+    var url = "/_dwimmer/login.json";
+    $.post(url, $(this).serialize(), function(resp) {
+      if (resp["success"] == 1) {
+        $('#guest_bar').hide();
+        $('#logged_in_bar').show();
+        $("#logged-in").html(resp["username"]);
+        username = resp["username"];
+        userid   = resp["userid"];
+      } else {
+        alert(resp["error"]);
+      }
+    }, 'json');
+      return false;
+    });
+
+    $("#logged-in").click(function() {
+      get_and_show_user(userid);
+      return false;
+    });
 
     $('.logout').click(function(){
-        var url = '/_dwimmer/logout.json';
-        $.get(url, function(resp) {
-            $("#logged-in").html('');
-             $('#logged_in_bar').hide();
-             $('#manage-bar').hide();
-             $('#manage-bar > div').hide();
-             $('#manage-display').empty();
-             $('#guest_bar').show();
-        });
-        return false;
+      $.getJSON(_url('/_dwimmer/logout.json'), function(resp) {
+        $("#logged-in").html('');
+        $('#logged_in_bar').hide();
+        $('#manage-bar').hide();
+        $('#manage-bar > div').hide();
+        $('#manage-display').empty();
+        $('#guest_bar').show();
+      });
+      return false;
     });
-
 
     $(".manage").click(function(){
-        // TODO do something here?
-        return false;
+      // TODO do something here?
+      return false;
     });
 
-
+    //get selection from the editor
+    //wrap it with <b></b>
+    //replace selection with wrapped text
+    $("#editor-bold").click(function(){
+      insert_markup('b');
+    })
+    $("#editor-italic").click(function(){
+      insert_markup('i');
+    })
+    $("#editor-link").click(function(){
+      var link = prompt('Please paste the link here: (http://www.some.com/ or c:\dir\name\file.txt)');
+      if (link) {
+        var text = $("#editor_body").getSelection().text;
+        if (text == '') {
+            $("#editor_body").insertAtCaretPos('<a href="' + link + '">' + link + '</a>');
+        } else {
+           $("#editor_body").replaceSelection('<a href="' + link + '">' + text + '</a>');
+        }
+        $('#editor_body').keyup();
+         
+        //alert(link);
+      }
+    })
+   
     $(".list_users").click(function(){
-        manage_bar();
-        $.getJSON('/_dwimmer/list_users.json', function(resp) {
-            var html = '<ul>';
-            for(var i=0; i < resp["users"].length; i++) {
-               html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
-            }
-            html += '</ul>';
-            $('#manage-display').show();
-            $('#manage-display').html(html);
+      manage_bar();
+      $.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
+        var html = '<ul>';
+        for(var i=0; i < resp["users"].length; i++) {
+          html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
+        }
+        html += '</ul>';
+        $('#manage-display').show();
+        $('#manage-display').html(html);
 
-            // Setup the events only after the html was added!
-            $('#manage-display  a').click(function() {
-                var value = $(this).attr('value');
-                get_and_show_user(value);
-                return false;
-            });
+        // Setup the events only after the html was added!
+        $('#manage-display  a').click(function() {
+          var value = $(this).attr('value');
+          get_and_show_user(value);
+          return false;
         });
+      });
 
-        return false;
+      return false;
     });
 
     $(".add_user").click(function(){
-        manage_bar();
-        $('#manage-add-user').show();
-        return false;
+      manage_bar();
+      $('#manage-add-user').show();
+      return false;
     });
     $("#add-user-form").submit(function() {
-        var url = "/_dwimmer/add_user.json";
-        $.post(url, $(this).serialize(), function(resp) {
-            if (resp["success"] == 1) {
-                alert('added');
-            } else {
-                alert(resp["error"]);
-            }
-        }, 'json');
+      var url = "/_dwimmer/add_user.json";
+      $.post(url, $(this).serialize(), function(resp) {
+        if (resp["success"] == 1) {
+          alert('added');
+        } else {
+          alert(resp["error"]);
+        }
+      }, 'json');
         return false;
-     });
-
+    });
 
     $(".add_page").click(function(){
        manage_bar();
@@ -118,13 +149,45 @@ var original_content; // to make editor cancellation quick
 
        return false;
     });
+    $(".create_page").click(function(){
+       manage_bar();
+       original_content = $('#content').html();
+       $('#create').val( 1 );
+       $('#admin-editor').show();
+       $('#filename').val( $(location).attr('pathname') );
+       $('#admin-editor-filename').show();
+       $('#editor_body').keyup();    // update preview
+
+       return false;
+    });
+
+    $(".create_site").click(function(){
+       manage_bar();
+       original_content = $('#content').html();
+       $('#admin-create-site').show();
+
+       return false;
+    });
+    $("#create-site-form").submit(function() {
+        var url = "/_dwimmer/create_site.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
 
     $(".list_pages").click(function(){
         manage_bar();
-        $.getJSON('/_dwimmer/get_pages.json', function(resp) {
+        $.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
             var html = '<ul>';
             for(var i=0; i < resp["rows"].length; i++) {
-               html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + resp["rows"][i]["title"] + '</li>';
+               var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
+               html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
             }
             html += '</ul>';
             $('#manage-display').show();
@@ -136,7 +199,7 @@ var original_content; // to make editor cancellation quick
 
    $(".show_history").click(function(){
         manage_bar();
-       var url = '/_dwimmer/history.json?filename=' + $(location).attr('pathname');
+       var url = _url('/_dwimmer/history.json') + '&filename=' + $(location).attr('pathname');
        $.getJSON(url, function(resp) {
             //$('#admin-editor').show();
             var html = '<ul>';
@@ -148,13 +211,13 @@ var original_content; // to make editor cancellation quick
             $('#manage-display').html(html);
 
             $(".show_page_rev").click(function() {
-                var url = $(this).attr('href');
+                var url = _url( $(this).attr('href') );
                 $.getJSON(url, function(resp) {
                     var body = resp["page"]["body"];
                     var revision = resp["page"]["revision"];
                     var html = "<p>Showing revision " + revision  + "<hr></p>" + markup(body);
                     $('#content').html(html); // preview
-                    
+
                     //alert('hi');
                     // show the content of the specific revision of the file
                 });
@@ -169,7 +232,7 @@ var original_content; // to make editor cancellation quick
    $(".edit_this_page").click(function() {
        manage_bar();
        original_content = $('#content').html();
-       var url = '/_dwimmer/page.json?filename=' + $(location).attr('pathname');
+       var url = _url('/_dwimmer/page.json') + '&filename=' + $(location).attr('pathname');
        $.getJSON(url, function(resp) {
             $('#admin-editor').show();
             $('#admin-editor-filename').hide();
@@ -230,7 +293,7 @@ var original_content; // to make editor cancellation quick
 });
 
 function get_and_show_user (value) {
-    $.getJSON('/_dwimmer/get_user.json?id=' + value, function(resp) {
+    $.getJSON(_url('/_dwimmer/get_user.json') + '&id=' + value, function(resp) {
         manage_bar();
         var html = '<ul>';
         html += '<li>id = ' + resp["id"] + '</li>';
@@ -261,9 +324,17 @@ function markup(text) {
 
     // free URL?
     // html = html.replace(/https?:\/\/\S+
-	
+
     // [link]
     html = html.replace(/\[([\w\/\-]+)\]/g, '<a href="$1">$1</a>');
     return html;
 }
 
+function insert_markup(c) {
+  if ($("#editor_body").getSelection().text == '') {
+     $("#editor_body").insertAtCaretPos('<' + c + '></' + c + '>');
+  } else {
+     $("#editor_body").replaceSelection('<' + c + '>' + $("#editor_body").getSelection().text + '</' + c + '>');
+  }
+  $('#editor_body').keyup();
+}

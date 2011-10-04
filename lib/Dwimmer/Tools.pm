@@ -9,7 +9,9 @@ use YAML;
 
 use Dwimmer::DB;
 
-our @EXPORT_OK = qw(sha1_base64 _get_db _get_site save_page);
+our $VERSION = '0.1101';
+
+our @EXPORT_OK = qw(sha1_base64 _get_db _get_site save_page create_site read_file trim);
 
 our $dbfile;
 
@@ -29,12 +31,27 @@ sub _get_site {
 
     # based on hostname?
     my $host = request->host;
-    if ($host =~ /^([\w-]+)\./) {
+
+    # development and testing:
+    if ($host =~ /^localhost:\d+$/) {
+        $host = 'www';
+    }
+
+    if (params->{_dwimmer}) {
+        $host = params->{_dwimmer};
+    }
+    if ($host =~ /^([\w.-]+)/) {
         $site_name = $1;
     }
 
     my $db = _get_db();
     my $site = $db->resultset('Site')->find( { name => $site_name } );
+
+    # for now, let's default to www if the site isn't in the database
+    if (not $site) {
+        $site_name = 'www';
+        $site = $db->resultset('Site')->find( { name => $site_name } );
+    }
 
     return ($site_name, $site);
 }
@@ -87,5 +104,38 @@ sub save_page {
     });
     return to_json { success => 1 };
 };
+
+sub create_site {
+    my ($hostname, $title, $ownerid) = @_;
+
+    my $time = time;
+
+    my $db = _get_db();
+
+    my $site = $db->resultset('Site')->create({
+        name => $hostname, owner => $ownerid, creation_ts => $time
+    });
+
+    save_page($site, {
+            create       => 1,
+            editor_title => 'Welcome to your Dwimmer installation',
+            editor_body  => "<h1>Welcome to $title</h1>",
+            author       => $ownerid,
+            filename     => '/',
+    });
+
+    return;
+}
+
+sub trim {  $_[0] =~ s/^\s+|\s+$//g };
+
+sub read_file {
+    my $file = shift;
+    open my $fh, '<', $file or die "Could not open '$file' $!";
+    local $/ = undef;
+    my $cont = <$fh>;
+    close $fh;
+    return $cont;
+}
 
 1;

@@ -8,7 +8,7 @@ has host => (is => 'ro', isa => 'Str', required => 1);
 has mech => (is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.01';
+our $VERSION = '0.1101';
 
 sub login {
 	my ($self, $username, $password) = @_;
@@ -107,6 +107,13 @@ AUTOLOAD {
 	    return from_json $m->content;
 	}
 	die "Could not locate method '$sub'\n";
+}
+
+sub create_site {
+	my ($self, %args) = @_;
+	my $m = $self->mech;
+	$m->post( $self->host . "/_dwimmer/create_site.json", \%args );
+	return from_json $m->content;
 }
 
 1;

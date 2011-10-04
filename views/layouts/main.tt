@@ -6,96 +6,107 @@
 <title><% page.title %></title>
 <link rel="stylesheet" href="<% request.uri_base %>/css/style.css" />
 
-<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery-1.6.3.min.js"></script>
+<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.a-tools-1.5.2.min.js"></script>
+<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="<% request.uri_base %>/javascripts/dwimmer.js"></script>
 <script type="text/javascript" src="<% request.uri_base %>/javascripts/scriptbreaker-dropdownpanel-1.0.js"></script>
 
 </head>
 <body>
 <div id="admin">
-<div id="logged_in_bar">
-<ul class="topnav">
-	<li><a href="/" class="current">Home</a></li>
-        <li><a id="logged-in"></a></li>
-<!--
-	<li><a href="">JavaScript</a>
-		<div class="submenu submenu_fancy">
-			<ul>
-				<li><a href="">Link title</a><br><span>Link description</span></li>
-			</ul>
-
-		</div>
-	</li>
--->
-	<li><a class="manage" href="">Manage</a>
-		<div class="submenu submenu_simple">
-			<ul>
-			<li><a class="list_users"   href="">list users</a></li>
-			<li><a class="add_user"     href="">add user</a></li>
-			<li><a class="add_page"     href="">add a new page</a></li>
-			<li><a class="list_pages"   href="">list pages</a></li>
-			<li><a class="show_history" href="">show history</a></li>
-			</ul>
-		</div>
-	</li>
-        <li><a class="edit_this_page" href="">edit this page</a></li>
-	<li><a class="logout" href="">logout</a></li>
-</ul>
-</div>
-<div id="guest_bar">
-<form class="login">
-<span class="login-label"> Username: </span><input name="username" />
-<span class="login-label"> Password: </span><input type="password" name="password" />
-<input type="submit" value="Login" />
-</form>
-<!--
-Not yet implemented
-<span><a class="lost_password" href="">Lost password</a></span>
-<span><a class="register_form" href="">Register</a></span>
--->
-</div>
+  <div id="logged_in_bar">
+    <ul class="topnav">
+      <li><a href="/" class="current">Home</a></li>
+      <li><a id="logged-in"></a></li>
+    <!--
+      <li><a href="">JavaScript</a>
+        <div class="submenu submenu_fancy">
+          <ul>
+            <li><a href="">Link title</a><br><span>Link description</span></li>
+          </ul>
+        </div>
+      </li>
+    -->
+      <li><a class="manage" href="">Manage</a>
+        <div class="submenu submenu_simple">
+          <ul>
+            <li><a class="list_users"   href="">list users</a></li>
+            <li><a class="add_user"     href="">add user</a></li>
+            <li><a class="add_page"     href="">add a new page</a></li>
+            <li><a class="list_pages"   href="">list pages</a></li>
+            <li><a class="show_history" href="">show history</a></li>
+            <li><a class="create_site"  href="">create site</a></li>
+          </ul>
+        </div>
+      </li>
+      <li><a class="edit_this_page" href="">edit this page</a></li>
+      <li><a class="logout" href="">logout</a></li>
+    </ul>
+  </div>
+  <div id="guest_bar">
+    <form class="login">
+      <span class="login-label"> Username: </span><input name="username" />
+      <span class="login-label"> Password: </span><input type="password" name="password" />
+      <input type="submit" value="Login" />
+    </form>
+    <!--
+    Not yet implemented
+    <span><a class="lost_password" href="">Lost password</a></span>
+    <span><a class="register_form" href="">Register</a></span>
+    -->
+  </div>
 </div>
 
 <div id="manage-bar">
-<div id="manage-close"><a class="close_manage_bar" href="" value="close">close</a><br></div>
+  <div id="manage-close"><a class="close_manage_bar" href="" value="close">close</a><br></div>
 
-<div id="manage-display">
-</div>
+  <div id="manage-display"></div>
 
-<div id="manage-add-user">
-<form id="add-user-form">
-Username: <input name="uname" /><br />
-First name: <input name="fname" /><br />
-Last name: <input name="lname" /><br />
-email: <input name="email" /><br />
-You can leave the password fields empty and a password will be generated to the user
-who will be able to reset it via the web form.<br />
-password: <input name="pw1" type="password" /><br />
-retypr password: <input name="pw2" type="password" /><br />
-Send validation mail: <input name="verify" type="radio" value="send_email" CHECKED /> 
-Set verified bit <input type="radio" name="verify" value="verified" />
-<input type="submit" value="Add user" /><br />
-</form>
-</div>
-
-<div id="admin-editor">
-  <form id="editor_form" action="/_dwimmer/save" method="POST">
-  <input type="button" id="save" value="Save" />
-  <input type="button" id="cancel" value="Cancel" />
-  <div id="admin-editor-filename">
-  Filename: <input id="filename" name="filename" />
+  <div id="manage-add-user">
+    <form id="add-user-form">
+    Username: <input name="uname" /><br />
+    First name: <input name="fname" /><br />
+    Last name: <input name="lname" /><br />
+    email: <input name="email" /><br />
+    You can leave the password fields empty and a password will be generated to the user
+    who will be able to reset it via the web form.<br />
+    password: <input name="pw1" type="password" /><br />
+    retypr password: <input name="pw2" type="password" /><br />
+    Send validation mail: <input name="verify" type="radio" value="send_email" CHECKED />
+    Set verified bit <input type="radio" name="verify" value="verified" />
+    <input type="submit" value="Add user" /><br />
+    </form>
   </div>
-  <input type="hidden" id="create" name="create" />
-  <br />
-  <input name="editor_title" id="editor_title" size="80" />
-  <br />
-  <textarea rows="10" cols="70" name="editor_body" id="editor_body"></textarea>
-<!--  <br />
-  Comma separated tags: <input name="editor_tags" id="editor_tags" size="80" />
--->
-  </form>
-</div>
 
+  <div id="admin-editor">
+    <form id="editor_form" action="/_dwimmer/save" method="POST">
+      <input type="button" id="save" value="Save" />
+      <input type="button" id="cancel" value="Cancel" />
+      <br />
+      <input type="button" id="editor-bold" title="bold" value="b" />
+      <input type="button" id="editor-italic" title="italic" value="i" />
+      <input type="button" id="editor-link" title="add link" value="Link" />
+      <div id="admin-editor-filename">
+        Filename: <input id="filename" name="filename" />
+      </div>
+      <input type="hidden" id="create" name="create" />
+      <br />
+      <input name="editor_title" id="editor_title" size="80" />
+      <br />
+      <textarea rows="10" cols="70" name="editor_body" id="editor_body"></textarea>
+      <!--  <br />
+       Comma separated tags: <input name="editor_tags" id="editor_tags" size="80" />
+      -->
+    </form>
+  </div>
+
+  <div id="admin-create-site">
+    <form id="create-site-form" action="/_dwimmer/create_site.json" method="POST">
+      Hostname: <input name="name" size="30" />
+      <input type="submit" id="create-site" value="Create Site" />
+    </form>
+  </div>
 </div>
 
 <div id="content">
