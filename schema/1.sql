@@ -2,6 +2,7 @@ CREATE TABLE mailing_list (
     id      INTEGER PRIMARY KEY,
     name    VARCHAR(100) UNIQUE NOT NULL,
     owner   INTEGER NOT NULL,
+    from_address VARCHAR(100) NOT NULL,
     FOREIGN KEY (owner) REFERENCES user(id)
 );
 CREATE TABLE mailing_list_member (

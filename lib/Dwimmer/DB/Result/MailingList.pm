@@ -37,6 +37,12 @@ __PACKAGE__->table("mailing_list");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 from_address
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 100
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -46,6 +52,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 100 },
   "owner",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "from_address",
+  { data_type => "varchar", is_nullable => 0, size => 100 },
 );
 __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("name_unique", ["name"]);
@@ -68,8 +76,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-02 12:14:24
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:rUtyGU6Aoog+8O5w06VuBg
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-04 09:14:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:V0RQJu2mjVpZXRMNLWuSKg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

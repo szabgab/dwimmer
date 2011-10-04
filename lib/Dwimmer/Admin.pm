@@ -298,11 +298,17 @@ get '/create_list.json' => sub {
     my $name = params->{'name'} || '';
     trim($name);
     return to_json { 'error' => 'no_name' } if not $name;
+    
+    my $from_address = params->{'from_address'} || '';
+    trim($from_address);
+    return to_json { 'error' => 'no_from_address' } if not $from_address;
+    
 
     my $db = _get_db();
     my $list = $db->resultset('MailingList')->create({
         owner => session->{userid},
         name  => $name,
+        from_address => $from_address,
     });
     return to_json { success => 1, listid => $list->id };
 };
@@ -353,10 +359,10 @@ get '/register_email.json' => sub {
             approved       => 0,
         });
 
-        my $subject = 'Hi';  #TODO subject of the mailing list
+        my $subject = $list->name . " registration";
         my $data    = 'Please Confirm'; # TODO content of the confirmation request
         my $msg = MIME::Lite->new(
-            From    => 'gabor@szabgab.com', # TODO: email of the mailing list
+            From    => $list->from_address,
             To      => $email,
             Subject => $subject,
             Data    => $data,
