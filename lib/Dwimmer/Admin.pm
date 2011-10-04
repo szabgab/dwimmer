@@ -297,7 +297,6 @@ get '/create_list.json' => sub {
 
     my $name = params->{'name'} || '';
     trim($name);
-    #die "name='$name'";
     return to_json { 'error' => 'no_name' } if not $name;
 
     my $db = _get_db();
@@ -316,20 +315,83 @@ get '/fetch_lists.json' => sub {
     return to_json {success => 1, lists => \@list};
 };
 
-get '/register_mail.json' => sub {
+get '/register_email.json' => sub {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
 
+    # check e-mail
     my $email = lc( params->{'email'} || '' );
+    trim($email);
     return render_response 'error', {'no_email' => 1} if not $email;
 
-    # $user = $db->resultset('WeeklyUser')->create({
-        # site => 
-        # email => $email,
-    # });
+    if (not Email::Valid->address($email)) {
+        return render_response 'error', {'invalid_email' => 1};
+    }
+
+    # check list
+    my $listid = params->{listid} || '';
+    trim($listid);
+    return render_response 'error', {'no_listid' => 1} if not $listid;
+
+    my $db = _get_db();
+    my $list = $db->resultset('MailingList')->find( { id => $listid } );
+    return render_response 'error', {'no_such_list' => 1} if not $list;
+
+    # TODO: change schema
+    #return render_response 'error', {'list_not_open' => 1} if not $list->open;
+
+    my $time = time;
+    my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
+
+    # add member (TODO what if the e-mail is already listed in the same list)
+    eval {
+        my $user = $db->resultset('MailingListMember')->create({
+            listid         => $listid,
+            email          => $email,
+            validation_key => $validation_key,
+            register_ts    => $time,
+            approved       => 0,
+        });
+
+        my $subject = 'Hi';  #TODO subject of the mailing list
+        my $data    = 'Please Confirm'; # TODO content of the confirmation request
+        my $msg = MIME::Lite->new(
+            From    => 'gabor@szabgab.com', # TODO: email of the mailing list
+            To      => $email,
+            Subject => $subject,
+            Data    => $data,
+        );
+        $msg->send;
+    };
+    if ($@) {
+#        warn "ERROR while trying to register ($email) $@";
+        return render_response 'error', {'internal_error_when_subscribing' => 1};
+    }
+
     return to_json { success => 1 };
 };
 
+get '/confirm_email.json' => sub {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+
+    my $key = params->{'key'} || '';
+    trim($key);
+    return to_json { 'error' => 'no_confirmation_key' } if not $key;
+
+
+    eval {
+        my $db = _get_db();
+        my $subs = 'TODO';
+        if (not $subs) {
+            return to_json { 'error' => 'invalid_confirmation_key' };
+        }
+        #$dbh->do('UPDATE people SET approved=1 WHERE email=?', {}, $email);
+    };
+    if ($@) {
+        return render_response 'error', {'internal_error_when_confirming' => 1};
+    }
+};
 
 
 ###### helper methods

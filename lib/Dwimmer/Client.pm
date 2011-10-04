@@ -90,7 +90,7 @@ sub get_history {
 	return from_json $m->content;
 }
 
-my %GET = map { $_ => $_ } qw(create_list fetch_lists);
+my %GET = map { $_ => $_ } qw(create_list fetch_lists register_email);
 
 AUTOLOAD {
 	our $AUTOLOAD;
@@ -107,15 +107,6 @@ AUTOLOAD {
 	    return from_json $m->content;
 	}
 	die "Could not locate method '$sub'\n";
-}
-
-sub register_email {
-	my ($self, $email) = @_;
-	my $m = $self->mech;
-#	$m->post( $self->host . "/_dwimmer/register_mail.json", { email => $email } );
-	$m->get($self->host . '/_dwimmer/register_mail.json?email=' . $email);
-
-	return from_json $m->content;
 }
 
 1;

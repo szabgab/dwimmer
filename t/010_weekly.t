@@ -62,8 +62,8 @@ is_deeply($admin->fetch_lists, {
 # TODO: user clicks on confirmation
 
 my $user = Dwimmer::Client->new( host => $url );
-#diag(explain($user->register_email('t1@dwimmer.com')));
-is_deeply($user->register_email('t1@dwimmer.com'),
+#diag(explain($user->register_email(email => 't1@dwimmer.com', listid => 1)));
+is_deeply($user->register_email(email => 't1@dwimmer.com', listid => 1),
 	{
 #		dwimmer_version => $Dwimmer::VERSION,
 		success => 1,
