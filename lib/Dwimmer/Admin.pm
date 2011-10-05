@@ -161,10 +161,10 @@ get '/list_users.json' => sub {
     return to_json { users => \@users };
 };
 
-get '/needs_login' => sub {
+any '/needs_login' => sub {
     return render_response 'error', { not_logged_in => 1 };
 };
-get '/needs_login.json' => sub {
+any '/needs_login.json' => sub {
     return render_response 'error', { error => 'not_logged_in' };
 };
 
