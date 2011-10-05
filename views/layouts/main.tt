@@ -37,6 +37,7 @@
             <li><a class="list_pages"   href="">list pages</a></li>
             <li><a class="show_history" href="">show history</a></li>
             <li><a class="create_site"  href="">create site</a></li>
+            <li><a class="create_mailing_list"  href="">create mailing list</a></li>
           </ul>
         </div>
       </li>
@@ -107,6 +108,19 @@
       <input type="submit" id="create-site" value="Create Site" />
     </form>
   </div>
+  
+  <div id="admin-create-mailing-list">
+    <form id="create-list-form" action="/_dwimmer/create_list.json" method="POST">
+      <table>
+      <tr><td>List name:</td><td><input name="name" size="40" /></td></tr>
+      <tr><td>From address:</td><td><input name="from_address" size="40" /></td></tr>
+      <tr><td>Validate template:<br /><textarea rows="10" cols="70" name="validate_template"></textarea></td>
+          <td>Confirm template:<br /><textarea rows="10" cols="70" name="confirm_template"></textarea></td></tr>
+      <tr><td></td><td><input type="submit" id="create-mailing-list" value="Create Mailig list" /></td></tr>
+      </table>
+    </form>
+  </div>
+  
 </div>
 
 <div id="content">
