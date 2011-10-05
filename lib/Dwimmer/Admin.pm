@@ -296,7 +296,7 @@ get '/get_pages.json' => sub {
     return to_json { rows => \@rows };
 };
 
-get '/create_list.json' => sub {
+post '/create_list.json' => sub {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
 
