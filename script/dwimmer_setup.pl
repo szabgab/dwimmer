@@ -27,10 +27,6 @@ GetOptions(\%opt,
     'share=s',
     'upgrade',
 );
-usage() if not $opt{email};
-die 'Invalid e-mail' if not Email::Valid->address($opt{email});
-usage() if not $opt{password};
-die 'Password needs to be 6 characters' if length $opt{password} < 6;
 usage() if not $opt{root};
 
 
@@ -40,6 +36,13 @@ if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) {
 
 if ($opt{upgrade} and not -e $opt{root}) {
     die "Root directory ($opt{root}) does NOT exist."
+}
+
+if (not $opt{upgrade}) {
+    usage() if not $opt{email};
+    die 'Invalid e-mail' if not Email::Valid->address($opt{email});
+    usage() if not $opt{password};
+    die 'Password needs to be 6 characters' if length $opt{password} < 6;
 }
 
 my $dist_dir;
@@ -160,6 +163,8 @@ REQUIRED PARAMETERS:
    --password PASSWORD  of administrator
 
    --root ROOT          path to the root of the installation
+
+   --upgrade
 
    --dbonly             Create only the database (for development)
    --silent             no success report (for testing)
