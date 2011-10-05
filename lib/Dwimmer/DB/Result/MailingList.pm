@@ -25,7 +25,7 @@ __PACKAGE__->table("mailing_list");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 name
+=head2 title
 
   data_type: 'varchar'
   is_nullable: 0
@@ -58,7 +58,7 @@ __PACKAGE__->table("mailing_list");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
+  "title",
   { data_type => "varchar", is_nullable => 0, size => 100 },
   "owner",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
@@ -70,7 +70,6 @@ __PACKAGE__->add_columns(
   { data_type => "blob", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
 
 =head1 RELATIONS
 
@@ -90,8 +89,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-04 10:16:17
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BKzk++LPZZEnQKK9+CIaCQ
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-05 21:23:31
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j/kQ7CnONqmZT+LMaOB7Tw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

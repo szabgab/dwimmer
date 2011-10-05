@@ -300,9 +300,9 @@ post '/create_list.json' => sub {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
 
-    my $name = params->{'name'} || '';
-    trim($name);
-    return to_json { 'error' => 'no_name' } if not $name;
+    my $title = params->{'title'} || '';
+    trim($title);
+    return to_json { 'error' => 'no_title' } if not $title;
     
     my $from_address = params->{'from_address'} || '';
     trim($from_address);
@@ -314,7 +314,7 @@ post '/create_list.json' => sub {
     my $db = _get_db();
     my $list = $db->resultset('MailingList')->create({
         owner => session->{userid},
-        name  => $name,
+        title  => $title,
         from_address => $from_address,
         validate_template => $validate_template,
         confirm_template => $confirm_template,
@@ -326,7 +326,7 @@ get '/fetch_lists.json' => sub {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
     my $db = _get_db();
-    my @list = map { {listid => $_->id, owner => $_->owner->id, name => $_->name} } $db->resultset('MailingList')->all();
+    my @list = map { {listid => $_->id, owner => $_->owner->id, title => $_->title} } $db->resultset('MailingList')->all();
     return to_json {success => 1, lists => \@list};
 };
 
@@ -369,7 +369,7 @@ get '/register_email.json' => sub {
             approved        => 0,
         });
 
-        my $subject = $list->name . " registration - email validation";
+        my $subject = $list->title . " registration - email validation";
         my $data    = $list->validate_template;
         $data =~ s/<% url %>/$url/g;
         my $msg = MIME::Lite->new(
@@ -414,7 +414,7 @@ get '/validate_email.json' => sub {
         $user->update;
 
         my $list = $db->resultset('MailingList')->find( { id => $listid } );
-        my $subject = $list->name . " - Thank you for subscribing";
+        my $subject = $list->title . " - Thank you for subscribing";
         my $data    = $list->confirm_template;
         #$data =~ s/<% url %>/$url/g;
         my $msg = MIME::Lite->new(

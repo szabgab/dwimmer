@@ -31,7 +31,7 @@ is_deeply($admin->login( 'admin', $password ), {
 	}, 'login success');
 
 # create a mailing list
-my $list_name = 'Test list';
+my $list_title = 'Test list';
 my $from_address = 'admin1@dwimmer.org';
 my $validate_template = <<'END_VALIDATE';
 Opening: I am ready to send you updates.
@@ -57,7 +57,7 @@ my $confirm_template = <<'END_CONFIRM';
 END_CONFIRM
 
 is_deeply_full($admin->create_list( 
-		name => $list_name,
+		title => $list_title,
 		from_address => $from_address,
 		validate_template => $validate_template,
 		confirm_template => $confirm_template,
@@ -67,9 +67,8 @@ is_deeply_full($admin->create_list(
    }, 'create_list');
 
 # TODO handle duplicate entries
-#diag(explain($admin->create_list( name => $list_name ) ));
 is_deeply_full($admin->create_list( 
-		name => 'Another list',
+		title => 'Another list',
 		from_address => 'other@dwimmer.org',
 		validate_template => 'validate <% url %>',
 		confirm_template => '<% url %>',
@@ -83,12 +82,12 @@ is_deeply_full($admin->fetch_lists, {
 	lists => [
     {
     	listid => 1,
-    	name => $list_name,
+    	title => $list_title,
     	owner => 1,
     },
     {
     	listid => 2,
-    	name => 'Another list',
+    	title => 'Another list',
     	owner => 1,
     },
 ]}, 'fetch_lists');
@@ -118,7 +117,7 @@ if ($VAR1->{Data} =~ s{http://localhost:3001/validate_email\?listid=1&email=t1\@
 is_deeply_full($VAR1, bless( {
    'Data' => $validate_template,
    'From' => $from_address,
-   'Subject' => "$list_name registration - email validation",
+   'Subject' => "$list_title registration - email validation",
    'To' => 't1@dwimmer.org'
 }, 'MIME::Lite' ), 'expected e-mail structure'); 
 $VAR1 = undef;
@@ -133,7 +132,7 @@ eval $confirm_mail;
 is_deeply_full($VAR1, bless( {
    'Data' => $confirm_template,
    'From' => $from_address,
-   'Subject' => "$list_name - Thank you for subscribing",
+   'Subject' => "$list_title - Thank you for subscribing",
    'To' => 't1@dwimmer.org'
 }, 'MIME::Lite' ), 'expected e-mail structure'); 
 
