@@ -303,11 +303,22 @@ post '/create_list.json' => sub {
     my $title = params->{'title'} || '';
     trim($title);
     return to_json { 'error' => 'no_title' } if not $title;
+
+    my $name = params->{'name'} || '';
+    trim($name);
+    return to_json { 'error' => 'no_name' } if not $name;
+    if ($name !~ /^[a-z_]{4,}$/) {
+        return to_json { 'error' => 'invalid_list_name' };
+    }
     
     my $from_address = params->{'from_address'} || '';
     trim($from_address);
     return to_json { 'error' => 'no_from_address' } if not $from_address;
-    
+
+    my %data;
+    foreach my $f (qw(response_page validation_page valiadtion_response_page)) {
+        $data{$f} = params->{$f} || '';
+    }
     my $validate_template = params->{'validate_template'} || '';
     my $confirm_template  = params->{'confirm_template'} || '';
 
@@ -315,7 +326,9 @@ post '/create_list.json' => sub {
     my $list = $db->resultset('MailingList')->create({
         owner => session->{userid},
         title  => $title,
+        name   => $name,
         from_address => $from_address,
+        %data,
         validate_template => $validate_template,
         confirm_template => $confirm_template,
     });
@@ -326,7 +339,7 @@ get '/fetch_lists.json' => sub {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
     my $db = _get_db();
-    my @list = map { {listid => $_->id, owner => $_->owner->id, title => $_->title} } $db->resultset('MailingList')->all();
+    my @list = map { {listid => $_->id, owner => $_->owner->id, title => $_->title, name => $_->name} } $db->resultset('MailingList')->all();
     return to_json {success => 1, lists => \@list};
 };
 

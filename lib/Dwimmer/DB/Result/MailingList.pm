@@ -25,6 +25,12 @@ __PACKAGE__->table("mailing_list");
   is_auto_increment: 1
   is_nullable: 0
 
+=head2 name
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 100
+
 =head2 title
 
   data_type: 'varchar'
@@ -43,6 +49,24 @@ __PACKAGE__->table("mailing_list");
   is_nullable: 0
   size: 100
 
+=head2 response_page
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 50
+
+=head2 validation_page
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 50
+
+=head2 valiadtion_response_page
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 50
+
 =head2 validate_template
 
   data_type: 'blob'
@@ -58,18 +82,27 @@ __PACKAGE__->table("mailing_list");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "name",
+  { data_type => "varchar", is_nullable => 0, size => 100 },
   "title",
   { data_type => "varchar", is_nullable => 0, size => 100 },
   "owner",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "from_address",
   { data_type => "varchar", is_nullable => 0, size => 100 },
+  "response_page",
+  { data_type => "varchar", is_nullable => 1, size => 50 },
+  "validation_page",
+  { data_type => "varchar", is_nullable => 1, size => 50 },
+  "valiadtion_response_page",
+  { data_type => "varchar", is_nullable => 1, size => 50 },
   "validate_template",
   { data_type => "blob", is_nullable => 1 },
   "confirm_template",
   { data_type => "blob", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
+__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
 
 =head1 RELATIONS
 
@@ -89,8 +122,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-05 21:23:31
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:j/kQ7CnONqmZT+LMaOB7Tw
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-05 22:01:39
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Cms3XoEd6rBUketxZbo12w
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

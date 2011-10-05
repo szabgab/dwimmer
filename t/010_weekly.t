@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 8);
+plan(tests => 9);
 
 
 use Dwimmer::Client;
@@ -32,6 +32,7 @@ is_deeply($admin->login( 'admin', $password ), {
 
 # create a mailing list
 my $list_title = 'Test list';
+my $list_name  = 'test_list';
 my $from_address = 'admin1@dwimmer.org';
 my $validate_template = <<'END_VALIDATE';
 Opening: I am ready to send you updates.
@@ -58,20 +59,28 @@ END_CONFIRM
 
 is_deeply_full($admin->create_list( 
 		title => $list_title,
+		name  => $list_name,
 		from_address => $from_address,
 		validate_template => $validate_template,
 		confirm_template => $confirm_template,
+		response_page => '/response_page',
+		validation_page => '/valiadate_page',
+		valiadtion_response_page => '/final_page',
 		), {
 	listid => 1,
 	success => 1,
    }, 'create_list');
 
-# TODO handle duplicate entries
+# TODO: check identical names
 is_deeply_full($admin->create_list( 
 		title => 'Another list',
+		name  => 'another_list',
 		from_address => 'other@dwimmer.org',
 		validate_template => 'validate <% url %>',
 		confirm_template => '<% url %>',
+		response_page => '/response_page',
+		validation_page => '/valiadate_page',
+		valiadtion_response_page => '/final_page',
 		), {
 	listid => 2,
 	success => 1,
@@ -83,11 +92,13 @@ is_deeply_full($admin->fetch_lists, {
     {
     	listid => 1,
     	title => $list_title,
+    	name  => $list_name,
     	owner => 1,
     },
     {
     	listid => 2,
     	title => 'Another list',
+    	name  => 'another_list',
     	owner => 1,
     },
 ]}, 'fetch_lists');
@@ -136,6 +147,15 @@ is_deeply_full($VAR1, bless( {
    'To' => 't1@dwimmer.org'
 }, 'MIME::Lite' ), 'expected e-mail structure'); 
 
+# TODO:
+# admin should create a page with the form
+# designate a page to be the response page and create it (the same for the validation page)
+
+
+my $web_user = Test::WWW::Mechanize->new;
+$web_user->get_ok($url);
+#$web_user->submit_form_ok( {
+#}, 'submit regisration');
 
 
 
@@ -149,3 +169,4 @@ sub is_deeply_full {
 # TODO validation mail: subject, template
 # TODO validation web page, error messages
 # TODO confirm mail: subject, template
+
