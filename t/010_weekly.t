@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 15);
+plan(tests => 17);
 
 
 use Dwimmer::Client;
@@ -117,24 +117,8 @@ is_deeply_full($user->register_email(email => 't1@dwimmer.org', listid => 1),
 	}, "submit registration");
 our $VAR1;
 
-my $validate_mail = read_file($ENV{DWIMMER_MAIL});
-eval $validate_mail;
-#diag(explain($VAR1));
-# my $validate = $validate_template;
-my $found_code = '';
-if ($VAR1->{Data} =~ s{http://localhost:3001/validate_email\?listid=1&email=t1\@dwimmer\.org&code=(\w+)}{<% url %>}) {
-	$found_code = $1;
-}
+my $found_code = _check_validate_mail('t1');
 
-is_deeply_full($VAR1, bless( {
-	'Data' => $validate_template,
-	'From' => $from_address,
-	'Subject' => "$list_title registration - email validation",
-	'To' => 't1@dwimmer.org'
-}, 'MIME::Lite' ), 'expected e-mail structure');
-$VAR1 = undef;
-
-diag("code='$found_code'");
 is_deeply_full($user->validate_email(listid => 1, email => 't1@dwimmer.org', code => $found_code), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,
 	success => 1,
@@ -148,6 +132,8 @@ is_deeply_full($VAR1, bless( {
 	'Subject' => "$list_title - Thank you for subscribing",
 	'To' => 't1@dwimmer.org'
 }, 'MIME::Lite' ), 'expected e-mail structure');
+# TODO if the validated bit was off before and flipped to on after validation
+# TODO test what is the response if incorrect validation happens or if it pressed multiple times
 
 # TODO:
 # admin should create a page with the form
@@ -198,7 +184,35 @@ $web_user->submit_form_ok( {
 		email => 't2@dwimmer.org',
 	}
 }, 'submit regisration');
-#diag($web_user->content);
+$web_user->content_like(qr/Thanks for subscribing. Please check your mail/, 'web site content');
+_check_validate_mail('t2');
+
+exit;
+
+sub _check_validate_mail {
+	my $email = shift;
+
+	my $validate_mail = read_file($ENV{DWIMMER_MAIL});
+	eval $validate_mail;
+	#diag(explain($VAR1));
+	# my $validate = $validate_template;
+	my $found_code = '';
+	if ($VAR1->{Data} =~ s{http://localhost:3001/validate_email\?listid=1&email=$email\@dwimmer\.org&code=(\w+)}{<% url %>}) {
+		$found_code = $1;
+	}
+
+	is_deeply_full($VAR1, bless( {
+		'Data' => $validate_template,
+		'From' => $from_address,
+		'Subject' => "$list_title registration - email validation",
+		'To' => $email . '@dwimmer.org',
+	}, 'MIME::Lite' ), 'expected e-mail structure');
+	$VAR1 = undef;
+
+	diag("code='$found_code'");
+
+	return $found_code;
+}
 
 
 sub is_deeply_full {
