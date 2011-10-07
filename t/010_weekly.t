@@ -23,10 +23,10 @@ plan(tests => 15);
 use Dwimmer::Client;
 
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', $password ), { 
-	success => 1, 
-	username => 'admin',
-	userid   => 1,
+is_deeply($admin->login( 'admin', $password ), {
+	success   => 1,
+	username  => 'admin',
+	userid    => 1,
 	logged_in => 1,
 	}, 'login success');
 
@@ -57,7 +57,7 @@ END_VALIDATE
 my $confirm_template = <<'END_CONFIRM';
 END_CONFIRM
 
-is_deeply_full($admin->create_list( 
+is_deeply_full($admin->create_list(
 		title => $list_title,
 		name  => $list_name,
 		from_address => $from_address,
@@ -69,10 +69,10 @@ is_deeply_full($admin->create_list(
 		), {
 	listid => 1,
 	success => 1,
-   }, 'create_list');
+	}, 'create_list');
 
 # TODO: check identical names
-is_deeply_full($admin->create_list( 
+is_deeply_full($admin->create_list(
 		title => 'Another list',
 		name  => 'another_list',
 		from_address => 'other@dwimmer.org',
@@ -82,25 +82,25 @@ is_deeply_full($admin->create_list(
 		validation_page => '/validate_page',
 		validation_response_page => '/final_page',
 		), {
-	listid => 2,
+	listid  => 2,
 	success => 1,
-   }, 'create_list');
+	}, 'create_list');
 
 is_deeply_full($admin->fetch_lists, {
 	success => 1,
-	lists => [
-    {
-    	listid => 1,
-    	title => $list_title,
-    	name  => $list_name,
-    	owner => 1,
-    },
-    {
-    	listid => 2,
-    	title => 'Another list',
-    	name  => 'another_list',
-    	owner => 1,
-    },
+	lists   => [
+	{
+		listid => 1,
+		title  => $list_title,
+		name   => $list_name,
+		owner  => 1,
+	},
+	{
+		listid => 2,
+		title  => 'Another list',
+		name   => 'another_list',
+		owner  => 1,
+	},
 ]}, 'fetch_lists');
 
 # TODO: user sends in subscription via HTTP
@@ -127,11 +127,11 @@ if ($VAR1->{Data} =~ s{http://localhost:3001/validate_email\?listid=1&email=t1\@
 }
 
 is_deeply_full($VAR1, bless( {
-   'Data' => $validate_template,
-   'From' => $from_address,
-   'Subject' => "$list_title registration - email validation",
-   'To' => 't1@dwimmer.org'
-}, 'MIME::Lite' ), 'expected e-mail structure'); 
+	'Data' => $validate_template,
+	'From' => $from_address,
+	'Subject' => "$list_title registration - email validation",
+	'To' => 't1@dwimmer.org'
+}, 'MIME::Lite' ), 'expected e-mail structure');
 $VAR1 = undef;
 
 diag("code='$found_code'");
@@ -143,11 +143,11 @@ my $confirm_mail = read_file($ENV{DWIMMER_MAIL});
 eval $confirm_mail;
 #diag(explain($VAR1));
 is_deeply_full($VAR1, bless( {
-   'Data' => $confirm_template,
-   'From' => $from_address,
-   'Subject' => "$list_title - Thank you for subscribing",
-   'To' => 't1@dwimmer.org'
-}, 'MIME::Lite' ), 'expected e-mail structure'); 
+	'Data' => $confirm_template,
+	'From' => $from_address,
+	'Subject' => "$list_title - Thank you for subscribing",
+	'To' => 't1@dwimmer.org'
+}, 'MIME::Lite' ), 'expected e-mail structure');
 
 # TODO:
 # admin should create a page with the form
