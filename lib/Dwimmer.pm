@@ -15,7 +15,13 @@ use Template;
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
 
 # list of pages that can be accessed withot any login 
-my %open = map { $_ => 1 } qw(/_dwimmer/login.json /_dwimmer/session.json /poll /_dwimmer/register_email.json /_dwimmer/validate_email.json);
+my %open = map { $_ => 1 } qw(
+              /poll
+              /_dwimmer/login.json
+              /_dwimmer/session.json
+              /_dwimmer/register_email.json /_dwimmer/register_email
+              /_dwimmer/validate_email.json /_dwimmer/validate_email
+);
 
 hook before => sub {
     my $path = request->path_info;
@@ -31,7 +37,6 @@ hook before => sub {
     }
     return;
 };
-
 
 sub route_index {
     my ($site_name, $site) = _get_site();

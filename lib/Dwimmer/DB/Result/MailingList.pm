@@ -61,7 +61,7 @@ __PACKAGE__->table("mailing_list");
   is_nullable: 1
   size: 50
 
-=head2 valiadtion_response_page
+=head2 validation_response_page
 
   data_type: 'varchar'
   is_nullable: 1
@@ -94,7 +94,7 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "validation_page",
   { data_type => "varchar", is_nullable => 1, size => 50 },
-  "valiadtion_response_page",
+  "validation_response_page",
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "validate_template",
   { data_type => "blob", is_nullable => 1 },
@@ -122,8 +122,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-05 22:01:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Cms3XoEd6rBUketxZbo12w
+# Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-10-05 23:20:20
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pMGTfyY7n3J4Jczx62a9BA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

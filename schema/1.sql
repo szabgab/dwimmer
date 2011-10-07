@@ -6,7 +6,7 @@ CREATE TABLE mailing_list (
     from_address VARCHAR(100) NOT NULL,
     response_page            VARCHAR(50),
     validation_page          VARCHAR(50),
-    valiadtion_response_page VARCHAR(50),
+    validation_response_page VARCHAR(50),
     validate_template BLOB,
     confirm_template BLOB,
     FOREIGN KEY (owner) REFERENCES user(id)

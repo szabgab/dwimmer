@@ -316,7 +316,7 @@ post '/create_list.json' => sub {
     return to_json { 'error' => 'no_from_address' } if not $from_address;
 
     my %data;
-    foreach my $f (qw(response_page validation_page valiadtion_response_page)) {
+    foreach my $f (qw(response_page validation_page validation_response_page)) {
         $data{$f} = params->{$f} || '';
     }
     my $validate_template = params->{'validate_template'} || '';
@@ -343,7 +343,10 @@ get '/fetch_lists.json' => sub {
     return to_json {success => 1, lists => \@list};
 };
 
-get '/register_email.json' => sub {
+post '/register_email'      => \&_register_email;
+get  '/register_email.json' => \&_register_email;
+
+sub _register_email {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
 
@@ -398,8 +401,14 @@ get '/register_email.json' => sub {
         return render_response 'error', {'internal_error_when_subscribing' => 1};
     }
 
-    return to_json { success => 1 };
-};
+    if (request->{path} =~ /\.json/) {
+        return to_json { success => 1 };
+    }
+#    return $list->response_page;
+#    die $list->response_page;
+    redirect $list->response_page;
+#    return render_response $list->response_page, { 'success' => 1 };
+}
 
 get '/validate_email.json' => sub {
     my ($site_name, $site) = _get_site();
@@ -417,8 +426,9 @@ get '/validate_email.json' => sub {
     trim($listid);
     return render_response 'error', {'no_listid' => 1} if not $listid;
 
+    my $db = _get_db();
+    my $list = $db->resultset('MailingList')->find( { id => $listid } );
     eval {
-        my $db = _get_db();
         my $user = $db->resultset('MailingListMember')->find( {validation_code => $code, email => $email, listid => $listid} );
         if (not $user) {
             return to_json { 'error' => 'invalid_confirmation_code' };
@@ -426,7 +436,6 @@ get '/validate_email.json' => sub {
         $user->{approved} = 1;
         $user->update;
 
-        my $list = $db->resultset('MailingList')->find( { id => $listid } );
         my $subject = $list->title . " - Thank you for subscribing";
         my $data    = $list->confirm_template;
         #$data =~ s/<% url %>/$url/g;
@@ -442,7 +451,12 @@ get '/validate_email.json' => sub {
     if ($@) {
         return render_response 'error', {'internal_error_when_confirming' => 1};
     }
-    return to_json { 'success' => 1 };
+
+    if (request->{path} =~ /\.json/) {
+        return to_json { success => 1 };
+    }
+    forward $list->validation_response_page;
+#    return render_response $list->validation_response_page, { 'success' => 1 };
 };
 
 

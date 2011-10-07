@@ -20,7 +20,7 @@ sub start {
 
     my $dir = tempdir( CLEANUP => 1 );
 
-    #print STDERR "# $dir\n";
+    # print STDERR "# $dir\n";
 
     $ENV{DWIMMER_TEST} = 1;
     $ENV{DWIMMER_PORT} = 3001;

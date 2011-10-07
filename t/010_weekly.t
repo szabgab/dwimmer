@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 9);
+plan(tests => 15);
 
 
 use Dwimmer::Client;
@@ -64,8 +64,8 @@ is_deeply_full($admin->create_list(
 		validate_template => $validate_template,
 		confirm_template => $confirm_template,
 		response_page => '/response_page',
-		validation_page => '/valiadate_page',
-		valiadtion_response_page => '/final_page',
+		validation_page => '/validate_page',
+		validation_response_page => '/final_page',
 		), {
 	listid => 1,
 	success => 1,
@@ -79,8 +79,8 @@ is_deeply_full($admin->create_list(
 		validate_template => 'validate <% url %>',
 		confirm_template => '<% url %>',
 		response_page => '/response_page',
-		validation_page => '/valiadate_page',
-		valiadtion_response_page => '/final_page',
+		validation_page => '/validate_page',
+		validation_response_page => '/final_page',
 		), {
 	listid => 2,
 	success => 1,
@@ -112,6 +112,7 @@ my $user = Dwimmer::Client->new( host => $url );
 #diag(explain($user->register_email(email => 't1@dwimmer.org', listid => 1)));
 is_deeply_full($user->register_email(email => 't1@dwimmer.org', listid => 1),
 	{
+#		dwimmer_version => $Dwimmer::Client::VERSION,
 		success => 1,
 	}, "submit registration");
 our $VAR1;
@@ -135,6 +136,7 @@ $VAR1 = undef;
 
 diag("code='$found_code'");
 is_deeply_full($user->validate_email(listid => 1, email => 't1@dwimmer.org', code => $found_code), {
+#	dwimmer_version => $Dwimmer::Client::VERSION,
 	success => 1,
 	}, 'validate_email');
 my $confirm_mail = read_file($ENV{DWIMMER_MAIL});
@@ -151,12 +153,52 @@ is_deeply_full($VAR1, bless( {
 # admin should create a page with the form
 # designate a page to be the response page and create it (the same for the validation page)
 
+my $body = <<"END_BODY";
+<form action="/_dwimmer/register_email" method="POST" name="mailing_list_form">
+<input type="hidden" name="listid" value="1" />
+<input name="email" />
+<input type="submit" value="Sign up" />
+</form>
+END_BODY
+
+is_deeply($admin->save_page(
+		body     => $body,
+		title    => 'New main title',
+		filename => '/',
+		), { success => 1 }, 'save_page');
+
+is_deeply($admin->save_page(
+		body     => 'Thanks for subscribing. Please check your mail',
+		title    => 'Response',
+		filename => '/response_page',
+		create   => 1,
+		), { success => 1 }, 'save response_page');
+
+is_deeply($admin->save_page(
+		body     => 'Page with validate form',
+		title    => 'Response',
+		filename => '/validate_page',
+		create   => 1,
+		), { success => 1 }, 'save validate_page');
+
+is_deeply($admin->save_page(
+		body     => 'Thanks for subscribing. We will be in touch.',
+		title    => 'Response',
+		filename => '/final_page',
+		create   => 1,
+		), { success => 1 }, 'save final_page');
+
 
 my $web_user = Test::WWW::Mechanize->new;
+$web_user->get_ok($url . '/response_page');
 $web_user->get_ok($url);
-#$web_user->submit_form_ok( {
-#}, 'submit regisration');
-
+$web_user->submit_form_ok( {
+	form_name => 'mailing_list_form',
+	fields => {
+		email => 't2@dwimmer.org',
+	}
+}, 'submit regisration');
+#diag($web_user->content);
 
 
 sub is_deeply_full {
