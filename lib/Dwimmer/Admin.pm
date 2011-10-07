@@ -373,7 +373,7 @@ sub _register_email {
 
     my $time = time;
     my $validation_code = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-    my $url = 'http://' . request->host . "/validate_email?listid=$listid&email=$email&code=$validation_code";
+    my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$listid&email=$email&code=$validation_code";
 
     # add member (TODO what if the e-mail is already listed in the same list)
     eval {
@@ -410,7 +410,10 @@ sub _register_email {
 #    return render_response $list->response_page, { 'success' => 1 };
 }
 
-get '/validate_email.json' => sub {
+get '/validate_email'      => \&_validate_email;
+get '/validate_email.json' => \&_validate_email;
+
+sub _validate_email {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
 
@@ -455,7 +458,8 @@ get '/validate_email.json' => sub {
     if (request->{path} =~ /\.json/) {
         return to_json { success => 1 };
     }
-    forward $list->validation_response_page;
+    #die $list->validation_response_page;
+    redirect $list->validation_response_page;
 #    return render_response $list->validation_response_page, { 'success' => 1 };
 };
 

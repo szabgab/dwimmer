@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 17);
+plan(tests => 20);
 
 
 use Dwimmer::Client;
@@ -112,28 +112,18 @@ my $user = Dwimmer::Client->new( host => $url );
 #diag(explain($user->register_email(email => 't1@dwimmer.org', listid => 1)));
 is_deeply_full($user->register_email(email => 't1@dwimmer.org', listid => 1),
 	{
-#		dwimmer_version => $Dwimmer::Client::VERSION,
 		success => 1,
 	}, "submit registration");
 our $VAR1;
 
-my $found_code = _check_validate_mail('t1');
+my ($t1_code, $t1_link) = _check_validate_mail('t1');
 
-is_deeply_full($user->validate_email(listid => 1, email => 't1@dwimmer.org', code => $found_code), {
-#	dwimmer_version => $Dwimmer::Client::VERSION,
+is_deeply_full($user->validate_email(listid => 1, email => 't1@dwimmer.org', code => $t1_code), {
 	success => 1,
 	}, 'validate_email');
-my $confirm_mail = read_file($ENV{DWIMMER_MAIL});
-eval $confirm_mail;
-#diag(explain($VAR1));
-is_deeply_full($VAR1, bless( {
-	'Data' => $confirm_template,
-	'From' => $from_address,
-	'Subject' => "$list_title - Thank you for subscribing",
-	'To' => 't1@dwimmer.org'
-}, 'MIME::Lite' ), 'expected e-mail structure');
-# TODO if the validated bit was off before and flipped to on after validation
-# TODO test what is the response if incorrect validation happens or if it pressed multiple times
+
+_check_confirm_mail('t1');
+
 
 # TODO:
 # admin should create a page with the form
@@ -185,20 +175,27 @@ $web_user->submit_form_ok( {
 	}
 }, 'submit regisration');
 $web_user->content_like(qr/Thanks for subscribing. Please check your mail/, 'web site content');
-_check_validate_mail('t2');
+
+my ($t2_code, $t2_link) = _check_validate_mail('t2');
+$web_user->get_ok($t2_link);
+$web_user->content_like(qr/Thanks for subscribing. We will be in touch/);
+_check_confirm_mail('t2');
+
 
 exit;
 
 sub _check_validate_mail {
 	my $email = shift;
 
+	local $Test::Builder::Level = $Test::Builder::Level + 1;
 	my $validate_mail = read_file($ENV{DWIMMER_MAIL});
 	eval $validate_mail;
 	#diag(explain($VAR1));
 	# my $validate = $validate_template;
+	my $link = '';
 	my $found_code = '';
-	if ($VAR1->{Data} =~ s{http://localhost:3001/validate_email\?listid=1&email=$email\@dwimmer\.org&code=(\w+)}{<% url %>}) {
-		$found_code = $1;
+	if ($VAR1->{Data} =~ s{(http://localhost:3001/_dwimmer/validate_email\?listid=1&email=$email\@dwimmer\.org&code=(\w+))}{<% url %>}) {
+		($link, $found_code) = ($1, $2);
 	}
 
 	is_deeply_full($VAR1, bless( {
@@ -206,12 +203,28 @@ sub _check_validate_mail {
 		'From' => $from_address,
 		'Subject' => "$list_title registration - email validation",
 		'To' => $email . '@dwimmer.org',
-	}, 'MIME::Lite' ), 'expected e-mail structure');
+	}, 'MIME::Lite' ), "expected validate e-mail structure for $email");
 	$VAR1 = undef;
 
-	diag("code='$found_code'");
+	diag("code='$found_code' link=$link");
 
-	return $found_code;
+	return ($found_code, $link);
+}
+
+sub _check_confirm_mail {
+	my $email = shift;
+
+	local $Test::Builder::Level = $Test::Builder::Level + 1;
+	my $confirm_mail = read_file($ENV{DWIMMER_MAIL});
+	eval $confirm_mail;
+	is_deeply_full($VAR1, bless( {
+		'Data' => $confirm_template,
+		'From' => $from_address,
+		'Subject' => "$list_title - Thank you for subscribing",
+		'To' => $email . '@dwimmer.org',
+	}, 'MIME::Lite' ), 'expected confirm e-mail structure');
+# TODO if the validated bit was off before and flipped to on after validation
+# TODO test what is the response if incorrect validation happens or if it pressed multiple times
 }
 
 
@@ -222,7 +235,5 @@ sub is_deeply_full {
 	return $ok;
 }
 
-# TODO validation mail: subject, template
 # TODO validation web page, error messages
-# TODO confirm mail: subject, template
 
