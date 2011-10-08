@@ -91,9 +91,9 @@ sub get_history {
 }
 
 sub create_feed_collector {
-	my ($self, $name) = @_;
+	my ($self, %args) = @_;
 	my $m = $self->mech;
-	$m->post( $self->host . "/_dwimmer/create_feed_collector.json", {name => $name} );
+	$m->post( $self->host . "/_dwimmer/create_feed_collector.json", \%args );
 	return from_json $m->content;
 }
 

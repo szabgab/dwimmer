@@ -25,18 +25,18 @@ my $user = Dwimmer::Client->new( host => $url );
 
 
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', $password ), { 
-	success => 1, 
+is_deeply($admin->login( 'admin', $password ), {
+	success => 1,
 	username => 'admin',
 	userid   => 1,
 	logged_in => 1,
 	}, 'login success');
 
-is_deeply($admin->create_feed_collector('Foo Bar'), {
+is_deeply($admin->create_feed_collector(name => 'Foo Bar'), {
 	success => 1,
 }, 'feed_collector_created');
 
-is_deeply($admin->create_feed_collector('Foo Bar'), {
+is_deeply($admin->create_feed_collector(name => 'Foo Bar'), {
 	error => 'feed_collector_exists',
 }, 'feed_collector_created already exists');
 
