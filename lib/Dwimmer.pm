@@ -14,7 +14,7 @@ use Template;
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
 
-# list of pages that can be accessed withot any login 
+# list of pages that can be accessed withot any login
 my %open = map { $_ => 1 } qw(
               /poll
               /_dwimmer/login.json

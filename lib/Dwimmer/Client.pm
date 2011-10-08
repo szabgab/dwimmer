@@ -90,7 +90,7 @@ sub get_history {
 	return from_json $m->content;
 }
 
-my %GET = map { $_ => $_ } qw(fetch_lists register_email validate_email);
+my %GET = map { $_ => $_ } qw(fetch_lists register_email validate_email list_members);
 my %POST = map { $_ => $_ } qw(create_list);
 
 AUTOLOAD {

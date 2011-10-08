@@ -32,7 +32,7 @@ sub render_response {
 
     $data ||= {};
     include_session($data);
-    
+
     debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
     my $content_type = request->content_type || params->{content_type} || '';
@@ -436,7 +436,7 @@ sub _validate_email {
         if (not $user) {
             return to_json { 'error' => 'invalid_confirmation_code' };
         }
-        $user->{approved} = 1;
+        $user->approved(1);
         $user->update;
 
         my $subject = $list->title . " - Thank you for subscribing";
@@ -461,6 +461,16 @@ sub _validate_email {
     #die $list->validation_response_page;
     redirect $list->validation_response_page;
 #    return render_response $list->validation_response_page, { 'success' => 1 };
+};
+
+get '/list_members.json' => sub {
+    my $listid = params->{listid} || '';
+    trim($listid);
+    return render_response 'error', {'no_listid' => 1} if not $listid;
+    my $db = _get_db();
+    my @members = map { { id => $_->id, email => $_->email, approved => $_->approved }  }
+		$db->resultset('MailingListMember')->search( { listid => $listid } );
+    return to_json { members => \@members };
 };
 
 

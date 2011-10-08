@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 20);
+plan(tests => 24);
 
 
 use Dwimmer::Client;
@@ -117,12 +117,34 @@ is_deeply_full($user->register_email(email => 't1@dwimmer.org', listid => 1),
 our $VAR1;
 
 my ($t1_code, $t1_link) = _check_validate_mail('t1');
+#diag(explain($admin->list_members(listid => 1)));
+is_deeply($admin->list_members(listid => 1), {
+	  'members' => [
+	    {
+	      'approved' => 0,
+	      'email' => 't1@dwimmer.org',
+	      'id' => 1,
+	    }
+	  ]
+	}
+, 'list of members');
 
 is_deeply_full($user->validate_email(listid => 1, email => 't1@dwimmer.org', code => $t1_code), {
 	success => 1,
 	}, 'validate_email');
 
 _check_confirm_mail('t1');
+is_deeply($admin->list_members(listid => 1), {
+	  'members' => [
+	    {
+	      'approved' => 1,
+	      'email' => 't1@dwimmer.org',
+	      'id' => 1,
+	    }
+	  ]
+	}
+, 'list of members');
+
 
 
 # TODO:
@@ -177,9 +199,41 @@ $web_user->submit_form_ok( {
 $web_user->content_like(qr/Thanks for subscribing. Please check your mail/, 'web site content');
 
 my ($t2_code, $t2_link) = _check_validate_mail('t2');
+is_deeply($admin->list_members(listid => 1), {
+	  'members' => [
+	    {
+	      'approved' => 1,
+	      'email' => 't1@dwimmer.org',
+	      'id' => 1,
+	    },
+	    {
+	      'approved' => 0,
+	      'email' => 't2@dwimmer.org',
+	      'id' => 2,
+	    }
+	  ]
+	}
+, 'list of members');
+
 $web_user->get_ok($t2_link);
 $web_user->content_like(qr/Thanks for subscribing. We will be in touch/);
 _check_confirm_mail('t2');
+is_deeply($admin->list_members(listid => 1), {
+	  'members' => [
+	    {
+	      'approved' => 1,
+	      'email' => 't1@dwimmer.org',
+	      'id' => 1,
+	    },
+	    {
+	      'approved' => 1,
+	      'email' => 't2@dwimmer.org',
+	      'id' => 2,
+	    }
+	  ]
+	}
+, 'list of members');
+
 
 
 exit;
