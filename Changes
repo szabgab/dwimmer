@@ -1,0 +1,14 @@
+   Add jquery.a-tools-1.5.2 plugin.
+   Add B(old) and I(talic) buttons to editor.
+   Add jquery-ui-1.8.16.custom.min.js
+
+   Enable [http://address] and [https://address].
+
+   Add script/dwimmer to enable adding user from the command line.
+   Enable some special characters in the filename: space ( ), dot (.), $, @ and %.
+   Eliminate cache from the Ajax get requests as IE (both 8 and 9) would cache by default.
+
+v0.11 2011.09.10
+
+    Release of the first interesting version.
+

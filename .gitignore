@@ -13,5 +13,8 @@ sessions
 logs
 /db
 /share
+#/polls
+/polls/*.txt
 
 SETUP.bat
+Dwimmer-*

@@ -59,6 +59,8 @@ bugtracker 'http://github.com/szabgab/dwimmer';
 repository 'http://github.com/szabgab/dwimmer';
 
 install_script 'script/dwimmer_setup.pl';
+install_script 'script/dwimmer_backup.pl';
+install_script 'script/dwimmer';
 
 # Copy files to share before installing (but it is not included in the distribution)
 foreach my $module (qw(File::Copy::Recursive File::Spec)) {

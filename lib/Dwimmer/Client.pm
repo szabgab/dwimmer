@@ -8,7 +8,7 @@ has host => (is => 'ro', isa => 'Str', required => 1);
 has mech => (is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.01';
+our $VERSION = '0.1101';
 
 sub login {
 	my ($self, $username, $password) = @_;
@@ -90,7 +90,6 @@ sub get_history {
 	return from_json $m->content;
 }
 
-
 sub create_feed_collector {
 	my ($self, $name) = @_;
 	my $m = $self->mech;
@@ -109,6 +108,38 @@ sub add_feed {
 	my ($self, %args) = @_;
 	my $m = $self->mech;
 	$m->post( $self->host . "/_dwimmer/add_feed.json", \%args );
+	return from_json $m->content;
+}
+
+my %GET = map { $_ => $_ } qw(fetch_lists register_email validate_email list_members);
+my %POST = map { $_ => $_ } qw(create_list);
+
+AUTOLOAD {
+	our $AUTOLOAD;
+	(my $sub = $AUTOLOAD) =~ s/^Dwimmer::Client:://;
+	my ($self, %attr) = @_;
+
+        my $m = $self->mech;
+	if ($GET{$sub}) {
+            my $params = join "&", map { "$_=$attr{$_}" } keys %attr;
+	    my $url = $self->host . "/_dwimmer/$GET{$sub}.json?$params";
+	    #warn $url;
+	    $m->get($url);
+
+	} elsif ($POST{$sub}) {
+	    my $url = $self->host . "/_dwimmer/$POST{$sub}.json";
+	    #warn $url;
+	    $m->post($url, \%attr);
+	} else {
+		die "Could not locate method '$sub'\n";
+	}
+	return from_json $m->content;
+}
+
+sub create_site {
+	my ($self, %args) = @_;
+	my $m = $self->mech;
+	$m->post( $self->host . "/_dwimmer/create_site.json", \%args );
 	return from_json $m->content;
 }
 
