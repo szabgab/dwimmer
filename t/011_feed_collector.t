@@ -40,8 +40,8 @@ is_deeply($admin->create_feed_collector(name => 'Foo Bar'), {
 	error => 'feed_collector_exists',
 }, 'feed_collector_created already exists');
 
-#diag(explain($admin->get_feed_collectors()));
-is_deeply($admin->get_feed_collectors(), {
+#diag(explain($admin->feed_collectors()));
+is_deeply($admin->feed_collectors(), {
 	result => [
 		{
 			id => 1,
