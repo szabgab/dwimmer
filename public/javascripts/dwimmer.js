@@ -181,6 +181,25 @@ $(document).ready(function() {
      });
 
 
+    $(".create_mailing_list").click(function(){
+       manage_bar();
+       //original_content = $('#content').html();
+       $('#admin-create-mailing-list').show();
+
+       return false;
+    });
+    $("#create-list-form").submit(function() {
+        var url = "/_dwimmer/create_list.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
     $(".list_pages").click(function(){
         manage_bar();
         $.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
