@@ -90,13 +90,6 @@ sub get_history {
 	return from_json $m->content;
 }
 
-sub create_feed_collector {
-	my ($self, %args) = @_;
-	my $m = $self->mech;
-	$m->post( $self->host . "/_dwimmer/create_feed_collector.json", \%args );
-	return from_json $m->content;
-}
-
 sub get_feed_collectors {
 	my ($self, $filename) = @_;
 	my $m = $self->mech;
@@ -112,7 +105,7 @@ sub add_feed {
 }
 
 my %GET = map { $_ => $_ } qw(fetch_lists register_email validate_email list_members);
-my %POST = map { $_ => $_ } qw(create_list);
+my %POST = map { $_ => $_ } qw(create_list create_feed_collector);
 
 AUTOLOAD {
 	our $AUTOLOAD;
