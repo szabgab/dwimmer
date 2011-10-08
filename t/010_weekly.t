@@ -277,7 +277,6 @@ sub _check_confirm_mail {
 		'Subject' => "$list_title - Thank you for subscribing",
 		'To' => $email . '@dwimmer.org',
 	}, 'MIME::Lite' ), 'expected confirm e-mail structure');
-# TODO if the validated bit was off before and flipped to on after validation
 # TODO test what is the response if incorrect validation happens or if it pressed multiple times
 }
 
