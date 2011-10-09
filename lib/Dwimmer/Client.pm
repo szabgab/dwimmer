@@ -42,14 +42,6 @@ sub get_user {
 	return from_json $m->content;
 }
 
-sub get_session {
-	my ($self) = @_;
-	my $m = $self->mech;
-	$m->get( $self->host . "/_dwimmer/session.json" );
-	return from_json $m->content;
-}
-
-
 sub get_page {
 	my ($self, $filename, $revision) = @_;
 	my $m = $self->mech;
@@ -78,6 +70,7 @@ my %GET = map { $_ => $_ } qw(
 	feeds
 	history
 	get_pages
+	session
 );
 my %POST = map { $_ => $_ } qw(
 	create_list
