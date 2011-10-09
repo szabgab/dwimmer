@@ -59,6 +59,7 @@ my %POST = map { $_ => $_ } qw(
 	add_user
 	create_feed_collector
 	create_list
+	create_site
 );
 
 AUTOLOAD {
@@ -79,13 +80,6 @@ AUTOLOAD {
 	} else {
 		die "Could not locate method '$sub'\n";
 	}
-	return from_json $m->content;
-}
-
-sub create_site {
-	my ($self, %args) = @_;
-	my $m = $self->mech;
-	$m->post( $self->host . "/_dwimmer/create_site.json", \%args );
 	return from_json $m->content;
 }
 
