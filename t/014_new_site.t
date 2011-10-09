@@ -25,8 +25,8 @@ my $user = Dwimmer::Client->new( host => $url );
 #$user->register
 
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', $password ), { 
-	success => 1, 
+is_deeply($admin->login( username => 'admin', password => $password ), {
+	success => 1,
 	username => 'admin',
 	userid   => 1,
 	logged_in => 1,
@@ -40,12 +40,12 @@ is_deeply($admin->login( 'admin', $password ), {
 		# ), { success => 1 }, 'save_page');
 
 is_deeply($admin->create_site( name => 'foobar' ), {
-	success => 1, 
+	success => 1,
 }, 'create_site foobar');
 
 # fetch main page of new site
 #$admin->switch_host( fake => 'foobar' );
-#$admin->get_page('/');
+#$admin->page( filename => '/' );
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok("$url/?_dwimmer=foobar"); # faking hostname

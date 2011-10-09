@@ -63,9 +63,9 @@ $u->content_like( qr{Would you like to <a class="create_page" href="">create</a>
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
-is_deeply($admin->login( 'admin', $password ), { 
-	success => 1, 
+is_deeply($admin->login( username => 'admin', password => 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
+is_deeply($admin->login( username => 'admin', password => $password ), {
+	success => 1,
 	username => 'admin',
 	userid   => 1,
 	logged_in => 1,
@@ -127,7 +127,7 @@ cmp_deeply($admin->get_pages, { rows => [
 	]}, 'get pages');
 
 
-is_deeply($admin->get_page('/'), {
+is_deeply($admin->page( filename => '/' ), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,
 #	userid => 1,
 #	logged_in => 1,
@@ -146,7 +146,7 @@ is_deeply($admin->save_page(
 		title    => 'New main title',
 		filename => '/',
 		), { success => 1 }, 'save_page');
-is_deeply($admin->get_page('/'), {
+is_deeply($admin->page( filename => '/' ), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,
 #	userid => 1,
 #	logged_in => 1,
@@ -219,17 +219,17 @@ $w->content_like( qr{$pages[2]{body}} );
 
 
 my $user = Dwimmer::Client->new( host => $url );
-is_deeply($user->list_users, { 
-	dwimmer_version => $Dwimmer::Client::VERSION, 
+is_deeply($user->list_users, {
+	dwimmer_version => $Dwimmer::Client::VERSION,
 	error => 'not_logged_in',
 	}, 'to list_users page');
-is_deeply($user->login($users[0]{uname}, $users[0]{password}), { 
+is_deeply($user->login( username => $users[0]{uname}, password => $users[0]{password}), {
 	success => 1,
 	username => $users[0]{uname},
 	userid   => 2,
 	logged_in => 1,
 	}, 'user logged in');
-is_deeply($user->get_session, { logged_in => 1, username => $users[0]{uname}, userid => 2 }, 'not logged in');
+is_deeply($user->session, { logged_in => 1, username => $users[0]{uname}, userid => 2 }, 'not logged in');
 cmp_deeply($user->get_user(id => 2), {
 	id => 2,
 	name => $users[0]{uname},
@@ -243,19 +243,19 @@ cmp_deeply($user->get_user(id => 2), {
 # TODO this user should NOT be able to add new users
 
 is_deeply($user->logout, { success => 1 }, 'logout');
-is_deeply($user->get_session, {
-	logged_in => 0, 
+is_deeply($user->session, {
+	logged_in => 0,
 #	dwimmer_version => $Dwimmer::Client::VERSION,
-	}, 'get_session');
+	}, 'session');
 #diag(explain($user->get_user(id => 2)));
 is_deeply($user->get_user(id => 2), {
-	dwimmer_version => $Dwimmer::Client::VERSION, 
+	dwimmer_version => $Dwimmer::Client::VERSION,
 	error => 'not_logged_in',
 }, 'cannot get user data afer logout');
 
 my $guest = Dwimmer::Client->new( host => $url );
-is_deeply($guest->list_users, { 
-	dwimmer_version => $Dwimmer::Client::VERSION, 
+is_deeply($guest->list_users, {
+	dwimmer_version => $Dwimmer::Client::VERSION,
 	error => 'not_logged_in',
 	}, 'to list_users page');
 
