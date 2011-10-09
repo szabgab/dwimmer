@@ -27,13 +27,6 @@ sub logout {
 	return from_json $m->content;
 }
 
-sub list_users {
-	my ($self) = @_;
-	my $m = $self->mech;
-	$m->get($self->host . '/_dwimmer/list_users.json');
-	return from_json $m->content;
-}
-
 # parameters can be    id => 1
 sub get_user {
 	my ($self, %args) = @_;
@@ -68,6 +61,7 @@ my %GET = map { $_ => $_ } qw(
 	get_pages
 	history
 	list_members
+	list_users
 	register_email
 	session
 	validate_email
