@@ -57,13 +57,6 @@ sub get_session {
 }
 
 
-sub get_pages {
-	my ($self) = @_;
-	my $m = $self->mech;
-	$m->get($self->host . '/_dwimmer/get_pages.json');
-	return from_json $m->content;
-}
-
 sub get_page {
 	my ($self, $filename, $revision) = @_;
 	my $m = $self->mech;
@@ -84,7 +77,7 @@ sub save_page {
 
 
 my %GET = map { $_ => $_ } qw(fetch_lists register_email validate_email list_members
-	feed_collectors feeds history );
+	feed_collectors feeds history get_pages );
 my %POST = map { $_ => $_ } qw(create_list create_feed_collector add_feed);
 
 AUTOLOAD {
