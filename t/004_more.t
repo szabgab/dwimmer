@@ -28,8 +28,8 @@ $w->content_like( qr{Page does not exist}, 'content of missing pages is ok' );
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', $password ), { 
-	success => 1, 
+is_deeply($admin->login( 'admin', $password ), {
+	success => 1,
 	username => 'admin',
 	userid   => 1,
 	logged_in => 1,
@@ -43,7 +43,7 @@ cmp_deeply($admin->get_pages, { rows => [
 	},
 	]}, 'get pages');
 
-cmp_deeply($admin->get_history('/'), {
+cmp_deeply($admin->history( filename => '/' ), {
 	rows => [
 		{
 			author => 'admin',

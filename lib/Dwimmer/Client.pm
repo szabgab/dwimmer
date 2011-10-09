@@ -83,15 +83,8 @@ sub save_page {
 }
 
 
-sub get_history {
-	my ($self, $filename) = @_;
-	my $m = $self->mech;
-	$m->get($self->host . '/_dwimmer/history.json?filename=' . $filename);
-	return from_json $m->content;
-}
-
 my %GET = map { $_ => $_ } qw(fetch_lists register_email validate_email list_members
-	feed_collectors feeds );
+	feed_collectors feeds history );
 my %POST = map { $_ => $_ } qw(create_list create_feed_collector add_feed);
 
 AUTOLOAD {
