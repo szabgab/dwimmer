@@ -76,9 +76,21 @@ sub save_page {
 }
 
 
-my %GET = map { $_ => $_ } qw(fetch_lists register_email validate_email list_members
-	feed_collectors feeds history get_pages );
-my %POST = map { $_ => $_ } qw(create_list create_feed_collector add_feed);
+my %GET = map { $_ => $_ } qw(
+	fetch_lists
+	register_email
+	validate_email
+	list_members
+	feed_collectors
+	feeds
+	history
+	get_pages
+);
+my %POST = map { $_ => $_ } qw(
+	create_list
+	create_feed_collector
+	add_feed
+);
 
 AUTOLOAD {
 	our $AUTOLOAD;
