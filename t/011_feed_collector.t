@@ -42,7 +42,7 @@ is_deeply($admin->create_feed_collector(name => 'Foo Bar'), {
 
 #diag(explain($admin->feed_collectors()));
 is_deeply($admin->feed_collectors(), {
-	result => [
+	rows => [
 		{
 			id => 1,
 			name => 'Foo Bar',

@@ -180,6 +180,25 @@ $(document).ready(function() {
         return false;
      });
 
+    $(".create_feed_collector").click(function(){
+       manage_bar();
+       //original_content = $('#content').html();
+       $('#admin-create-feed-collector').show();
+
+       return false;
+    });
+    $("#create-feed-collector-form").submit(function() {
+        var url = "/_dwimmer/create_feed_collector.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
 
     $(".create_mailing_list").click(function(){
        manage_bar();
@@ -215,6 +234,23 @@ $(document).ready(function() {
 
         return false;
     });
+
+    $(".list_feed_collectors").click(function(){
+        manage_bar();
+        $.getJSON(_url('/_dwimmer/feed_collectors.json'), function(resp) {
+            var html = '<ul>';
+            for(var i=0; i < resp["rows"].length; i++) {
+               var title = resp["rows"][i]["name"];
+               html += '<li><a href="' + resp["rows"][i]["id"]  + '">' + title + '</li>';
+            }
+            html += '</ul>';
+            $('#manage-display').show();
+            $('#manage-display').html(html);
+        });
+
+        return false;
+    });
+
 
    $(".show_history").click(function(){
         manage_bar();

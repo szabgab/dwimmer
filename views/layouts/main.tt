@@ -38,6 +38,8 @@
             <li><a class="show_history" href="">show history</a></li>
             <li><a class="create_site"  href="">create site</a></li>
             <li><a class="create_mailing_list"  href="">create mailing list</a></li>
+            <li><a class="create_feed_collector"  href="">create feed collector</a></li>
+            <li><a class="list_feed_collectors"  href="">list feed collectors</a></li>
           </ul>
         </div>
       </li>
@@ -124,6 +126,13 @@
 
       <tr><td></td><td><input type="submit" id="create-mailing-list" value="Create Mailig list" /></td></tr>
       </table>
+    </form>
+  </div>
+
+  <div id="admin-create-feed-collector">
+    <form id="create-feed-collector-form" action="/_dwimmer/create_feed_collector.json" method="POST">
+    Name: <input name="name" />
+    <input type="submit" />
     </form>
   </div>
 

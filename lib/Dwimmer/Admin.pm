@@ -332,7 +332,7 @@ get '/feed_collectors.json' => sub {
             ownerid => $_->owner->id,
         } } $db->resultset('FeedCollector')->search( { owner => session->{userid} } );
 
-    return to_json { result => \@result };
+    return to_json { rows => \@result };
 };
 
 post '/add_feed.json' => sub {
