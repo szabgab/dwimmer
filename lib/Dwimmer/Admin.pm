@@ -296,6 +296,97 @@ get '/get_pages.json' => sub {
     return to_json { rows => \@rows };
 };
 
+post '/create_feed_collector.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+    my $name = (params->{name} || '');
+
+    return to_json {error => 'no_name_given' } if not $name;
+
+    my $time = time;
+
+    my $collector = $db->resultset('FeedCollector')->find( { name => $name } );
+    return to_json { error => 'feed_collector_exists' } if $collector;
+
+    eval {
+        my $collector = $db->resultset('FeedCollector')->create({
+            name       => $name,
+            created_ts => $time,
+            owner      => session->{userid},
+        });
+    };
+    if ($@) {
+        return to_json {error => 'failed' };
+    }
+
+    return to_json { success => 1 };
+};
+
+get '/feed_collectors.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my @result = map { {
+            id      => $_->id,
+            name    => $_->name,
+            ownerid => $_->owner->id,
+        } } $db->resultset('FeedCollector')->search( { owner => session->{userid} } );
+
+    return to_json { rows => \@result };
+};
+
+post '/add_feed.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my %args;
+    foreach my $f (qw(title url feed collector)) {
+        $args{$f} = (params->{$f} || '');
+        return to_json { error => "missing_$f" } if not $args{$f};
+    }
+
+    my $collector = $db->resultset('FeedCollector')->find( { id => $args{collector} } );
+    return to_json { error => 'invalid_collector_id' } if not $collector;
+    # is it owned by the same user?
+
+    return to_json { error => 'collector_not_owned_by_user' }
+        if $collector->owner->id ne session->{userid};
+
+    eval {
+        my $feed = $db->resultset('Feed')->create({
+            %args,
+            collector      => session->{userid},
+        });
+    };
+    if ($@) {
+        return to_json {error => $@ };
+    }
+
+    return to_json { success => 1 };
+};
+
+get '/feeds.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my %args;
+    foreach my $f (qw(collector)) {
+        $args{$f} = (params->{$f} || '');
+        return to_json { error => "missing_$f" } if not $args{$f};
+    }
+    # is it owned by the same user?
+
+    my @result = map { {
+            id      => $_->id,
+            title   => $_->title,
+            url     => $_->url,
+            feed    => $_->feed,
+        } } $db->resultset('Feed')->search( { collector => $args{collector} } );
+
+    return to_json { rows => \@result };
+};
+
+
 post '/create_list.json' => sub {
     my ($site_name, $site) = _get_site();
     return to_json {error => 'no_site_found' } if not $site;
@@ -310,7 +401,7 @@ post '/create_list.json' => sub {
     if ($name !~ /^[a-z_]{4,}$/) {
         return to_json { 'error' => 'invalid_list_name' };
     }
-    
+
     my $from_address = params->{'from_address'} || '';
     trim($from_address);
     return to_json { 'error' => 'no_from_address' } if not $from_address;

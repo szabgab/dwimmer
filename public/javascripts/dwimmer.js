@@ -95,11 +95,11 @@ $(document).ready(function() {
            $("#editor_body").replaceSelection('<a href="' + link + '">' + text + '</a>');
         }
         $('#editor_body').keyup();
-         
+
         //alert(link);
       }
     })
-   
+
     $(".list_users").click(function(){
       manage_bar();
       $.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
@@ -180,6 +180,25 @@ $(document).ready(function() {
         return false;
      });
 
+    $(".create_feed_collector").click(function(){
+       manage_bar();
+       //original_content = $('#content').html();
+       $('#admin-create-feed-collector').show();
+
+       return false;
+    });
+    $("#create-feed-collector-form").submit(function() {
+        var url = "/_dwimmer/create_feed_collector.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
 
     $(".create_mailing_list").click(function(){
        manage_bar();
@@ -200,6 +219,19 @@ $(document).ready(function() {
         return false;
      });
 
+    $("#add-feed-form").submit(function() {
+        var url = "/_dwimmer/add_feed.json";
+        $.post(url, $(this).serialize(), function(resp) {
+            if (resp["success"] == 1) {
+                alert('added');
+            } else {
+                alert(resp["error"]);
+            }
+        }, 'json');
+        return false;
+     });
+
+
     $(".list_pages").click(function(){
         manage_bar();
         $.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
@@ -215,6 +247,30 @@ $(document).ready(function() {
 
         return false;
     });
+
+    $(".list_feed_collectors").click(function(){
+        manage_bar();
+        $.getJSON(_url('/_dwimmer/feed_collectors.json'), function(resp) {
+            var html = '<ul>';
+            for(var i=0; i < resp["rows"].length; i++) {
+               var title = resp["rows"][i]["name"];
+               html += '<li><a href="" value="' + resp["rows"][i]["id"]  + '">' + title + '</a></li>';
+            }
+            html += '</ul>';
+            $('#manage-display').show();
+            $('#manage-display').html(html);
+
+            // Setup the events only after the html was added!
+            $('#manage-display  a').click(function() {
+              var value = $(this).attr('value');
+              get_and_show_collector(value);
+              return false;
+            });
+
+        });
+        return false;
+    });
+
 
    $(".show_history").click(function(){
         manage_bar();
@@ -323,6 +379,27 @@ function get_and_show_user (value) {
         html += '<li>verified = ' + resp["verified"] + '</li>';
         html += '<li>register_ts = ' + resp["register_ts"] + '</li>';
         html += '</ul>';
+        $('#manage-display').show();
+        $('#manage-display').html(html);
+    });
+
+    return;
+}
+
+function get_and_show_collector (value) {
+    $.getJSON(_url('/_dwimmer/feeds.json') + '&collector=' + value, function(resp) {
+        manage_bar();
+        var html = '';
+        //html += '<a class="add_feed" href="">add feed</a>';
+        html += '<ul>';
+        for(var i=0; i < resp["rows"].length; i++) {
+           html += '<li><a href="' + resp["rows"][i]["id"] + '">' + resp["rows"][i]["title"] + '</a></li>';
+        }
+        html += '</ul>';
+        $('#admin-add-feed').show();
+        //$('#add-feed-form').collector.value( value );
+        $('#collector').val( value );
+
         $('#manage-display').show();
         $('#manage-display').html(html);
     });
