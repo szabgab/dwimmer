@@ -66,6 +66,16 @@
 
   <div id="manage-display"></div>
 
+  <div id="admin-add-feed">
+    <form if="add-feed-form" action="/_dwimmer/add_feed.json" method="POST">
+    <input type="hidden" id="collector" name="collector" value="42" />
+    Title: <input name="title"><br />
+    URL: <input name="url"><br />
+    Feed: <input name="feed"><br />
+    <input type="submit" value="Add"><br />
+    </form>
+  </div>
+
   <div id="manage-add-user">
     <form id="add-user-form">
     Username: <input name="uname" /><br />
