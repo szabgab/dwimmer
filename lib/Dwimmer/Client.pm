@@ -10,16 +10,6 @@ has mech => (is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechaniz
 
 our $VERSION = '0.1101';
 
-sub login {
-	my ($self, $username, $password) = @_;
-	my $m = $self->mech;
-	$m->post($self->host . '/_dwimmer/login.json', {
-		username => $username,
-		password => $password,
-	});
-	return from_json $m->content;
-}
-
 # get_user parameters can be    id => 1
 sub get_page {
 	my ($self, $filename, $revision) = @_;
@@ -60,6 +50,7 @@ my %POST = map { $_ => $_ } qw(
 	create_feed_collector
 	create_list
 	create_site
+	login
 );
 
 AUTOLOAD {

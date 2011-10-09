@@ -47,7 +47,7 @@ my @exp_links = map { quotemeta($_) } @links;
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', $password ), {
+is_deeply($admin->login( username => 'admin', password => $password ), {
 	success => 1,
 	username => 'admin',
 	userid   => 1,

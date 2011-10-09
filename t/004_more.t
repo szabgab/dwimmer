@@ -28,7 +28,7 @@ $w->content_like( qr{Page does not exist}, 'content of missing pages is ok' );
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', $password ), {
+is_deeply($admin->login( username => 'admin', password => $password ), {
 	success => 1,
 	username => 'admin',
 	userid   => 1,

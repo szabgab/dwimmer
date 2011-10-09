@@ -63,8 +63,8 @@ $u->content_like( qr{Would you like to <a class="create_page" href="">create</a>
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply($admin->login( 'admin', 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
-is_deeply($admin->login( 'admin', $password ), {
+is_deeply($admin->login( username => 'admin', password => 'xyz' ), { error => 'invalid_password' }, 'invalid_password');
+is_deeply($admin->login( username => 'admin', password => $password ), {
 	success => 1,
 	username => 'admin',
 	userid   => 1,
@@ -223,7 +223,7 @@ is_deeply($user->list_users, {
 	dwimmer_version => $Dwimmer::Client::VERSION,
 	error => 'not_logged_in',
 	}, 'to list_users page');
-is_deeply($user->login($users[0]{uname}, $users[0]{password}), {
+is_deeply($user->login( username => $users[0]{uname}, password => $users[0]{password}), {
 	success => 1,
 	username => $users[0]{uname},
 	userid   => 2,
