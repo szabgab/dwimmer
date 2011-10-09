@@ -20,14 +20,7 @@ sub login {
 	return from_json $m->content;
 }
 
-# parameters can be    id => 1
-sub get_user {
-	my ($self, %args) = @_;
-	my $m = $self->mech;
-	$m->get($self->host . "/_dwimmer/get_user.json?id=$args{id}");
-	return from_json $m->content;
-}
-
+# get_user parameters can be    id => 1
 sub get_page {
 	my ($self, $filename, $revision) = @_;
 	my $m = $self->mech;
@@ -52,6 +45,7 @@ my %GET = map { $_ => $_ } qw(
 	feeds
 	fetch_lists
 	get_pages
+	get_user
 	history
 	list_members
 	list_users
