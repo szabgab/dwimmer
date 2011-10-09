@@ -318,7 +318,7 @@ post '/create_feed_collector.json' => sub {
     if ($@) {
         return to_json {error => 'failed' };
     }
-    
+
     return to_json { success => 1 };
 };
 
@@ -365,6 +365,26 @@ post '/add_feed.json' => sub {
     return to_json { success => 1 };
 };
 
+get '/feeds.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my %args;
+    foreach my $f (qw(collector)) {
+        $args{$f} = (params->{$f} || '');
+        return to_json { error => "missing_$f" } if not $args{$f};
+    }
+    # is it owned by the same user?
+
+    my @result = map { {
+            id      => $_->id,
+            title   => $_->title,
+            url     => $_->url,
+            feed    => $_->feed,
+        } } $db->resultset('Feed')->search( { collector => $args{collector} } );
+
+    return to_json { rows => \@result };
+};
 
 
 post '/create_list.json' => sub {
@@ -381,7 +401,7 @@ post '/create_list.json' => sub {
     if ($name !~ /^[a-z_]{4,}$/) {
         return to_json { 'error' => 'invalid_list_name' };
     }
-    
+
     my $from_address = params->{'from_address'} || '';
     trim($from_address);
     return to_json { 'error' => 'no_from_address' } if not $from_address;

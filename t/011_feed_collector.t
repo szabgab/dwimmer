@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 5);
+plan(tests => 6);
 
 
 use Dwimmer::Client;
@@ -52,6 +52,7 @@ is_deeply($admin->feed_collectors(), {
 	}, 'list feed collectors of current user');
 
 
+# TODO make sure only the owner can add feeds
 is_deeply($admin->add_feed(
 	collector => 1,
 	title => 'Title of Feed',
@@ -59,7 +60,19 @@ is_deeply($admin->add_feed(
 	feed  => 'http://dwimmer.org/feed.rss',
 	), { success => 1 }, 'adding a feed');
 
-# TODO make sure only the owner can add more feeds
+# TODO list feeds in one collector
+#diag(explain($admin->feeds( collector => 1 )));
+is_deeply($admin->feeds( collector => 1 ), {
+   'rows' => [
+     {
+       'feed' => 'http://dwimmer.org/feed.rss',
+       'id' => 1,
+       'title' => 'Title of Feed',
+       'url' => 'http://dwimmer.org/'
+     }
+   ]
+}, 'feeds');
+
 
 
 # run feed collection?
