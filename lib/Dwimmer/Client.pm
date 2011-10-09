@@ -62,21 +62,21 @@ sub save_page {
 
 
 my %GET = map { $_ => $_ } qw(
-	fetch_lists
-	register_email
-	validate_email
-	list_members
 	feed_collectors
 	feeds
-	history
+	fetch_lists
 	get_pages
+	history
+	list_members
+	register_email
 	session
+	validate_email
 );
 my %POST = map { $_ => $_ } qw(
-	create_list
-	create_feed_collector
 	add_feed
 	add_user
+	create_feed_collector
+	create_list
 );
 
 AUTOLOAD {
