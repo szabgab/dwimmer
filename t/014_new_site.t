@@ -45,7 +45,7 @@ is_deeply($admin->create_site( name => 'foobar' ), {
 
 # fetch main page of new site
 #$admin->switch_host( fake => 'foobar' );
-#$admin->get_page('/');
+#$admin->page( filename => '/' );
 
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok("$url/?_dwimmer=foobar"); # faking hostname

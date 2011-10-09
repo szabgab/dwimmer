@@ -11,14 +11,6 @@ has mech => (is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechaniz
 our $VERSION = '0.1101';
 
 # get_user parameters can be    id => 1
-sub get_page {
-	my ($self, $filename, $revision) = @_;
-	my $m = $self->mech;
-	my $url = $self->host . '/_dwimmer/page.json?filename=' . $filename;
-	$url .= "&revision=$revision" if defined $revision;
-	$m->get($url);
-	return from_json $m->content;
-}
 
 sub save_page {
 	my ($self, %args) = @_;
@@ -34,6 +26,7 @@ my %GET = map { $_ => $_ } qw(
 	feed_collectors
 	feeds
 	fetch_lists
+	page
 	get_pages
 	get_user
 	history

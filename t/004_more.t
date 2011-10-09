@@ -54,7 +54,7 @@ cmp_deeply($admin->history( filename => '/' ), {
 	]}, 'history');
 
 
-is_deeply($admin->get_page('/'), {
+is_deeply($admin->page( filename => '/' ), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,
 #	userid => 1,
 #	logged_in => 1,
@@ -73,7 +73,7 @@ is_deeply($admin->save_page(
 		title    => 'New main title',
 		filename => '/',
 		), { success => 1 }, 'save_page');
-is_deeply($admin->get_page('/'), {
+is_deeply($admin->page( filename => '/' ), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,
 #	userid => 1,
 #	logged_in => 1,
@@ -87,7 +87,7 @@ is_deeply($admin->get_page('/'), {
 	},
 	}, 'page data after save');
 
-is_deeply($admin->get_page('/', 1), {
+is_deeply($admin->page( filename => '/', revision => 1), {
 	page => {
 		body     => '<h1>Dwimmer</h1>',
 		title    => 'Welcome to your Dwimmer installation',

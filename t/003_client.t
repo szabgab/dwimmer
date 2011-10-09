@@ -127,7 +127,7 @@ cmp_deeply($admin->get_pages, { rows => [
 	]}, 'get pages');
 
 
-is_deeply($admin->get_page('/'), {
+is_deeply($admin->page( filename => '/' ), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,
 #	userid => 1,
 #	logged_in => 1,
@@ -146,7 +146,7 @@ is_deeply($admin->save_page(
 		title    => 'New main title',
 		filename => '/',
 		), { success => 1 }, 'save_page');
-is_deeply($admin->get_page('/'), {
+is_deeply($admin->page( filename => '/' ), {
 #	dwimmer_version => $Dwimmer::Client::VERSION,
 #	userid => 1,
 #	logged_in => 1,
