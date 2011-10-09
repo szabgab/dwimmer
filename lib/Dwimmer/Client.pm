@@ -42,13 +42,6 @@ sub get_user {
 	return from_json $m->content;
 }
 
-sub add_user {
-	my ($self, %args) = @_;
-	my $m = $self->mech;
-	$m->post( $self->host . "/_dwimmer/add_user.json", \%args );
-	return from_json $m->content;
-}
-
 sub get_session {
 	my ($self) = @_;
 	my $m = $self->mech;
@@ -90,6 +83,7 @@ my %POST = map { $_ => $_ } qw(
 	create_list
 	create_feed_collector
 	add_feed
+	add_user
 );
 
 AUTOLOAD {
