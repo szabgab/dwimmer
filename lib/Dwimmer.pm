@@ -54,7 +54,7 @@ sub route_index {
         }
 
         $data->{body} =~ s{\[(\w+)://([^]]+)\]}{_process($1, $2)}eg;
-        
+
         $data->{body} =~ s{\[([\w .\$@%-]+)\]}{<a href="$1">$1</a>}g;
         return Dwimmer::Admin::render_response('index', { page => $data });
     } else {
@@ -79,7 +79,7 @@ post '/poll' => sub {
     my $id = params->{id};
     return Dwimmer::Admin::render_response('error', { invalid_poll_id => $id })
         if $id !~ /^[\w-]+$/;
-    
+
     my $json_file = path(config->{appdir}, 'polls', "$id.json");
     return Dwimmer::Admin::render_response('error', { poll_not_found => $id })
         if not -e $json_file;
@@ -91,7 +91,7 @@ post '/poll' => sub {
     $data{SID} = session->id;
     if (open my $fh, '>>', $log_file) {
         flock($fh, LOCK_EX);
-        print $fh to_json(\%data), "\n"; 
+        print $fh to_json(\%data), "\n";
         close $fh;
     }
     redirect request->uri_base . "/$id?submitted=1";
@@ -161,3 +161,4 @@ modify it under the same terms as Perl 5 itself.
 # LICENSE
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl 5 itself.
+
