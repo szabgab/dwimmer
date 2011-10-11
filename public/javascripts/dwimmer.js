@@ -100,43 +100,11 @@ $(document).ready(function() {
       }
     })
 
-    $(".list_users").click(function(){
-      manage_bar();
-      $.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
-        var html = '<ul>';
-        for(var i=0; i < resp["users"].length; i++) {
-          html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
-        }
-        html += '</ul>';
-        $('#manage-display').show();
-        $('#manage-display').html(html);
-
-        // Setup the events only after the html was added!
-        $('#manage-display  a').click(function() {
-          var value = $(this).attr('value');
-          get_and_show_user(value);
-          return false;
-        });
-      });
-
-      return false;
-    });
-
+// show the form
     $(".add_user").click(function(){
       manage_bar();
       $('#manage-add-user').show();
       return false;
-    });
-    $("#add-user-form").submit(function() {
-      var url = "/_dwimmer/add_user.json";
-      $.post(url, $(this).serialize(), function(resp) {
-        if (resp["success"] == 1) {
-          alert('added');
-        } else {
-          alert(resp["error"]);
-        }
-      }, 'json');
-        return false;
     });
 
     $(".add_page").click(function(){
@@ -149,6 +117,7 @@ $(document).ready(function() {
 
        return false;
     });
+
     $(".create_page").click(function(){
        manage_bar();
        original_content = $('#content').html();
@@ -168,6 +137,37 @@ $(document).ready(function() {
 
        return false;
     });
+
+    $(".create_feed_collector").click(function(){
+       manage_bar();
+       //original_content = $('#content').html();
+       $('#admin-create-feed-collector').show();
+
+       return false;
+    });
+
+    $(".create_mailing_list").click(function(){
+       manage_bar();
+       //original_content = $('#content').html();
+       $('#admin-create-mailing-list').show();
+
+       return false;
+    });
+
+// submit the form
+
+    $("#add-user-form").submit(function() {
+      var url = "/_dwimmer/add_user.json";
+      $.post(url, $(this).serialize(), function(resp) {
+        if (resp["success"] == 1) {
+          alert('added');
+        } else {
+          alert(resp["error"]);
+        }
+      }, 'json');
+        return false;
+    });
+
     $("#create-site-form").submit(function() {
         var url = "/_dwimmer/create_site.json";
         $.post(url, $(this).serialize(), function(resp) {
@@ -180,13 +180,6 @@ $(document).ready(function() {
         return false;
      });
 
-    $(".create_feed_collector").click(function(){
-       manage_bar();
-       //original_content = $('#content').html();
-       $('#admin-create-feed-collector').show();
-
-       return false;
-    });
     $("#create-feed-collector-form").submit(function() {
         var url = "/_dwimmer/create_feed_collector.json";
         $.post(url, $(this).serialize(), function(resp) {
@@ -200,13 +193,6 @@ $(document).ready(function() {
      });
 
 
-    $(".create_mailing_list").click(function(){
-       manage_bar();
-       //original_content = $('#content').html();
-       $('#admin-create-mailing-list').show();
-
-       return false;
-    });
     $("#create-list-form").submit(function() {
         var url = "/_dwimmer/create_list.json";
         $.post(url, $(this).serialize(), function(resp) {
@@ -230,6 +216,31 @@ $(document).ready(function() {
         }, 'json');
         return false;
      });
+
+
+// list values
+
+    $(".list_users").click(function(){
+      manage_bar();
+      $.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
+        var html = '<ul>';
+        for(var i=0; i < resp["users"].length; i++) {
+          html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
+        }
+        html += '</ul>';
+        $('#manage-display').show();
+        $('#manage-display').html(html);
+
+        // Setup the events only after the html was added!
+        $('#manage-display  a').click(function() {
+          var value = $(this).attr('value');
+          get_and_show_user(value);
+          return false;
+        });
+      });
+
+      return false;
+    });
 
 
     $(".list_sites").click(function(){
