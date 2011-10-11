@@ -155,19 +155,20 @@ $(document).ready(function() {
     });
 
 // submit the form
+function submit_form(obj, file) {
+	var url = "/_dwimmer/" + file + ".json";
+	$.post(url, $(obj).serialize(), function(resp) {
+		if (resp["success"] == 1) {
+			alert('added');
+		} else {
+			alert(resp["error"]);
+		}
+	}, 'json');
+	return false;
+}
 
-    $("#add-user-form").submit(function() {
-      var url = "/_dwimmer/add_user.json";
-      $.post(url, $(this).serialize(), function(resp) {
-        if (resp["success"] == 1) {
-          alert('added');
-        } else {
-          alert(resp["error"]);
-        }
-      }, 'json');
-        return false;
-    });
 
+    $("#add-user-form").submit(function() { return submit_form(this, 'add_user') });
     $("#create-site-form").submit(function() {
         var url = "/_dwimmer/create_site.json";
         $.post(url, $(this).serialize(), function(resp) {
