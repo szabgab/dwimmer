@@ -157,6 +157,16 @@
     </form>
   </div>
 
+  <div id="admin_getclicky">
+    <form id="getclicky_form" action="/_dwimmer/save_site_config.json" method="POST">
+    <input type="hidden" class="siteid" name="siteid"  />
+    <input type="hidden" name="section" value="getclicky" />
+    GetClicky ID <input id="getclicky" name="getclicky" /><br />
+    Enable GetClicky <input type="checkbox" id="enable_getclicky" name="enable_getclicky" /><br />
+    <input type="submit" value="Save" />
+    </form>
+  </div>
+
 
 </div>
 
@@ -172,6 +182,9 @@ Powered by <a href="http://dwimmer.org/">Dwimmer</a> <% dwimmer_version %>
 </div>
 <% IF google_analytics %>
 <% INCLUDE layouts/google_analytics.tt %>
+<% END %>
+<% IF getclicky %>
+<% INCLUDE layouts/getclicky.tt %>
 <% END %>
 </body>
 </html>

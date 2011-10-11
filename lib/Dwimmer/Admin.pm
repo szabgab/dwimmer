@@ -38,11 +38,17 @@ sub render_response {
 
     my ($site_name, $site) = _get_site();
     my $db = _get_db();
-	my $option = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'google_analytics' } );
+	my $google_analytics = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'google_analytics' } );
 	# TODO enable_google_analytics
-	if ($option) {
-    	$data->{google_analytics} = $option->value;
+	if ($google_analytics) {
+    	$data->{google_analytics} = $google_analytics->value;
 	}
+	my $getclicky = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'getclicky' } );
+	# TODO enable_getclicky
+	if ($getclicky) {
+    	$data->{getclicky} = $getclicky->value;
+	}
+
 
     my $content_type = request->content_type || params->{content_type} || '';
     if ($content_type =~ /json/ or request->{path} =~ /\.json/) {
@@ -627,13 +633,16 @@ post '/save_site_config.json' => sub {
 	return to_json { error => 'no_siteid'  } if not $args{siteid};
 	return to_json { error => 'no_section' } if not $args{section};
 
+	my %params;
 	if ($args{section} eq 'google_analytics') {
-		my %params = _clean_params(qw(google_analytics enable_google_analytics));
-		foreach my $field (keys %params) {
-			_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
-		}
+		%params = _clean_params(qw(google_analytics enable_google_analytics));
+	} elsif ($args{section} eq 'getclicky') {
+		%params = _clean_params(qw(getclicky enable_getclicky));
 	} else {
 		return to_json { error => 'invalid_section' };
+	}
+	foreach my $field (keys %params) {
+		_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
 	}
 
     return to_json { success => 1 };
