@@ -35,6 +35,7 @@ my %GET = map { $_ => $_ } qw(
 	logout
 	register_email
 	session
+	site_config
 	sites
 	validate_email
 );
@@ -45,6 +46,7 @@ my %POST = map { $_ => $_ } qw(
 	create_list
 	create_site
 	login
+	set_site_config
 );
 
 AUTOLOAD {

@@ -585,6 +585,45 @@ get '/sites.json' => sub {
     return to_json { rows => \@rows };
 };
 
+get '/site_config.json' => sub {
+
+	my %args;
+    $args{siteid} = params->{siteid} || '';
+    trim($args{siteid});
+    return render_response 'error', {'no_siteid' => 1} if not $args{siteid};
+
+    my $db = _get_db();
+    #my @rows = map { {siteid => $_->siteid, name => $_->name, value => $_->value} }
+	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%args );
+    #return to_json { rows => \@rows };
+	return to_json { data => \%data };
+};
+
+post '/set_site_config.json' => sub {
+	my %args;
+
+	foreach my $field (qw(siteid name value)) {
+    	$args{$field} = params->{$field};
+		$args{$field} = '' if not defined $args{$field};
+    	trim($args{$field});
+	}
+   	return render_response 'error', {'no_siteid' => 1} if not $args{siteid};
+   	return render_response 'error', {'no_name' => 1} if not $args{name};
+
+    my $db = _get_db();
+	my $option = $db->resultset('SiteConfig')->find( { siteid => $args{siteid}, name => $args{name} } );
+	if ($option) {
+		$option->value( $args{value} );
+		$option->update;
+	} else {
+    	my $option = $db->resultset('SiteConfig')->create( \%args );
+	}
+
+    return to_json { success => 1 };
+};
+
+
+
 
 
 true;

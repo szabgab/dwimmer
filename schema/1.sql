@@ -43,4 +43,10 @@ CREATE TABLE feeds (
     feed        VARCHAR(255),
     FOREIGN KEY (collector) REFERENCES feed_collector(id)
 );
+CREATE TABLE site_config (
+    id              INTEGER PRIMARY KEY,
+    siteid          INTEGER NOT NULL,
+    name            VARCHAR(100) NOT NULL,
+    value           VARCHAR(100)
+);
 PRAGMA user_version=1;
