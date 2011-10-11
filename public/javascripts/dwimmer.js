@@ -167,11 +167,11 @@ function submit_form(obj, file) {
 	return false;
 }
 
-    $("#add-user-form").submit(function() {              return submit_form(this, 'add_user') });
-    $("#create-site-form").submit(function() {           return submit_form(this, 'create_site') });
-    $("#create-feed-collector-form").submit(function() { return submit_form(this, 'create_feed_collector') });
-    $("#create-list-form").submit(function() {           return submit_form(this, 'create_list') });
-    $("#add-feed-form").submit(function() {              return submit_form(this, 'add_feed') });
+    $("#add_user_form").submit(function() {              return submit_form(this, 'add_user') });
+    $("#create_site_form").submit(function() {           return submit_form(this, 'create_site') });
+    $("#create_feed_collector_form").submit(function() { return submit_form(this, 'create_feed_collector') });
+    $("#create_list_form").submit(function() {           return submit_form(this, 'create_list') });
+    $("#add_feed_form").submit(function() {              return submit_form(this, 'add_feed') });
 
 // list values
 

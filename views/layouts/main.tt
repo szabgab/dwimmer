@@ -68,7 +68,7 @@
   <div id="manage-display"></div>
 
   <div id="admin-add-feed">
-    <form if="add-feed-form" action="/_dwimmer/add_feed.json" method="POST">
+    <form id="add_feed_form" action="/_dwimmer/add_feed.json" method="POST">
     <input type="hidden" id="collector" name="collector" value="42" />
     Title: <input name="title"><br />
     URL: <input name="url"><br />
@@ -78,7 +78,7 @@
   </div>
 
   <div id="manage-add-user">
-    <form id="add-user-form">
+    <form id="add_user_form" action="/_dwimmer/add_user_form.json" method="POST">
     Username: <input name="uname" /><br />
     First name: <input name="fname" /><br />
     Last name: <input name="lname" /><br />
@@ -116,14 +116,14 @@
   </div>
 
   <div id="admin-create-site">
-    <form id="create-site-form" action="/_dwimmer/create_site.json" method="POST">
+    <form id="create_site_form" action="/_dwimmer/create_site.json" method="POST">
       Hostname: <input name="name" size="30" />
       <input type="submit" id="create-site" value="Create Site" />
     </form>
   </div>
 
   <div id="admin-create-mailing-list">
-    <form id="create-list-form" action="/_dwimmer/create_list.json" method="POST">
+    <form id="create_list_form" action="/_dwimmer/create_list.json" method="POST">
       <table>
       <tr><td>List name:<input name="name" size="40" /></td>
           <td>List title:<input name="title" size="40" /></td></tr>
@@ -141,7 +141,7 @@
   </div>
 
   <div id="admin-create-feed-collector">
-    <form id="create-feed-collector-form" action="/_dwimmer/create_feed_collector.json" method="POST">
+    <form id="create_feed_collector_form" action="/_dwimmer/create_feed_collector.json" method="POST">
     Name: <input name="name" />
     <input type="submit" />
     </form>
