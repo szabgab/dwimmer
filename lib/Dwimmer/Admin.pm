@@ -35,6 +35,15 @@ sub render_response {
 
     debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
+
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+	my $option = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'google_analytics' } );
+	# TODO enable_google_analytics
+	if ($option) {
+    	$data->{google_analytics} = $option->value;
+	}
+
     my $content_type = request->content_type || params->{content_type} || '';
     if ($content_type =~ /json/ or request->{path} =~ /\.json/) {
        content_type 'text/plain';
@@ -648,7 +657,6 @@ post '/set_site_config.json' => sub {
 sub _set_site_config {
 	my %args = @_;
 
-error(%args);
     my $db = _get_db();
 	my $option = $db->resultset('SiteConfig')->find( { siteid => $args{siteid}, name => $args{name} } );
 	if ($option) {

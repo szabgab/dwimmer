@@ -170,5 +170,8 @@
 <div id="footer">
 Powered by <a href="http://dwimmer.org/">Dwimmer</a> <% dwimmer_version %>
 </div>
+<% IF google_analytics %>
+<% INCLUDE layouts/google_analytics.tt %>
+<% END %>
 </body>
 </html>
