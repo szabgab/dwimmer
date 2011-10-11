@@ -35,6 +35,21 @@ sub render_response {
 
     debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
+
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+	my $google_analytics = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'google_analytics' } );
+	# TODO enable_google_analytics
+	if ($google_analytics) {
+    	$data->{google_analytics} = $google_analytics->value;
+	}
+	my $getclicky = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'getclicky' } );
+	# TODO enable_getclicky
+	if ($getclicky) {
+    	$data->{getclicky} = $getclicky->value;
+	}
+
+
     my $content_type = request->content_type || params->{content_type} || '';
     if ($content_type =~ /json/ or request->{path} =~ /\.json/) {
        content_type 'text/plain';
@@ -578,6 +593,91 @@ post '/create_site.json' => sub {
 
     return to_json { success => 1 };
 };
+
+get '/sites.json' => sub {
+    my $db = _get_db();
+    my @rows = map { {id => $_->id, name => $_->name, owner => $_->owner->id} } $db->resultset('Site')->all;
+    return to_json { rows => \@rows };
+};
+
+get '/site_config.json' => sub {
+
+	my %args;
+    $args{siteid} = params->{siteid} || '';
+    trim($args{siteid});
+    return render_response 'error', {'no_siteid' => 1} if not $args{siteid};
+
+    my $db = _get_db();
+    #my @rows = map { {siteid => $_->siteid, name => $_->name, value => $_->value} }
+	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%args );
+    #return to_json { rows => \@rows };
+	return to_json { data => \%data };
+};
+
+sub _clean_params {
+	my @fields = @_;
+
+	my %args;
+	foreach my $field (@fields) {
+		$args{$field} = params->{$field};
+		$args{$field} = '' if not defined $args{$field};
+		trim($args{$field});
+	}
+
+	return %args;
+}
+
+# TODO test this route from the client!
+post '/save_site_config.json' => sub {
+	my %args = _clean_params(qw(siteid section));
+	return to_json { error => 'no_siteid'  } if not $args{siteid};
+	return to_json { error => 'no_section' } if not $args{section};
+
+	my %params;
+	if ($args{section} eq 'google_analytics') {
+		%params = _clean_params(qw(google_analytics enable_google_analytics));
+	} elsif ($args{section} eq 'getclicky') {
+		%params = _clean_params(qw(getclicky enable_getclicky));
+	} else {
+		return to_json { error => 'invalid_section' };
+	}
+	foreach my $field (keys %params) {
+		_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
+	}
+
+    return to_json { success => 1 };
+};
+
+post '/set_site_config.json' => sub {
+	my %args;
+
+	foreach my $field (qw(siteid name value)) {
+    	$args{$field} = params->{$field};
+		$args{$field} = '' if not defined $args{$field};
+    	trim($args{$field});
+	}
+   	return render_response 'error', {'no_siteid' => 1} if not $args{siteid};
+   	return render_response 'error', {'no_name' => 1} if not $args{name};
+	_set_site_config( %args );
+
+    return to_json { success => 1 };
+};
+
+sub _set_site_config {
+	my %args = @_;
+
+    my $db = _get_db();
+	my $option = $db->resultset('SiteConfig')->find( { siteid => $args{siteid}, name => $args{name} } );
+	if ($option) {
+		$option->value( $args{value} );
+		$option->update;
+	} else {
+    	my $option = $db->resultset('SiteConfig')->create( \%args );
+	}
+}
+
+
+
 
 
 true;

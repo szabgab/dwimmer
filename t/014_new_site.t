@@ -17,7 +17,7 @@ plan(skip_all => 'Unsupported OS') if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan(tests => 4);
+plan(tests => 8);
 
 
 use Dwimmer::Client;
@@ -50,4 +50,37 @@ is_deeply($admin->create_site( name => 'foobar' ), {
 my $w = Test::WWW::Mechanize->new;
 $w->get_ok("$url/?_dwimmer=foobar"); # faking hostname
 $w->content_like( qr{Welcome to foobar}, 'content ok' ) or diag($w->content);
+
+#diag(explain($admin->sites));
+is_deeply($admin->sites, {
+   'rows' => [
+     {
+       'id' => 1,
+       'name' => 'www',
+       'owner' => 1
+     },
+     {
+       'id' => 2,
+       'name' => 'foobar',
+       'owner' => 1
+     }
+   ]
+}, 'list sites');
+
+#diag(explain($admin->site_config(siteid => 2)));
+is_deeply($admin->site_config(siteid => 2), {
+   #rows => [],
+   data => {}
+}, 'no site config');
+
+is_deeply($admin->set_site_config(siteid => 2, name => 'google_analytics' => value => 'abcd'), {
+   success => 1,
+}, 'set site config');
+#diag(explain($admin->site_config(siteid => 2)));
+is_deeply($admin->site_config(siteid => 2), {
+   'data' => {
+      'google_analytics' => 'abcd'
+     }
+}, 'site_config');
+
 
