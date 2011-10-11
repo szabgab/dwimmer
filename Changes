@@ -9,7 +9,9 @@
    Eliminate cache from the Ajax get requests as IE (both 8 and 9) would cache by default.
 
    Replace several methods in the Dwimmer::Client or change their APIs
-   most importantly 'login', 'get_page', 
+   most importantly 'login', 'get_page',
+   Add site_config table
+   Add Google Analytics and GetClicky
 
 v0.11 2011.09.10
 
