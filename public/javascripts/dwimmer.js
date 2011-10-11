@@ -232,6 +232,22 @@ $(document).ready(function() {
      });
 
 
+    $(".list_sites").click(function(){
+        manage_bar();
+        $.getJSON(_url('/_dwimmer/sites.json'), function(resp) {
+            var html = '<ul>';
+            for(var i=0; i < resp["rows"].length; i++) {
+               var title = resp["rows"][i]["name"];
+               html += '<li><a href="' + resp["rows"][i]["id"]  + '">' + title + '</li>';
+            }
+            html += '</ul>';
+            $('#manage-display').show();
+            $('#manage-display').html(html);
+        });
+
+        return false;
+    });
+
     $(".list_pages").click(function(){
         manage_bar();
         $.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
