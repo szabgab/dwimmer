@@ -35,6 +35,7 @@ my %GET = map { $_ => $_ } qw(
 	logout
 	register_email
 	session
+	sites
 	validate_email
 );
 my %POST = map { $_ => $_ } qw(

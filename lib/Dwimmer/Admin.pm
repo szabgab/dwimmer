@@ -579,6 +579,13 @@ post '/create_site.json' => sub {
     return to_json { success => 1 };
 };
 
+get '/sites.json' => sub {
+    my $db = _get_db();
+    my @rows = map { {id => $_->id, name => $_->name, owner => $_->owner->id} } $db->resultset('Site')->all;
+    return to_json { rows => \@rows };
+};
+
+
 
 true;
 
