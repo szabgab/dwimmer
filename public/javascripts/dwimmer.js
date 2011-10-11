@@ -167,57 +167,11 @@ function submit_form(obj, file) {
 	return false;
 }
 
-
-    $("#add-user-form").submit(function() { return submit_form(this, 'add_user') });
-    $("#create-site-form").submit(function() {
-        var url = "/_dwimmer/create_site.json";
-        $.post(url, $(this).serialize(), function(resp) {
-            if (resp["success"] == 1) {
-                alert('added');
-            } else {
-                alert(resp["error"]);
-            }
-        }, 'json');
-        return false;
-     });
-
-    $("#create-feed-collector-form").submit(function() {
-        var url = "/_dwimmer/create_feed_collector.json";
-        $.post(url, $(this).serialize(), function(resp) {
-            if (resp["success"] == 1) {
-                alert('added');
-            } else {
-                alert(resp["error"]);
-            }
-        }, 'json');
-        return false;
-     });
-
-
-    $("#create-list-form").submit(function() {
-        var url = "/_dwimmer/create_list.json";
-        $.post(url, $(this).serialize(), function(resp) {
-            if (resp["success"] == 1) {
-                alert('added');
-            } else {
-                alert(resp["error"]);
-            }
-        }, 'json');
-        return false;
-     });
-
-    $("#add-feed-form").submit(function() {
-        var url = "/_dwimmer/add_feed.json";
-        $.post(url, $(this).serialize(), function(resp) {
-            if (resp["success"] == 1) {
-                alert('added');
-            } else {
-                alert(resp["error"]);
-            }
-        }, 'json');
-        return false;
-     });
-
+    $("#add-user-form").submit(function() {              return submit_form(this, 'add_user') });
+    $("#create-site-form").submit(function() {           return submit_form(this, 'create_site') });
+    $("#create-feed-collector-form").submit(function() { return submit_form(this, 'create_feed_collector') });
+    $("#create-list-form").submit(function() {           return submit_form(this, 'create_list') });
+    $("#add-feed-form").submit(function() {              return submit_form(this, 'add_feed') });
 
 // list values
 
