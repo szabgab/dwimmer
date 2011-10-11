@@ -599,6 +599,37 @@ get '/site_config.json' => sub {
 	return to_json { data => \%data };
 };
 
+sub _clean_params {
+	my @fields = @_;
+
+	my %args;
+	foreach my $field (@fields) {
+		$args{$field} = params->{$field};
+		$args{$field} = '' if not defined $args{$field};
+		trim($args{$field});
+	}
+
+	return %args;
+}
+
+# TODO test this route from the client!
+post '/save_site_config.json' => sub {
+	my %args = _clean_params(qw(siteid section));
+	return to_json { error => 'no_siteid'  } if not $args{siteid};
+	return to_json { error => 'no_section' } if not $args{section};
+
+	if ($args{section} eq 'google_analytics') {
+		my %params = _clean_params(qw(google_analytics enable_google_analytics));
+		foreach my $field (keys %params) {
+			_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
+		}
+	} else {
+		return to_json { error => 'invalid_section' };
+	}
+
+    return to_json { success => 1 };
+};
+
 post '/set_site_config.json' => sub {
 	my %args;
 
@@ -609,7 +640,15 @@ post '/set_site_config.json' => sub {
 	}
    	return render_response 'error', {'no_siteid' => 1} if not $args{siteid};
    	return render_response 'error', {'no_name' => 1} if not $args{name};
+	_set_site_config( %args );
 
+    return to_json { success => 1 };
+};
+
+sub _set_site_config {
+	my %args = @_;
+
+error(%args);
     my $db = _get_db();
 	my $option = $db->resultset('SiteConfig')->find( { siteid => $args{siteid}, name => $args{name} } );
 	if ($option) {
@@ -618,9 +657,7 @@ post '/set_site_config.json' => sub {
 	} else {
     	my $option = $db->resultset('SiteConfig')->create( \%args );
 	}
-
-    return to_json { success => 1 };
-};
+}
 
 
 

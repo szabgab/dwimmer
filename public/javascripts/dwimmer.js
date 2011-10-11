@@ -171,7 +171,7 @@ function submit_form(obj, file) {
 	$("#create_feed_collector_form").submit(function() { return submit_form(this, 'create_feed_collector') });
 	$("#create_list_form").submit(function() {           return submit_form(this, 'create_list') });
 	$("#add_feed_form").submit(function() {              return submit_form(this, 'add_feed') });
-
+	$("#google_analytics_form").submit(function() {      return submit_form(this, 'save_site_config') });
 // list values
 
 	$(".list_users").click(function(){
@@ -203,11 +203,19 @@ function submit_form(obj, file) {
 			var html = '<ul>';
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["name"];
-				html += '<li><a href="' + resp["rows"][i]["id"]  + '">' + title + '</li>';
+				html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
+				html += '<a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a></li>';
 			}
 			html += '</ul>';
 			$('#manage-display').show();
 			$('#manage-display').html(html);
+
+			// Setup the events only after the html was added!
+			$('.configure_google_analytics').click(function() {
+				var value = $(this).attr('value');
+				google_analytics(value);
+				return false;
+			});
 		});
 
 		return false;
@@ -348,6 +356,17 @@ function submit_form(obj, file) {
 		return false;
 	});
 });
+
+function google_analytics (value) {
+	$.getJSON(_url('/_dwimmer/site_config.json') + '&siteid=' + value, function(resp) {
+		manage_bar();
+		$('#google_analytics').val( resp["data"]["google_analytics"] );
+		// TODO enable_google_analytics
+		$('.siteid').val( value );
+		$('#admin_google_analytics').show();
+	});
+	return;
+}
 
 function get_and_show_user (value) {
 	$.getJSON(_url('/_dwimmer/get_user.json') + '&id=' + value, function(resp) {

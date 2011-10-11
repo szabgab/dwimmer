@@ -147,6 +147,17 @@
     </form>
   </div>
 
+  <div id="admin_google_analytics">
+    <form id="google_analytics_form" action="/_dwimmer/save_site_config.json" method="POST">
+    <input type="hidden" class="siteid" name="siteid"  />
+    <input type="hidden" name="section" value="google_analytics" />
+    Google Analytics <input id="google_analytics" name="google_analytics" /><br />
+    Enable Google Analytics <input type="checkbox" id="enable_google_analytics" name="enable_google_analytics" /><br />
+    <input type="submit" value="Save" />
+    </form>
+  </div>
+
+
 </div>
 
 <div id="content">
