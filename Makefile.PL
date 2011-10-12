@@ -33,6 +33,7 @@ my %prereq = (
         'Getopt::Long'         => 0,
         'JSON'                 => 0,
         'MIME::Lite'           => 0,
+        'Moose'                => 0,
         'Pod::Usage'           => 0,
         'String::Random'       => 0,
         'Template'             => 0,
