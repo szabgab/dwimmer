@@ -15,6 +15,7 @@ logs
 /share
 #/polls
 /polls/*.txt
+/polls/perl-mongers.json
 
 SETUP.bat
 Dwimmer-*
