@@ -4,7 +4,7 @@
   "questions" : [
      {
         "text" : "What do you expect from your Perl Monger group?",
-        "id"   : "source_of_perl_news",
+        "id"   : "pm_group_expectation",
         "type" : "multiple_choice",
         "limit" : 3,
         "other" : 1,
@@ -14,15 +14,13 @@
             "Listening to technical lectures.",
             "Asking questions on the mailing list within a small group of people.",
             "Discussing Perl issues in my own mother-tongue.",
-            "Help to recruit Perl programmers.",
-            "Beer/Pizza"
+            "Help to recruit Perl programmers."
         ]
      },
      {
         "text" : "What kinds of meetings do you prefer?",
         "id"   : "type_of_meetings",
-        "type" : "multiple_choice",
-        "limit" : 5,
+        "type" : "single_choice",
         "other" : 1,
         "answers" : [
            "Technical meetings",
@@ -32,7 +30,7 @@
      },
      {
         "text" : "How often do you attend your Perl Monger group meetings?",
-        "id"   : "how_oftent",
+        "id"   : "how_oftent_attend",
         "type" : "single_choice",
         "other" : 1,
         "answers" : [
@@ -57,17 +55,12 @@
       },
       {
         "text" : "Do you attend any other programming or technical user group meetings? If so, which ones?",
-        "id"   : "source_of_perl_news",
-        "type" : "multiple_choice",
-        "limit" : 5,
-        "other" : 1,
-        "answers" : [
-           "TODO free text?"
-        ]
+        "id"   : "other_user_groups",
+        "type" : "free_text"
      },
      {
         "text" : "What is your preferred content/level of presentations?",
-        "id"   : "primary_pm_group",
+        "id"   : "preferred_presentations",
         "type" : "multiple_choice",
         "other" : 1,
         "answers" : [
@@ -92,9 +85,13 @@
             "Javascript",
             "HTML",
             "CSS",
+            "C/C++",
+            "Java",
             "Lua",
             "Haskell",
-            "Lisp"
+            "Lisp",
+            "SQL",
+            "NoSQL"
         ]
      },
      {
@@ -103,10 +100,16 @@
         "type" : "single_choice_drop_down",
         "other" : 1,
         "answers" : [
+           "Boston.pm",
+           "London.pm",
            "list of active groups from pm.org"
         ]
+     },
+     {
+        "text" : "What do you suggest to improve your PM group?",
+        "id"   : "pm_group_suggestion",
+        "type" : "free_text"
      }
-  ]
+   ]
 }
-
 

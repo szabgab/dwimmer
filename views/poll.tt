@@ -8,14 +8,44 @@
   <% IF q.limit %>
   Please select up to <% q.limit %> answers.
   <% END %>
-  <ul>
-     <% FOR a IN q.answers %>
-     <li><input type="checkbox" name="<% q.id %>" value="<% loop.index %>" /><% a %></li>
-     <% END %>
-     <% IF q.other %>
-     <li>Other: <input type="text" name="other__<% q.id %>" size="50" />
-     <% END %>
-  </ul>
+
+  <% SWITCH q.type %>
+    <% CASE "multiple_choice" %>
+      <ul>
+         <% FOR a IN q.answers %>
+         <li><input type="checkbox" name="<% q.id %>" value="<% loop.index %>" /><% a %></li>
+         <% END %>
+         <% IF q.other %>
+         <li><input type="checkbox" name="<% q.id %>" value="other__<% q.id %>" /> Other: <input type="text" name="other__<% q.id %>__text" size="50" />
+         <% END %>
+      </ul>
+   <% CASE "single_choice" %>
+      <ul>
+         <% FOR a IN q.answers %>
+         <li><input type="radio" name="<% q.id %>" value="<% loop.index %>" /><% a %></li>
+         <% END %>
+         <% IF q.other %>
+         <li><input type="radio" name="<% q.id %>" value="other__<% q.id %>" /> Other: <input type="text" name="other__<% q.id %>__text" size="50" />
+         <% END %>
+      </ul>
+    <% CASE "single_choice_drop_down" %>
+       <select name="<% q.id %>" id="<% q.id %>" >
+       <% FOR a IN q.answers %>
+         <option value="<% a %>"><% a %></option>
+       <% END %>
+       <% IF q.other %>
+         <option value="other__<% q.id %>">Other</option>
+       <% END %>
+       </select>
+       <br />
+       <% IF q.other %>
+          Other: <input type="text" name="other__<% q.id %>__text" size="50" />
+       <% END %>
+    <% CASE "free_text" %>
+      <textarea rows="10" cols="70" name="<% q.id %>" id="<% q.id %>"></textarea>
+    <% CASE DEFAULT %>
+      Question type <% q.type %> not implemented yet.
+   <% END %>
   </li>
 <% END %>
 </ul>
