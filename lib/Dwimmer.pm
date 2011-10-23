@@ -7,7 +7,7 @@ our $VERSION = '0.1101';
 
 use Data::Dumper qw(Dumper);
 use Dwimmer::DB;
-use Dwimmer::Tools qw(_get_db _get_site read_file);
+use Dwimmer::Tools qw(_get_db _get_site read_file $SCHEMA_VERSION);
 
 use Fcntl qw(:flock);
 use Template;
@@ -25,6 +25,14 @@ my %open = map { $_ => 1 } qw(
 
 hook before => sub {
     my $path = request->path_info;
+
+	my $db = _get_db();
+    my ($version) = $db->storage->dbh->selectrow_array('PRAGMA user_version');
+	#see also do_dbh https://metacpan.org/module/DBIx::Class::Storage::DBI#dbh_do
+	if ($version != $SCHEMA_VERSION) {
+		return halt("Database is currently at version $version while we need version $SCHEMA_VERSION");
+	}
+
     return if $open{$path};
     return if $path !~ m{/_}; # only the pages starting with /_ are management pages that need restriction
 
