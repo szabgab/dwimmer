@@ -30,7 +30,7 @@ GetOptions(\%opt,
 usage() if not $opt{root};
 
 
-if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) { 
+if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) {
     die "Root directory ($opt{root}) already exists"
 }
 
@@ -62,12 +62,12 @@ mkpath $db_dir if not -e $db_dir;
 if (not $opt{dbonly}) {
     foreach my $dir (qw(views public bin environments)) {
         File::Copy::Recursive::dircopy(
-            File::Spec->catdir( $dist_dir, $dir), 
+            File::Spec->catdir( $dist_dir, $dir),
             File::Spec->catdir( $opt{root}, $dir )
         );
     }
     File::Copy::Recursive::fcopy(
-            File::Spec->catdir( $dist_dir, 'config.yml'), 
+            File::Spec->catdir( $dist_dir, 'config.yml'),
             File::Spec->catdir( $opt{root} )
         );
 }
@@ -96,7 +96,7 @@ exit;
 
 sub setup_db {
     my $dbfile = shift;
-    
+
     die "Database file '$dbfile' already exists\n" if -e $dbfile;
 
     # 0
@@ -111,7 +111,7 @@ sub setup_db {
     my $time = time;
     my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
     $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)', 
-        {}, 
+        {},
         'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1, $time);
 
     $Dwimmer::Tools::dbfile = $dbfile;
