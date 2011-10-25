@@ -440,8 +440,7 @@ sub _register_email {
 
 	# check e-mail
 	my %params = _clean_params(qw(email));
-	#my $email = lc( params->{'email'} || '' );
-	#trim($email);
+	$params{email} = lc $params{email};
 	return render_response 'error', { 'no_email' => 1 } if not $params{email};
 
 	if ( not Email::Valid->address($params{email}) ) {
@@ -465,7 +464,14 @@ sub _register_email {
 		String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
 	my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$listid&email=$params{email}&code=$validation_code";
 
-	# add member (TODO what if the e-mail is already listed in the same list)
+	my $same_email = $db->resultset('MailingListMember')->find( {
+					listid => $listid,
+					email => $params{email},
+				});
+	return render_response 'error', { 'email_already_registered' => 1 } if $same_email;
+	# TODO: send diffrent error if it was already verified and different if it has not been verified yet
+
+	# add member
 	eval {
 		my $user = $db->resultset('MailingListMember')->create(
 			{   listid          => $listid,

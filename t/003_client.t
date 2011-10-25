@@ -18,7 +18,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 44 );
+plan( tests => 46 );
 
 my @pages = (
 	{},
@@ -99,6 +99,12 @@ is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'r
 
 $users[0]{verify} = 'verified';
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail' );
+
+$users[0]{email} = ucfirst $users[0]{email};
+is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail after ucfirst' );
+
+$users[0]{email} = uc $users[0]{email};
+is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail after uc' );
 
 $users[0]{email} = 'test2@dwimmer.org';
 $users[0]{pw1} = $users[0]{pw2} = $users[0]{password};
