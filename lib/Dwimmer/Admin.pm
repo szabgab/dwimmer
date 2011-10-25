@@ -586,15 +586,13 @@ get '/sites.json' => sub {
 
 get '/site_config.json' => sub {
 
-	my %args;
-	$args{siteid} = params->{siteid} || '';
-	trim( $args{siteid} );
-	return render_response 'error', { 'no_siteid' => 1 } if not $args{siteid};
+	my %params = _clean_params(qw(siteid));
+	return render_response 'error', { 'no_siteid' => 1 } if not $params{siteid};
 
 	my $db = _get_db();
 
 	#my @rows = map { {siteid => $_->siteid, name => $_->name, value => $_->value} }
-	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%args );
+	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%params );
 
 	#return to_json { rows => \@rows };
 	return to_json { data => \%data };
@@ -635,16 +633,10 @@ post '/save_site_config.json' => sub {
 };
 
 post '/set_site_config.json' => sub {
-	my %args;
-
-	foreach my $field (qw(siteid name value)) {
-		$args{$field} = params->{$field};
-		$args{$field} = '' if not defined $args{$field};
-		trim( $args{$field} );
-	}
-	return render_response 'error', { 'no_siteid' => 1 } if not $args{siteid};
-	return render_response 'error', { 'no_name'   => 1 } if not $args{name};
-	_set_site_config(%args);
+	my %params = _clean_params(qw(siteid name value));
+	return render_response 'error', { 'no_siteid' => 1 } if not $params{siteid};
+	return render_response 'error', { 'no_name'   => 1 } if not $params{name};
+	_set_site_config(%params);
 
 	return to_json { success => 1 };
 };
