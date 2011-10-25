@@ -398,8 +398,10 @@ get '/feeds.json' => sub {
 post '/create_list.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 
-	my %params = _clean_params(qw(title name from_address 
-		response_page validation_page validation_response_page));
+	my %params = _clean_params(
+		qw(title name from_address
+			response_page validation_page validation_response_page)
+	);
 
 	return to_json { 'error' => 'no_title' } if not $params{title};
 	return to_json { 'error' => 'no_name' }  if not $params{name};
@@ -413,7 +415,7 @@ post '/create_list.json' => sub {
 
 	my $db   = _get_db();
 	my $list = $db->resultset('MailingList')->create(
-		{   owner        => session->{userid},
+		{   owner => session->{userid},
 			%params,
 			validate_template => $validate_template,
 			confirm_template  => $confirm_template,
@@ -443,7 +445,7 @@ sub _register_email {
 	$params{email} = lc $params{email};
 	return render_response 'error', { 'no_email' => 1 } if not $params{email};
 	return render_response 'error', { 'invalid_email' => 1 }
-		if not Email::Valid->address($params{email});
+		if not Email::Valid->address( $params{email} );
 
 	# check list
 	return render_response 'error', { 'no_listid' => 1 } if not $params{listid};
@@ -458,13 +460,18 @@ sub _register_email {
 	my $time = time;
 	my $validation_code =
 		String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-	my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$params{listid}&email=$params{email}&code=$validation_code";
+	my $url =
+		  'http://'
+		. request->host
+		. "/_dwimmer/validate_email?listid=$params{listid}&email=$params{email}&code=$validation_code";
 
-	my $same_email = $db->resultset('MailingListMember')->find( {
-					listid => $params{listid},
-					email => $params{email},
-				});
+	my $same_email = $db->resultset('MailingListMember')->find(
+		{   listid => $params{listid},
+			email  => $params{email},
+		}
+	);
 	return render_response 'error', { 'email_already_registered' => 1 } if $same_email;
+
 	# TODO: send diffrent error if it was already verified and different if it has not been verified yet
 
 	# add member
@@ -513,9 +520,9 @@ sub _validate_email {
 
 	my %params = _clean_params(qw(code email listid));
 	$params{email} = lc $params{email};
-	return to_json { 'error' => 'no_confirmation_code' } if not $params{code};
-	return render_response 'error', { 'no_email' => 1 } if not $params{email};
-	return render_response 'error', { 'no_listid' => 1 } if not $params{listid};
+	return to_json                  { 'error'     => 'no_confirmation_code' } if not $params{code};
+	return render_response 'error', { 'no_email'  => 1 }                      if not $params{email};
+	return render_response 'error', { 'no_listid' => 1 }                      if not $params{listid};
 
 	my $db = _get_db();
 	my $list = $db->resultset('MailingList')->find( { id => $params{listid} } );

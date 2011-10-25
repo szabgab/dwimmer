@@ -64,8 +64,10 @@ $u->content_like( qr{Would you like to <a class="create_page" href="">create</a>
 
 use Dwimmer::Client;
 my $admin = Dwimmer::Client->new( host => $url );
-is_deeply( $admin->login( username => 'admin', password => 'xyz' ), { error => 'invalid_password' },
-	'invalid_password' );
+is_deeply(
+	$admin->login( username => 'admin', password => 'xyz' ), { error => 'invalid_password' },
+	'invalid_password'
+);
 is_deeply(
 	$admin->login( username => 'admin', password => $password ),
 	{   success   => 1,
@@ -101,7 +103,10 @@ $users[0]{verify} = 'verified';
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail' );
 
 $users[0]{email} = ucfirst $users[0]{email};
-is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail after ucfirst' );
+is_deeply(
+	$admin->add_user( %{ $users[0] } ), { error => 'email_used' },
+	'try to add user with same mail after ucfirst'
+);
 
 $users[0]{email} = uc $users[0]{email};
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail after uc' );
@@ -207,8 +212,10 @@ is_deeply(
 
 $w->get_ok($url);
 
-$w->content_like( qr{New text <a href="link">link</a> here and <a href="$exp_links[2]">$exp_links[2]</a> here},
-	'link markup works' );
+$w->content_like(
+	qr{New text <a href="link">link</a> here and <a href="$exp_links[2]">$exp_links[2]</a> here},
+	'link markup works'
+);
 
 # for creating new page we require a special field to reduce the risk of
 # accidental page creation
