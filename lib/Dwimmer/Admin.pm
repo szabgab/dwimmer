@@ -511,24 +511,18 @@ get '/validate_email.json' => \&_validate_email;
 sub _validate_email {
 	my ( $site_name, $site ) = _get_site();
 
-	my $code = params->{'code'} || '';
-	trim($code);
-	return to_json { 'error' => 'no_confirmation_code' } if not $code;
-
-	my $email = lc( params->{'email'} || '' );
-	trim($email);
-	return render_response 'error', { 'no_email' => 1 } if not $email;
-
-	my $listid = params->{listid} || '';
-	trim($listid);
-	return render_response 'error', { 'no_listid' => 1 } if not $listid;
+	my %params = _clean_params(qw(code email listid));
+	$params{email} = lc $params{email};
+	return to_json { 'error' => 'no_confirmation_code' } if not $params{code};
+	return render_response 'error', { 'no_email' => 1 } if not $params{email};
+	return render_response 'error', { 'no_listid' => 1 } if not $params{listid};
 
 	my $db = _get_db();
-	my $list = $db->resultset('MailingList')->find( { id => $listid } );
+	my $list = $db->resultset('MailingList')->find( { id => $params{listid} } );
 	eval {
 		my $user =
 			$db->resultset('MailingListMember')
-			->find( { validation_code => $code, email => $email, listid => $listid } );
+			->find( { validation_code => $params{code}, email => $params{email}, listid => $params{listid} } );
 		if ( not $user ) {
 			return to_json { 'error' => 'invalid_confirmation_code' };
 		}
@@ -541,7 +535,7 @@ sub _validate_email {
 		#$data =~ s/<% url %>/$url/g;
 		my $msg = MIME::Lite->new(
 			From    => $list->from_address,
-			To      => $email,
+			To      => $params{email},
 			Subject => $subject,
 			Data    => $data,
 		);
