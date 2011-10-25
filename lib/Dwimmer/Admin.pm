@@ -439,21 +439,17 @@ sub _register_email {
 	my ( $site_name, $site ) = _get_site();
 
 	# check e-mail
-	my %params = _clean_params(qw(email));
+	my %params = _clean_params(qw(email listid));
 	$params{email} = lc $params{email};
 	return render_response 'error', { 'no_email' => 1 } if not $params{email};
-
-	if ( not Email::Valid->address($params{email}) ) {
-		return render_response 'error', { 'invalid_email' => 1 };
-	}
+	return render_response 'error', { 'invalid_email' => 1 }
+		if not Email::Valid->address($params{email});
 
 	# check list
-	my $listid = params->{listid} || '';
-	trim($listid);
-	return render_response 'error', { 'no_listid' => 1 } if not $listid;
+	return render_response 'error', { 'no_listid' => 1 } if not $params{listid};
 
 	my $db = _get_db();
-	my $list = $db->resultset('MailingList')->find( { id => $listid } );
+	my $list = $db->resultset('MailingList')->find( { id => $params{listid} } );
 	return render_response 'error', { 'no_such_list' => 1 } if not $list;
 
 	# TODO: change schema
@@ -462,10 +458,10 @@ sub _register_email {
 	my $time = time;
 	my $validation_code =
 		String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-	my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$listid&email=$params{email}&code=$validation_code";
+	my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$params{listid}&email=$params{email}&code=$validation_code";
 
 	my $same_email = $db->resultset('MailingListMember')->find( {
-					listid => $listid,
+					listid => $params{listid},
 					email => $params{email},
 				});
 	return render_response 'error', { 'email_already_registered' => 1 } if $same_email;
@@ -474,7 +470,7 @@ sub _register_email {
 	# add member
 	eval {
 		my $user = $db->resultset('MailingListMember')->create(
-			{   listid          => $listid,
+			{   listid          => $params{listid},
 				email           => $params{email},
 				validation_code => $validation_code,
 				register_ts     => $time,
