@@ -439,11 +439,12 @@ sub _register_email {
 	my ( $site_name, $site ) = _get_site();
 
 	# check e-mail
-	my $email = lc( params->{'email'} || '' );
-	trim($email);
-	return render_response 'error', { 'no_email' => 1 } if not $email;
+	my %params = _clean_params(qw(email));
+	#my $email = lc( params->{'email'} || '' );
+	#trim($email);
+	return render_response 'error', { 'no_email' => 1 } if not $params{email};
 
-	if ( not Email::Valid->address($email) ) {
+	if ( not Email::Valid->address($params{email}) ) {
 		return render_response 'error', { 'invalid_email' => 1 };
 	}
 
@@ -462,13 +463,13 @@ sub _register_email {
 	my $time = time;
 	my $validation_code =
 		String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-	my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$listid&email=$email&code=$validation_code";
+	my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$listid&email=$params{email}&code=$validation_code";
 
 	# add member (TODO what if the e-mail is already listed in the same list)
 	eval {
 		my $user = $db->resultset('MailingListMember')->create(
 			{   listid          => $listid,
-				email           => $email,
+				email           => $params{email},
 				validation_code => $validation_code,
 				register_ts     => $time,
 				approved        => 0,
@@ -480,14 +481,14 @@ sub _register_email {
 		$data =~ s/<% url %>/$url/g;
 		my $msg = MIME::Lite->new(
 			From    => $list->from_address,
-			To      => $email,
+			To      => $params{email},
 			Subject => $subject,
 			Data    => $data,
 		);
 		$msg->send;
 	};
 	if ($@) {
-		die "ERROR while trying to register ($email) $@";
+		die "ERROR while trying to register ($params{email}) $@";
 		return render_response 'error', { 'internal_error_when_subscribing' => 1 };
 	}
 
