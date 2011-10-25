@@ -398,20 +398,13 @@ get '/feeds.json' => sub {
 post '/create_list.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 
-	my $title = params->{'title'} || '';
-	trim($title);
-	return to_json { 'error' => 'no_title' } if not $title;
-
-	my $name = params->{'name'} || '';
-	trim($name);
-	return to_json { 'error' => 'no_name' } if not $name;
-	if ( $name !~ /^[a-z_]{4,}$/ ) {
+	my %params = _clean_params(qw(title name from_address));
+	return to_json { 'error' => 'no_title' } if not $params{title};
+	return to_json { 'error' => 'no_name' }  if not $params{name};
+	if ( $params{name} !~ /^[a-z_]{4,}$/ ) {
 		return to_json { 'error' => 'invalid_list_name' };
 	}
-
-	my $from_address = params->{'from_address'} || '';
-	trim($from_address);
-	return to_json { 'error' => 'no_from_address' } if not $from_address;
+	return to_json { 'error' => 'no_from_address' } if not $params{from_address};
 
 	my %data;
 	foreach my $f (qw(response_page validation_page validation_response_page)) {
@@ -423,9 +416,9 @@ post '/create_list.json' => sub {
 	my $db   = _get_db();
 	my $list = $db->resultset('MailingList')->create(
 		{   owner        => session->{userid},
-			title        => $title,
-			name         => $name,
-			from_address => $from_address,
+			title        => $params{title},
+			name         => $params{name},
+			from_address => $params{from_address},
 			%data,
 			validate_template => $validate_template,
 			confirm_template  => $confirm_template,
