@@ -416,9 +416,7 @@ post '/create_list.json' => sub {
 	my $db   = _get_db();
 	my $list = $db->resultset('MailingList')->create(
 		{   owner        => session->{userid},
-			title        => $params{title},
-			name         => $params{name},
-			from_address => $params{from_address},
+			%params,
 			%data,
 			validate_template => $validate_template,
 			confirm_template  => $confirm_template,
