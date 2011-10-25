@@ -557,27 +557,23 @@ sub _validate_email {
 }
 
 get '/list_members.json' => sub {
-	my $listid = params->{listid} || '';
-	trim($listid);
-	return render_response 'error', { 'no_listid' => 1 } if not $listid;
+	my %params = _clean_params(qw(listid));
+	return render_response 'error', { 'no_listid' => 1 } if not $params{listid};
+
 	my $db = _get_db();
 	my @members =
 		map { { id => $_->id, email => $_->email, approved => $_->approved } }
-		$db->resultset('MailingListMember')->search( { listid => $listid } );
+		$db->resultset('MailingListMember')->search( \%params );
 	return to_json { members => \@members };
 };
 
 
 post '/create_site.json' => sub {
-	my %args;
-	foreach my $field (qw(name)) {
-		$args{$field} = params->{$field} || '';
-		trim( $args{$field} );
-	}
+	my %params = _clean_params(qw(name));
 
-	return to_json { error => 'missing_name' } if not $args{name};
+	return to_json { error => 'missing_name' } if not $params{name};
 
-	create_site( $args{name}, $args{name}, session->{userid} );
+	create_site( $params{name}, $params{name}, session->{userid} );
 
 	return to_json { success => 1 };
 };
