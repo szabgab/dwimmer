@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.1101';
+our $VERSION = '0.20';
 
 use Data::Dumper    qw(Dumper);
 use Email::Valid    ();
@@ -12,7 +12,7 @@ use String::Random  ();
 use Template        ();
 
 use Dwimmer::DB;
-use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page create_site);
+use Dwimmer::Tools qw(sha1_base64 _get_db _get_site save_page create_site read_file trim);
 
 
 sub include_session {
@@ -32,9 +32,24 @@ sub render_response {
 
     $data ||= {};
     include_session($data);
-    
+
     debug('render_response  ' . request->content_type );
     $data->{dwimmer_version} = $VERSION;
+
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+	my $google_analytics = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'google_analytics' } );
+	# TODO enable_google_analytics
+	if ($google_analytics) {
+    	$data->{google_analytics} = $google_analytics->value;
+	}
+	my $getclicky = $db->resultset('SiteConfig')->find( { siteid => $site->id, name => 'getclicky' } );
+	# TODO enable_getclicky
+	if ($getclicky) {
+    	$data->{getclicky} = $getclicky->value;
+	}
+
+
     my $content_type = request->content_type || params->{content_type} || '';
     if ($content_type =~ /json/ or request->{path} =~ /\.json/) {
        content_type 'text/plain';
@@ -161,10 +176,10 @@ get '/list_users.json' => sub {
     return to_json { users => \@users };
 };
 
-get '/needs_login' => sub {
+any '/needs_login' => sub {
     return render_response 'error', { not_logged_in => 1 };
 };
-get '/needs_login.json' => sub {
+any '/needs_login.json' => sub {
     return render_response 'error', { error => 'not_logged_in' };
 };
 
@@ -296,6 +311,274 @@ get '/get_pages.json' => sub {
     return to_json { rows => \@rows };
 };
 
+post '/create_feed_collector.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+    my $name = (params->{name} || '');
+
+    return to_json {error => 'no_name_given' } if not $name;
+
+    my $time = time;
+
+    my $collector = $db->resultset('FeedCollector')->find( { name => $name } );
+    return to_json { error => 'feed_collector_exists' } if $collector;
+
+    eval {
+        my $collector = $db->resultset('FeedCollector')->create({
+            name       => $name,
+            created_ts => $time,
+            owner      => session->{userid},
+        });
+    };
+    if ($@) {
+        return to_json {error => 'failed' };
+    }
+
+    return to_json { success => 1 };
+};
+
+get '/feed_collectors.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my @result = map { {
+            id      => $_->id,
+            name    => $_->name,
+            ownerid => $_->owner->id,
+        } } $db->resultset('FeedCollector')->search( { owner => session->{userid} } );
+
+    return to_json { rows => \@result };
+};
+
+post '/add_feed.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my %args;
+    foreach my $f (qw(title url feed collector)) {
+        $args{$f} = (params->{$f} || '');
+        return to_json { error => "missing_$f" } if not $args{$f};
+    }
+
+    my $collector = $db->resultset('FeedCollector')->find( { id => $args{collector} } );
+    return to_json { error => 'invalid_collector_id' } if not $collector;
+    # is it owned by the same user?
+
+    return to_json { error => 'collector_not_owned_by_user' }
+        if $collector->owner->id ne session->{userid};
+
+    eval {
+        my $feed = $db->resultset('Feed')->create({
+            %args,
+            collector      => session->{userid},
+        });
+    };
+    if ($@) {
+        return to_json {error => $@ };
+    }
+
+    return to_json { success => 1 };
+};
+
+get '/feeds.json' => sub {
+    my ($site_name, $site) = _get_site();
+    my $db = _get_db();
+
+    my %args;
+    foreach my $f (qw(collector)) {
+        $args{$f} = (params->{$f} || '');
+        return to_json { error => "missing_$f" } if not $args{$f};
+    }
+    # is it owned by the same user?
+
+    my @result = map { {
+            id      => $_->id,
+            title   => $_->title,
+            url     => $_->url,
+            feed    => $_->feed,
+        } } $db->resultset('Feed')->search( { collector => $args{collector} } );
+
+    return to_json { rows => \@result };
+};
+
+
+post '/create_list.json' => sub {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+
+    my $title = params->{'title'} || '';
+    trim($title);
+    return to_json { 'error' => 'no_title' } if not $title;
+
+    my $name = params->{'name'} || '';
+    trim($name);
+    return to_json { 'error' => 'no_name' } if not $name;
+    if ($name !~ /^[a-z_]{4,}$/) {
+        return to_json { 'error' => 'invalid_list_name' };
+    }
+
+    my $from_address = params->{'from_address'} || '';
+    trim($from_address);
+    return to_json { 'error' => 'no_from_address' } if not $from_address;
+
+    my %data;
+    foreach my $f (qw(response_page validation_page validation_response_page)) {
+        $data{$f} = params->{$f} || '';
+    }
+    my $validate_template = params->{'validate_template'} || '';
+    my $confirm_template  = params->{'confirm_template'} || '';
+
+    my $db = _get_db();
+    my $list = $db->resultset('MailingList')->create({
+        owner => session->{userid},
+        title  => $title,
+        name   => $name,
+        from_address => $from_address,
+        %data,
+        validate_template => $validate_template,
+        confirm_template => $confirm_template,
+    });
+    return to_json { success => 1, listid => $list->id };
+};
+
+get '/fetch_lists.json' => sub {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+    my $db = _get_db();
+    my @list = map { {listid => $_->id, owner => $_->owner->id, title => $_->title, name => $_->name} } $db->resultset('MailingList')->all();
+    return to_json {success => 1, lists => \@list};
+};
+
+post '/register_email'      => \&_register_email;
+get  '/register_email.json' => \&_register_email;
+
+sub _register_email {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+
+    # check e-mail
+    my $email = lc( params->{'email'} || '' );
+    trim($email);
+    return render_response 'error', {'no_email' => 1} if not $email;
+
+    if (not Email::Valid->address($email)) {
+        return render_response 'error', {'invalid_email' => 1};
+    }
+
+    # check list
+    my $listid = params->{listid} || '';
+    trim($listid);
+    return render_response 'error', {'no_listid' => 1} if not $listid;
+
+    my $db = _get_db();
+    my $list = $db->resultset('MailingList')->find( { id => $listid } );
+    return render_response 'error', {'no_such_list' => 1} if not $list;
+
+    # TODO: change schema
+    #return render_response 'error', {'list_not_open' => 1} if not $list->open;
+
+    my $time = time;
+    my $validation_code = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
+    my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$listid&email=$email&code=$validation_code";
+
+    # add member (TODO what if the e-mail is already listed in the same list)
+    eval {
+        my $user = $db->resultset('MailingListMember')->create({
+            listid          => $listid,
+            email           => $email,
+            validation_code => $validation_code,
+            register_ts     => $time,
+            approved        => 0,
+        });
+
+        my $subject = $list->title . " registration - email validation";
+        my $data    = $list->validate_template;
+        $data =~ s/<% url %>/$url/g;
+        my $msg = MIME::Lite->new(
+            From    => $list->from_address,
+            To      => $email,
+            Subject => $subject,
+            Data    => $data,
+        );
+        $msg->send;
+    };
+    if ($@) {
+        die "ERROR while trying to register ($email) $@";
+        return render_response 'error', {'internal_error_when_subscribing' => 1};
+    }
+
+    if (request->{path} =~ /\.json/) {
+        return to_json { success => 1 };
+    }
+#    return $list->response_page;
+#    die $list->response_page;
+    redirect $list->response_page;
+#    return render_response $list->response_page, { 'success' => 1 };
+}
+
+get '/validate_email'      => \&_validate_email;
+get '/validate_email.json' => \&_validate_email;
+
+sub _validate_email {
+    my ($site_name, $site) = _get_site();
+    return to_json {error => 'no_site_found' } if not $site;
+
+    my $code = params->{'code'} || '';
+    trim($code);
+    return to_json { 'error' => 'no_confirmation_code' } if not $code;
+
+    my $email = lc( params->{'email'} || '' );
+    trim($email);
+    return render_response 'error', {'no_email' => 1} if not $email;
+
+    my $listid = params->{listid} || '';
+    trim($listid);
+    return render_response 'error', {'no_listid' => 1} if not $listid;
+
+    my $db = _get_db();
+    my $list = $db->resultset('MailingList')->find( { id => $listid } );
+    eval {
+        my $user = $db->resultset('MailingListMember')->find( {validation_code => $code, email => $email, listid => $listid} );
+        if (not $user) {
+            return to_json { 'error' => 'invalid_confirmation_code' };
+        }
+        $user->approved(1);
+        $user->update;
+
+        my $subject = $list->title . " - Thank you for subscribing";
+        my $data    = $list->confirm_template;
+        #$data =~ s/<% url %>/$url/g;
+        my $msg = MIME::Lite->new(
+            From    => $list->from_address,
+            To      => $email,
+            Subject => $subject,
+            Data    => $data,
+        );
+        $msg->send;
+
+    };
+    if ($@) {
+        return render_response 'error', {'internal_error_when_confirming' => 1};
+    }
+
+    if (request->{path} =~ /\.json/) {
+        return to_json { success => 1 };
+    }
+    #die $list->validation_response_page;
+    redirect $list->validation_response_page;
+#    return render_response $list->validation_response_page, { 'success' => 1 };
+};
+
+get '/list_members.json' => sub {
+    my $listid = params->{listid} || '';
+    trim($listid);
+    return render_response 'error', {'no_listid' => 1} if not $listid;
+    my $db = _get_db();
+    my @members = map { { id => $_->id, email => $_->email, approved => $_->approved }  }
+		$db->resultset('MailingListMember')->search( { listid => $listid } );
+    return to_json { members => \@members };
+};
+
 
 post '/create_site.json' => sub {
     my %args;
@@ -311,20 +594,91 @@ post '/create_site.json' => sub {
     return to_json { success => 1 };
 };
 
+get '/sites.json' => sub {
+    my $db = _get_db();
+    my @rows = map { {id => $_->id, name => $_->name, owner => $_->owner->id} } $db->resultset('Site')->all;
+    return to_json { rows => \@rows };
+};
 
-###### helper methods
+get '/site_config.json' => sub {
 
+	my %args;
+    $args{siteid} = params->{siteid} || '';
+    trim($args{siteid});
+    return render_response 'error', {'no_siteid' => 1} if not $args{siteid};
 
-sub trim {  $_[0] =~ s/^\s+|\s+$//g };
+    my $db = _get_db();
+    #my @rows = map { {siteid => $_->siteid, name => $_->name, value => $_->value} }
+	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%args );
+    #return to_json { rows => \@rows };
+	return to_json { data => \%data };
+};
 
-sub read_file {
-    my $file = shift;
-    open my $fh, '<', $file or die "Could not open '$file' $!";
-    local $/ = undef;
-    my $cont = <$fh>;
-    close $fh;
-    return $cont;
+sub _clean_params {
+	my @fields = @_;
+
+	my %args;
+	foreach my $field (@fields) {
+		$args{$field} = params->{$field};
+		$args{$field} = '' if not defined $args{$field};
+		trim($args{$field});
+	}
+
+	return %args;
 }
+
+# TODO test this route from the client!
+post '/save_site_config.json' => sub {
+	my %args = _clean_params(qw(siteid section));
+	return to_json { error => 'no_siteid'  } if not $args{siteid};
+	return to_json { error => 'no_section' } if not $args{section};
+
+	my %params;
+	if ($args{section} eq 'google_analytics') {
+		%params = _clean_params(qw(google_analytics enable_google_analytics));
+	} elsif ($args{section} eq 'getclicky') {
+		%params = _clean_params(qw(getclicky enable_getclicky));
+	} else {
+		return to_json { error => 'invalid_section' };
+	}
+	foreach my $field (keys %params) {
+		_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
+	}
+
+    return to_json { success => 1 };
+};
+
+post '/set_site_config.json' => sub {
+	my %args;
+
+	foreach my $field (qw(siteid name value)) {
+    	$args{$field} = params->{$field};
+		$args{$field} = '' if not defined $args{$field};
+    	trim($args{$field});
+	}
+   	return render_response 'error', {'no_siteid' => 1} if not $args{siteid};
+   	return render_response 'error', {'no_name' => 1} if not $args{name};
+	_set_site_config( %args );
+
+    return to_json { success => 1 };
+};
+
+sub _set_site_config {
+	my %args = @_;
+
+    my $db = _get_db();
+	my $option = $db->resultset('SiteConfig')->find( { siteid => $args{siteid}, name => $args{name} } );
+	if ($option) {
+		$option->value( $args{value} );
+		$option->update;
+	} else {
+    	my $option = $db->resultset('SiteConfig')->create( \%args );
+	}
+}
+
+
+
+
 
 true;
 

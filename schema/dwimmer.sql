@@ -16,7 +16,7 @@ CREATE TABLE user (
     state           VARCHAR(100),
     validation_key  VARCHAR(255),
     verified        BOOL DEFAULT 0,
-    register_ts     INTEGER DEFAUL NOW
+    register_ts     INTEGER DEFAULT NOW
 );
 -- record if the person was added manually of s/he registered?
 
@@ -58,4 +58,5 @@ CREATE TABLE page_history (
     FOREIGN KEY (author) REFERENCES user(id),
     FOREIGN KEY (pageid) REFERENCES page(id)
 );
+
 

@@ -4,12 +4,13 @@ use warnings;
 
 use base 'Exporter';
 
-our @EXPORT = qw(start stop $admin_mail @users);
+our @EXPORT = qw(start stop $admin_mail @users read_file);
 
 #use File::Basename qw(dirname);
 
 use File::Spec;
 use File::Temp qw(tempdir);
+use File::Copy qw(copy);
 
 my $process;
 
@@ -19,7 +20,7 @@ sub start {
 
     my $dir = tempdir( CLEANUP => 1 );
 
-    #print STDERR "# $dir\n";
+    # print STDERR "# $dir\n";
 
     $ENV{DWIMMER_TEST} = 1;
     $ENV{DWIMMER_PORT} = 3001;
@@ -39,6 +40,10 @@ sub start {
     my $root = File::Spec->catdir( $dir, 'dwimmer' );
     system
         "$^X -Ilib script/dwimmer_setup.pl --root $root --email $admin_mail --password $password";
+
+    mkdir "$root/polls";
+    copy("t/files/testing-polls.json", "$root/polls");
+
 
     if ( $^O =~ /win32/i ) {
         require Win32::Process;
@@ -77,6 +82,15 @@ sub stop {
 
 END {
     stop();
+}
+
+sub read_file {
+    my $file = shift;
+    open my $fh, '<', $file or die "Could not open '$file' $!";
+    local $/ = undef;
+    my $cont = <$fh>;
+    close $fh;
+    return $cont;
 }
 
 1;

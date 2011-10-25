@@ -38,7 +38,7 @@ if ($commands{$cmd}) {
 	}
 
 	my $dw = Dwimmer::Client->new( host => $opt{url} );
-	$dw->login( $opt{username}, $opt{password} );
+	$dw->login( username => $opt{username}, password => $opt{password} );
 	my $r = $dw->$cmd(%data);
 	print Dumper $r;
 } else {

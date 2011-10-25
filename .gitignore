@@ -5,6 +5,7 @@ blib
 pm_to_blib
 MANIFEST
 MANIFEST.bak
+MYMETA.yml
 META.yml
 META.json
 /inc
@@ -13,6 +14,9 @@ sessions
 logs
 /db
 /share
+#/polls
+/polls/*.txt
+/polls/perl-mongers.json
 
 SETUP.bat
 Dwimmer-*
