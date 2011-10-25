@@ -33,6 +33,11 @@ hook before => sub {
 	if ( $version != $SCHEMA_VERSION ) {
 		return halt("Database is currently at version $version while we need version $SCHEMA_VERSION");
 	}
+	my ( $site_name, $site ) = _get_site();
+	return halt("Could not find site called '$site_name' in the database") if not $site;
+
+	# TODO send text or json whatever is appropriate
+	# return to_json { error => 'no_site_found' } if not $site;
 
 	return if $open{$path};
 	return if $path !~ m{/_}; # only the pages starting with /_ are management pages that need restriction
@@ -49,7 +54,6 @@ hook before => sub {
 
 sub route_index {
 	my ( $site_name, $site ) = _get_site();
-	return "Could not find site called '$site_name' in the database" if not $site;
 
 	my $path = request->path_info;
 	my $data = Dwimmer::Admin::get_page_data( $site, $path );

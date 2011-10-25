@@ -17,7 +17,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 24 );
+plan( tests => 26 );
 
 
 use Dwimmer::Client;
@@ -164,6 +164,23 @@ is_deeply(
 	},
 	'list of members'
 );
+
+is_deeply_full(
+	$user->register_email( email => 't1@dwimmer.org', listid => 1 ),
+	{   dwimmer_version          => $Dwimmer::Client::VERSION,
+		email_already_registered => 1,
+	},
+	"submit registration with the same e-mail"
+);
+is_deeply_full(
+	$user->register_email( email => 't1@Dwimmer.org', listid => 1 ),
+	{   dwimmer_version          => $Dwimmer::Client::VERSION,
+		email_already_registered => 1,
+	},
+	"submit registration with the same e-mail but with different case"
+);
+
+# TODO check that e-mail was not sent out again
 
 
 

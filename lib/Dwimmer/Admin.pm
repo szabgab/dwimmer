@@ -95,10 +95,9 @@ sub get_page_data {
 ###### routes
 get '/history.json' => sub {
 	my ( $site_name, $site ) = _get_site();
-	my $path = params->{filename};
-	return to_json { error => 'no_site_found' } if not $site;
-
 	my $db = _get_db();
+
+	my $path = params->{filename};
 
 	#    my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
 	#    my @history =
@@ -113,7 +112,6 @@ get '/history.json' => sub {
 get '/page.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 	my $path = params->{filename};
-	return to_json { error => 'no_site_found' } if not $site;
 
 	my $revision = params->{revision};
 
@@ -128,7 +126,6 @@ get '/page.json' => sub {
 post '/save_page.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 
-	return to_json { error => "no_site" } if not $site;
 	my $filename = params->{filename};
 	return to_json { error => "no_file_supplied" } if not $filename;
 
@@ -204,11 +201,7 @@ get '/get_user.json' => sub {
 };
 
 post '/add_user.json' => sub {
-	my %args;
-	foreach my $field (qw(uname fname lname email pw1 pw2 verify)) {
-		$args{$field} = params->{$field} || '';
-		trim( $args{$field} );
-	}
+	my %args = _clean_params(qw(uname fname lname email pw1 pw2 verify));
 
 	#return $args{verify};
 
@@ -230,11 +223,7 @@ get '/register' => sub {
 };
 
 post '/register' => sub {
-	my %args;
-	foreach my $field (qw(uname fname lname email pw1 pw2 verify tos)) {
-		$args{$field} = params->{$field} || '';
-		trim( $args{$field} );
-	}
+	my %args = _clean_params(qw(uname fname lname email pw1 pw2 verify tos));
 	$args{verify} = 'send_email';
 
 	my $ret = register_user(%args);
@@ -312,6 +301,7 @@ sub register_user {
 get '/get_pages.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 	my $db = _get_db();
+
 	my @res = $db->resultset('Page')->search( { siteid => $site->id } );
 
 	my @rows = map { { id => $_->id, filename => $_->filename, title => $_->details->title } } @res;
@@ -322,6 +312,7 @@ get '/get_pages.json' => sub {
 post '/create_feed_collector.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 	my $db = _get_db();
+
 	my $name = ( params->{name} || '' );
 
 	return to_json { error => 'no_name_given' } if not $name;
@@ -406,37 +397,26 @@ get '/feeds.json' => sub {
 
 post '/create_list.json' => sub {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
 
-	my $title = params->{'title'} || '';
-	trim($title);
-	return to_json { 'error' => 'no_title' } if not $title;
+	my %params = _clean_params(
+		qw(title name from_address
+			response_page validation_page validation_response_page)
+	);
 
-	my $name = params->{'name'} || '';
-	trim($name);
-	return to_json { 'error' => 'no_name' } if not $name;
-	if ( $name !~ /^[a-z_]{4,}$/ ) {
+	return to_json { 'error' => 'no_title' } if not $params{title};
+	return to_json { 'error' => 'no_name' }  if not $params{name};
+	if ( $params{name} !~ /^[a-z_]{4,}$/ ) {
 		return to_json { 'error' => 'invalid_list_name' };
 	}
+	return to_json { 'error' => 'no_from_address' } if not $params{from_address};
 
-	my $from_address = params->{'from_address'} || '';
-	trim($from_address);
-	return to_json { 'error' => 'no_from_address' } if not $from_address;
-
-	my %data;
-	foreach my $f (qw(response_page validation_page validation_response_page)) {
-		$data{$f} = params->{$f} || '';
-	}
 	my $validate_template = params->{'validate_template'} || '';
 	my $confirm_template  = params->{'confirm_template'}  || '';
 
 	my $db   = _get_db();
 	my $list = $db->resultset('MailingList')->create(
-		{   owner        => session->{userid},
-			title        => $title,
-			name         => $name,
-			from_address => $from_address,
-			%data,
+		{   owner => session->{userid},
+			%params,
 			validate_template => $validate_template,
 			confirm_template  => $confirm_template,
 		}
@@ -446,7 +426,7 @@ post '/create_list.json' => sub {
 
 get '/fetch_lists.json' => sub {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
+
 	my $db = _get_db();
 	my @list =
 		map { { listid => $_->id, owner => $_->owner->id, title => $_->title, name => $_->name } }
@@ -459,24 +439,19 @@ get '/register_email.json' => \&_register_email;
 
 sub _register_email {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
 
 	# check e-mail
-	my $email = lc( params->{'email'} || '' );
-	trim($email);
-	return render_response 'error', { 'no_email' => 1 } if not $email;
-
-	if ( not Email::Valid->address($email) ) {
-		return render_response 'error', { 'invalid_email' => 1 };
-	}
+	my %params = _clean_params(qw(email listid));
+	$params{email} = lc $params{email};
+	return render_response 'error', { 'no_email' => 1 } if not $params{email};
+	return render_response 'error', { 'invalid_email' => 1 }
+		if not Email::Valid->address( $params{email} );
 
 	# check list
-	my $listid = params->{listid} || '';
-	trim($listid);
-	return render_response 'error', { 'no_listid' => 1 } if not $listid;
+	return render_response 'error', { 'no_listid' => 1 } if not $params{listid};
 
 	my $db = _get_db();
-	my $list = $db->resultset('MailingList')->find( { id => $listid } );
+	my $list = $db->resultset('MailingList')->find( { id => $params{listid} } );
 	return render_response 'error', { 'no_such_list' => 1 } if not $list;
 
 	# TODO: change schema
@@ -485,13 +460,25 @@ sub _register_email {
 	my $time = time;
 	my $validation_code =
 		String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-	my $url = 'http://' . request->host . "/_dwimmer/validate_email?listid=$listid&email=$email&code=$validation_code";
+	my $url =
+		  'http://'
+		. request->host
+		. "/_dwimmer/validate_email?listid=$params{listid}&email=$params{email}&code=$validation_code";
 
-	# add member (TODO what if the e-mail is already listed in the same list)
+	my $same_email = $db->resultset('MailingListMember')->find(
+		{   listid => $params{listid},
+			email  => $params{email},
+		}
+	);
+	return render_response 'error', { 'email_already_registered' => 1 } if $same_email;
+
+	# TODO: send diffrent error if it was already verified and different if it has not been verified yet
+
+	# add member
 	eval {
 		my $user = $db->resultset('MailingListMember')->create(
-			{   listid          => $listid,
-				email           => $email,
+			{   listid          => $params{listid},
+				email           => $params{email},
 				validation_code => $validation_code,
 				register_ts     => $time,
 				approved        => 0,
@@ -503,14 +490,14 @@ sub _register_email {
 		$data =~ s/<% url %>/$url/g;
 		my $msg = MIME::Lite->new(
 			From    => $list->from_address,
-			To      => $email,
+			To      => $params{email},
 			Subject => $subject,
 			Data    => $data,
 		);
 		$msg->send;
 	};
 	if ($@) {
-		die "ERROR while trying to register ($email) $@";
+		die "ERROR while trying to register ($params{email}) $@";
 		return render_response 'error', { 'internal_error_when_subscribing' => 1 };
 	}
 
@@ -530,26 +517,19 @@ get '/validate_email.json' => \&_validate_email;
 
 sub _validate_email {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
 
-	my $code = params->{'code'} || '';
-	trim($code);
-	return to_json { 'error' => 'no_confirmation_code' } if not $code;
-
-	my $email = lc( params->{'email'} || '' );
-	trim($email);
-	return render_response 'error', { 'no_email' => 1 } if not $email;
-
-	my $listid = params->{listid} || '';
-	trim($listid);
-	return render_response 'error', { 'no_listid' => 1 } if not $listid;
+	my %params = _clean_params(qw(code email listid));
+	$params{email} = lc $params{email};
+	return to_json                  { 'error'     => 'no_confirmation_code' } if not $params{code};
+	return render_response 'error', { 'no_email'  => 1 }                      if not $params{email};
+	return render_response 'error', { 'no_listid' => 1 }                      if not $params{listid};
 
 	my $db = _get_db();
-	my $list = $db->resultset('MailingList')->find( { id => $listid } );
+	my $list = $db->resultset('MailingList')->find( { id => $params{listid} } );
 	eval {
 		my $user =
 			$db->resultset('MailingListMember')
-			->find( { validation_code => $code, email => $email, listid => $listid } );
+			->find( { validation_code => $params{code}, email => $params{email}, listid => $params{listid} } );
 		if ( not $user ) {
 			return to_json { 'error' => 'invalid_confirmation_code' };
 		}
@@ -562,7 +542,7 @@ sub _validate_email {
 		#$data =~ s/<% url %>/$url/g;
 		my $msg = MIME::Lite->new(
 			From    => $list->from_address,
-			To      => $email,
+			To      => $params{email},
 			Subject => $subject,
 			Data    => $data,
 		);
@@ -584,27 +564,23 @@ sub _validate_email {
 }
 
 get '/list_members.json' => sub {
-	my $listid = params->{listid} || '';
-	trim($listid);
-	return render_response 'error', { 'no_listid' => 1 } if not $listid;
+	my %params = _clean_params(qw(listid));
+	return render_response 'error', { 'no_listid' => 1 } if not $params{listid};
+
 	my $db = _get_db();
 	my @members =
 		map { { id => $_->id, email => $_->email, approved => $_->approved } }
-		$db->resultset('MailingListMember')->search( { listid => $listid } );
+		$db->resultset('MailingListMember')->search( \%params );
 	return to_json { members => \@members };
 };
 
 
 post '/create_site.json' => sub {
-	my %args;
-	foreach my $field (qw(name)) {
-		$args{$field} = params->{$field} || '';
-		trim( $args{$field} );
-	}
+	my %params = _clean_params(qw(name));
 
-	return to_json { error => 'missing_name' } if not $args{name};
+	return to_json { error => 'missing_name' } if not $params{name};
 
-	create_site( $args{name}, $args{name}, session->{userid} );
+	create_site( $params{name}, $params{name}, session->{userid} );
 
 	return to_json { success => 1 };
 };
@@ -617,15 +593,13 @@ get '/sites.json' => sub {
 
 get '/site_config.json' => sub {
 
-	my %args;
-	$args{siteid} = params->{siteid} || '';
-	trim( $args{siteid} );
-	return render_response 'error', { 'no_siteid' => 1 } if not $args{siteid};
+	my %params = _clean_params(qw(siteid));
+	return render_response 'error', { 'no_siteid' => 1 } if not $params{siteid};
 
 	my $db = _get_db();
 
 	#my @rows = map { {siteid => $_->siteid, name => $_->name, value => $_->value} }
-	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%args );
+	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%params );
 
 	#return to_json { rows => \@rows };
 	return to_json { data => \%data };
@@ -666,16 +640,10 @@ post '/save_site_config.json' => sub {
 };
 
 post '/set_site_config.json' => sub {
-	my %args;
-
-	foreach my $field (qw(siteid name value)) {
-		$args{$field} = params->{$field};
-		$args{$field} = '' if not defined $args{$field};
-		trim( $args{$field} );
-	}
-	return render_response 'error', { 'no_siteid' => 1 } if not $args{siteid};
-	return render_response 'error', { 'no_name'   => 1 } if not $args{name};
-	_set_site_config(%args);
+	my %params = _clean_params(qw(siteid name value));
+	return render_response 'error', { 'no_siteid' => 1 } if not $params{siteid};
+	return render_response 'error', { 'no_name'   => 1 } if not $params{name};
+	_set_site_config(%params);
 
 	return to_json { success => 1 };
 };
