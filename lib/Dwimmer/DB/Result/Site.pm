@@ -46,17 +46,17 @@ __PACKAGE__->table("site");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "owner",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "creation_ts",
-  { data_type => "integer", default_value => \"NOW", is_nullable => 0 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"owner",
+	{ data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+	"creation_ts",
+	{ data_type => "integer", default_value => \"NOW", is_nullable => 0 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
+__PACKAGE__->add_unique_constraint( "name_unique", ["name"] );
 
 =head1 RELATIONS
 
@@ -69,10 +69,10 @@ Related object: L<Dwimmer::DB::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-  "owner",
-  "Dwimmer::DB::Result::User",
-  { id => "owner" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+	"owner",
+	"Dwimmer::DB::Result::User",
+	{ id            => "owner" },
+	{ is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 =head2 pages
@@ -84,10 +84,10 @@ Related object: L<Dwimmer::DB::Result::Page>
 =cut
 
 __PACKAGE__->has_many(
-  "pages",
-  "Dwimmer::DB::Result::Page",
-  { "foreign.siteid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"pages",
+	"Dwimmer::DB::Result::Page",
+	{ "foreign.siteid" => "self.id" },
+	{ cascade_copy     => 0, cascade_delete => 0 },
 );
 
 =head2 page_histories
@@ -99,10 +99,10 @@ Related object: L<Dwimmer::DB::Result::PageHistory>
 =cut
 
 __PACKAGE__->has_many(
-  "page_histories",
-  "Dwimmer::DB::Result::PageHistory",
-  { "foreign.siteid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"page_histories",
+	"Dwimmer::DB::Result::PageHistory",
+	{ "foreign.siteid" => "self.id" },
+	{ cascade_copy     => 0, cascade_delete => 0 },
 );
 
 

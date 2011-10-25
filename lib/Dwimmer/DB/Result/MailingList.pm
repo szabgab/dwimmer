@@ -80,29 +80,29 @@ __PACKAGE__->table("mailing_list");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "title",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "owner",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "from_address",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "response_page",
-  { data_type => "varchar", is_nullable => 1, size => 50 },
-  "validation_page",
-  { data_type => "varchar", is_nullable => 1, size => 50 },
-  "validation_response_page",
-  { data_type => "varchar", is_nullable => 1, size => 50 },
-  "validate_template",
-  { data_type => "blob", is_nullable => 1 },
-  "confirm_template",
-  { data_type => "blob", is_nullable => 1 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"title",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"owner",
+	{ data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+	"from_address",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"response_page",
+	{ data_type => "varchar", is_nullable => 1, size => 50 },
+	"validation_page",
+	{ data_type => "varchar", is_nullable => 1, size => 50 },
+	"validation_response_page",
+	{ data_type => "varchar", is_nullable => 1, size => 50 },
+	"validate_template",
+	{ data_type => "blob", is_nullable => 1 },
+	"confirm_template",
+	{ data_type => "blob", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
+__PACKAGE__->add_unique_constraint( "name_unique", ["name"] );
 
 =head1 RELATIONS
 
@@ -115,10 +115,10 @@ Related object: L<Dwimmer::DB::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-  "owner",
-  "Dwimmer::DB::Result::User",
-  { id => "owner" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+	"owner",
+	"Dwimmer::DB::Result::User",
+	{ id            => "owner" },
+	{ is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 
