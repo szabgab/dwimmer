@@ -201,11 +201,7 @@ get '/get_user.json' => sub {
 };
 
 post '/add_user.json' => sub {
-	my %args;
-	foreach my $field (qw(uname fname lname email pw1 pw2 verify)) {
-		$args{$field} = params->{$field} || '';
-		trim( $args{$field} );
-	}
+	my %args = _clean_params(qw(uname fname lname email pw1 pw2 verify));
 
 	#return $args{verify};
 
@@ -227,11 +223,7 @@ get '/register' => sub {
 };
 
 post '/register' => sub {
-	my %args;
-	foreach my $field (qw(uname fname lname email pw1 pw2 verify tos)) {
-		$args{$field} = params->{$field} || '';
-		trim( $args{$field} );
-	}
+	my %args = _clean_params(qw(uname fname lname email pw1 pw2 verify tos));
 	$args{verify} = 'send_email';
 
 	my $ret = register_user(%args);

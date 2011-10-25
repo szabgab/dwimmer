@@ -1,5 +1,8 @@
-    Move the site checking to the 'before' hook to eliminate duplication
+Changes to the Dwimmer system. See http://dwimmer.org/
 
+    - Move the site checking to the 'before' hook to eliminate duplication.
+    - Use the _clean_params function instaed of manual implementations.
+    
 v0.20 2011.10.25
 
    Add jquery.a-tools-1.5.2 plugin.
