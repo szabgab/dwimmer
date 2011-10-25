@@ -95,10 +95,9 @@ sub get_page_data {
 ###### routes
 get '/history.json' => sub {
 	my ( $site_name, $site ) = _get_site();
-	my $path = params->{filename};
-	return to_json { error => 'no_site_found' } if not $site;
-
 	my $db = _get_db();
+
+	my $path = params->{filename};
 
 	#    my $cpage = $db->resultset('Page')->find( {siteid => $site->id, filename => $path} );
 	#    my @history =
@@ -113,7 +112,6 @@ get '/history.json' => sub {
 get '/page.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 	my $path = params->{filename};
-	return to_json { error => 'no_site_found' } if not $site;
 
 	my $revision = params->{revision};
 
@@ -128,7 +126,6 @@ get '/page.json' => sub {
 post '/save_page.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 
-	return to_json { error => "no_site" } if not $site;
 	my $filename = params->{filename};
 	return to_json { error => "no_file_supplied" } if not $filename;
 
@@ -312,6 +309,7 @@ sub register_user {
 get '/get_pages.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 	my $db = _get_db();
+
 	my @res = $db->resultset('Page')->search( { siteid => $site->id } );
 
 	my @rows = map { { id => $_->id, filename => $_->filename, title => $_->details->title } } @res;
@@ -322,6 +320,7 @@ get '/get_pages.json' => sub {
 post '/create_feed_collector.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 	my $db = _get_db();
+
 	my $name = ( params->{name} || '' );
 
 	return to_json { error => 'no_name_given' } if not $name;
@@ -406,7 +405,6 @@ get '/feeds.json' => sub {
 
 post '/create_list.json' => sub {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
 
 	my $title = params->{'title'} || '';
 	trim($title);
@@ -446,7 +444,7 @@ post '/create_list.json' => sub {
 
 get '/fetch_lists.json' => sub {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
+
 	my $db = _get_db();
 	my @list =
 		map { { listid => $_->id, owner => $_->owner->id, title => $_->title, name => $_->name } }
@@ -459,7 +457,6 @@ get '/register_email.json' => \&_register_email;
 
 sub _register_email {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
 
 	# check e-mail
 	my $email = lc( params->{'email'} || '' );
@@ -530,7 +527,6 @@ get '/validate_email.json' => \&_validate_email;
 
 sub _validate_email {
 	my ( $site_name, $site ) = _get_site();
-	return to_json { error => 'no_site_found' } if not $site;
 
 	my $code = params->{'code'} || '';
 	trim($code);
