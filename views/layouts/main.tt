@@ -31,6 +31,7 @@
       <li><a class="manage" href="">Manage</a>
         <div class="submenu submenu_simple">
           <ul>
+            <li><a class="change_password" href="">change password</a></li>
             <li><a class="list_users"   href="">list users</a></li>
             <li><a class="add_user"     href="">add user</a></li>
             <li><a class="list_pages"   href="">list pages</a></li>
@@ -66,6 +67,15 @@
   <div id="manage-close"><a class="close_manage_bar" href="" value="close">close</a><br></div>
 
   <div id="manage-display"></div>
+
+  <div id="admin-change-password">
+    Change password:
+    <form id="change_password_form" action="/_dwimmer/change_password.json" method="POST">
+    Old password: <input type="password" name="old_password"><br />
+    New password: <input type="password" name="new_password"><br />
+    <input type="submit" value="Change password"><br />
+    </form>
+  </div>
 
   <div id="admin-add-feed">
     <form id="add_feed_form" action="/_dwimmer/add_feed.json" method="POST">
