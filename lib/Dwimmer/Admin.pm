@@ -648,6 +648,30 @@ post '/set_site_config.json' => sub {
 	return to_json { success => 1 };
 };
 
+post '/change_password.json' => sub {
+	my %params = _clean_params(qw(new_password old_password));
+	return render_response 'error', { 'no_new_password' => 1 } if not $params{new_password};
+	return render_response 'error', { 'no_old_password' => 1 } if not $params{old_password};
+
+	# TODO shall we check some password requirements?
+
+	my $old_sha1 = sha1_base64( $params{old_password} );
+	my $new_sha1 = sha1_base64( $params{new_password} );
+
+	my $db = _get_db();
+	my $user = $db->resultset('User')->find( { id => session->{userid} } );
+
+	return render_response 'error', { 'no_user_found' => 1 } if not $user;
+
+	return render_response 'error', { 'no_invalid_old_password' => 1 }
+		if $user->sha1 ne $old_sha1;
+
+	$user->sha1($new_sha1);
+	$user->update;
+
+	return to_json { success => 1 };
+};
+
 sub _set_site_config {
 	my %args = @_;
 

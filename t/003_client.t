@@ -18,7 +18,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 46 );
+plan( tests => 49 );
 
 my @pages = (
 	{},
@@ -327,6 +327,12 @@ cmp_deeply(
 # TODO should this user be able to see the list of user?
 # TODO this user should NOT be able to add new users
 
+my $pw1 = 'qwerty';
+is_deeply(
+	$user->change_password( new_password => $pw1, old_password => $users[0]{password} ),
+	{ success => 1 }, 'password changed'
+);
+
 is_deeply( $user->logout, { success => 1 }, 'logout' );
 is_deeply(
 	$user->session,
@@ -358,3 +364,25 @@ is_deeply(
 #diag(read_file($ENV{DWIMMER_MAIL}));
 
 # TODO configure smtp server for email
+
+my $failed_pw = 'uiop';
+is_deeply(
+	$user->change_password( new_password => $failed_pw, old_password => $pw1 ),
+	{   dwimmer_version => $Dwimmer::Client::VERSION,
+		error           => 'not_logged_in',
+	},
+	'need to login to change password'
+);
+
+#diag(explain(	$user->login( username => $users[0]{uname}, password => $pw1 ) ));
+
+is_deeply(
+	$user->login( username => $users[0]{uname}, password => $pw1 ),
+	{   success   => 1,
+		username  => $users[0]{uname},
+		userid    => 2,
+		logged_in => 1,
+	},
+	'user logged in with new password'
+);
+
