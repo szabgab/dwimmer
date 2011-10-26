@@ -2,6 +2,7 @@ Changes to the Dwimmer system. See http://dwimmer.org/
 
     - Move the site checking to the 'before' hook to eliminate duplication.
     - Use the _clean_params function instaed of manual implementations.
+    - Allow changing password. #21
     
 v0.20 2011.10.25
 
