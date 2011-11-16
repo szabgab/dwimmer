@@ -225,7 +225,7 @@ is_deeply(
 		title    => 'New title of xyz',
 		filename => '/xyz',
 	),
-	{ error => 'page_does_not_exist' },
+	{ error => 'page_does_not_exist', details => '/xyz' },
 	'save_page'
 );
 cmp_deeply(

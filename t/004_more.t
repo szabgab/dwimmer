@@ -17,7 +17,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 15 );
+plan( tests => 17 );
 
 
 my $w = Test::WWW::Mechanize->new;
@@ -121,7 +121,38 @@ is_deeply(
 			revision => 1,
 		},
 	},
-	'page data after save'
+	'page data revision 1'
+);
+
+is_deeply(
+	$admin->page( filename => '/', revision => 2 ),
+	{   page => {
+			body     => 'New text [link] here',
+			title    => 'New main title',
+			filename => '/',
+			author   => 'admin',
+			revision => 2,
+		},
+	},
+	'page data revision 2'
+);
+
+cmp_deeply(
+	$admin->history( filename => '/' ),
+	{   rows => [
+			{   author    => 'admin',
+				revision  => 2,
+				timestamp => re('\d'),
+				filename  => '/',
+			},
+			{   author    => 'admin',
+				revision  => 1,
+				timestamp => re('\d'),
+				filename  => '/',
+			},
+		]
+	},
+	'history'
 );
 
 $w->get_ok($url);

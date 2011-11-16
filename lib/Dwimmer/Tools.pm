@@ -72,10 +72,10 @@ sub save_page {
 
 	my $create = $params->{create};
 	if ( $cpage and $create ) {
-		return to_json { error => 'page_already_exists' };
+		return to_json { error => 'page_already_exists', details => $params->{filename} };
 	}
 	if ( not $cpage and not $create ) {
-		return to_json { error => 'page_does_not_exist' };
+		return to_json { error => 'page_does_not_exist', details => $params->{filename} };
 	}
 
 	# TODO transaction!

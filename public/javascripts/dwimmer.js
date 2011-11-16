@@ -3,7 +3,12 @@ var userid;
 var original_content; // to make editor cancellation quick
 
 function _url(url) {
-	url = url + '?cache=' + new Date().getTime();
+    if (url.match(/\?/)) {
+	    url = url + '&';
+    } else {
+	    url = url + '?';
+    }
+    url = url + 'cache=' + new Date().getTime();
 	//alert(url);
 	return url;
 }
@@ -286,6 +291,11 @@ function submit_form(obj, file) {
 			$(".show_page_rev").click(function() {
 				var url = _url( $(this).attr('href') );
 				$.getJSON(url, function(resp) {
+//					alert(dumper(resp));
+					if (resp["error"]) {
+						alert(resp["error"] + " " + resp["details"]);
+						return;
+					}
 					var body = resp["page"]["body"];
 					var revision = resp["page"]["revision"];
 					var html = "<p>Showing revision " + revision  + "<hr></p>" + markup(body);
@@ -459,3 +469,22 @@ function insert_markup(c) {
 	$('#editor_body').keyup();
 }
 
+// just an object dumper
+function dumper(theObj){
+	var html = '';
+	if(theObj.constructor == Array || theObj.constructor == Object){
+		html += "<ul>\n";
+		for(var p in theObj){
+			if(theObj[p].constructor == Array || theObj[p].constructor == Object){
+				hmtl += "<li>["+p+"] => "+typeof(theObj)+"</li>\n";
+				html += "<ul>\n";
+				html += dumper(theObj[p]);
+				html += "</ul>\n";
+			} else {
+				html += "<li>["+p+"] => "+theObj[p]+"</li>";
+			}
+		}
+		document.write("</ul>")
+	}
+	return html;
+}

@@ -119,7 +119,7 @@ get '/page.json' => sub {
 	if ($data) {
 		return to_json { page => $data };
 	} else {
-		return to_json { error => 'page_does_not_exist' };
+		return to_json { error => 'page_does_not_exist', details => "$path revision " . ($revision || '') };
 	}
 };
 
