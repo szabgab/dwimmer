@@ -16,6 +16,7 @@ function _url(url) {
 // this is a hand-written pager, there should be one somewhere
 // together with the next and prev links on the page and the respective triggers
 var page_entries;
+var page_callback;
 var page_size = 5;
 var current_page = 1;
 
@@ -46,6 +47,11 @@ function show_page() {
 	} else {
 		$('#next').html('next');
 	}
+
+	if (page_callback) {
+		page_callback();
+	}
+	return true;
 }
 
 
@@ -225,7 +231,6 @@ function submit_form(obj, file) {
 	$('#next').click(function() {
 		current_page++;
 		show_page();
-		//alert('next');
 		return false;
 	});
 	$('#prev').click(function() {
@@ -238,20 +243,20 @@ function submit_form(obj, file) {
 	$(".list_users").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
-			var html = '<ul>';
+			page_entries = [];
 			for(var i=0; i < resp["users"].length; i++) {
-				html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
+				page_entries[i] = '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
 			}
-			html += '</ul>';
-			$('#manage-display').show();
-			$('#manage-display-content').html(html);
-
-			// Setup the events only after the html was added!
-			$('#manage-display-content  a').click(function() {
-				var value = $(this).attr('value');
-				get_and_show_user(value);
-				return false;
-			});
+			current_page = 1;
+			page_callback = function() {
+				// Setup the events only after the html was added!
+				$('#manage-display-content  a').click(function() {
+					var value = $(this).attr('value');
+					get_and_show_user(value);
+					return false;
+				});
+			};
+			show_page();
 		});
 
 		return false;
@@ -299,12 +304,12 @@ function submit_form(obj, file) {
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
 			page_entries = [];
-			//alert('list_pages');
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
 				page_entries[i] = '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
 			}
 			current_page = 1;
+			page_callback = function() {};
 			show_page();
 		});
 
