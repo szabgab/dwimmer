@@ -2,11 +2,6 @@ var username;
 var userid;
 var original_content; // to make editor cancellation quick
 
-// paging:
-var page_entries;
-var page_size = 10; // This should be settable
-var current_page = 1;
-
 function _url(url) {
     if (url.match(/\?/)) {
 	    url = url + '&';
@@ -19,13 +14,18 @@ function _url(url) {
 }
 
 // this is a hand-written pager, there should be one somewhere
-// // together with the next and prev links on the page and the respective triggers
+// together with the next and prev links on the page and the respective triggers
+var page_entries;
+var page_size = 5;
+var current_page = 1;
+
 function show_page() {
 	var total = page_entries.length;
 	var page_count = Math.ceil(total / page_size);
 	var from = 1 + page_size * (current_page -1);
 	var to   = Math.min(from + page_size -1, total);
 
+	//alert(page_size);
 	var html = '';
 	html += 'Showing page: '  + current_page + ' of ' + page_count + ' pages. ';
     html += 'Showing entries ' + from + '-' + to + ' of ' + total;
@@ -73,6 +73,11 @@ $(document).ready(function() {
 			$('#guest_bar').show();
 		}
 	});
+
+	$.getJSON(_url('/_dwimmer/site_config.json'), function(resp) {
+		page_size = parseInt( resp["data"]["page_size"] );
+//alert(page_size);
+    });
 
 	$(".topnav").dropDownPanels({
 		speed: 250,
@@ -260,8 +265,10 @@ function submit_form(obj, file) {
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["name"];
 				html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
-				html += '| <a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a>';
-				html += '| <a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a></li>';
+				html += ' | <a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a>';
+				html += ' | <a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a>';
+				html += ' | <a href="" class="configure_general_site_config" value="' + resp["rows"][i]["id"] + '">Config</a>';
+				html += '</li>';
 			}
 			html += '</ul>';
 			$('#manage-display').show();
@@ -278,6 +285,11 @@ function submit_form(obj, file) {
 				getclicky(value);
 				return false;
 			});
+			$('.configure_general_site_config').click(function() {
+				var value = $(this).attr('value');
+				general_site_config(value);
+				return false;
+			});
 		});
 
 		return false;
@@ -287,6 +299,7 @@ function submit_form(obj, file) {
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
 			page_entries = [];
+			//alert('list_pages');
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
 				page_entries[i] = '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
@@ -449,6 +462,17 @@ function getclicky (value) {
 	});
 	return;
 }
+
+function general_site_config (value) {
+	$.getJSON(_url('/_dwimmer/site_config.json') + '&siteid=' + value, function(resp) {
+		manage_bar();
+		$('#page_size').val( resp["data"]["page_size"] );
+		$('.siteid').val( value );
+		$('#admin_general_site_config').show();
+	});
+	return;
+}
+
 
 
 function get_and_show_user (value) {

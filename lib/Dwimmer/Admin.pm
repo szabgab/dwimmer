@@ -594,12 +594,23 @@ get '/sites.json' => sub {
 get '/site_config.json' => sub {
 
 	my %params = _clean_params(qw(siteid));
-	return render_response 'error', { 'no_siteid' => 1 } if not $params{siteid};
+	# default to current site
+	if (not $params{siteid}) {
+		my ( $site_name, $site ) = _get_site();
+		$params{siteid} = $site->id;
+	}
+#debug("siteid: $params{siteid}");
+
+	#return render_response 'error', { 'no_siteid' => 1 } if not $params{siteid};
 
 	my $db = _get_db();
 
 	#my @rows = map { {siteid => $_->siteid, name => $_->name, value => $_->value} }
 	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%params );
+
+#debug(Dumper \%data);
+	$data{page_size} ||= 10; # default
+#debug(Dumper \%data);
 
 	#return to_json { rows => \@rows };
 	return to_json { data => \%data };
@@ -629,6 +640,8 @@ post '/save_site_config.json' => sub {
 		%params = _clean_params(qw(google_analytics enable_google_analytics));
 	} elsif ( $args{section} eq 'getclicky' ) {
 		%params = _clean_params(qw(getclicky enable_getclicky));
+	} elsif ( $args{section} eq 'general' ) {
+		%params = _clean_params(qw(page_size));
 	} else {
 		return to_json { error => 'invalid_section' };
 	}
