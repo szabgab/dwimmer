@@ -8,6 +8,7 @@ Changes to the Dwimmer system. See http://dwimmer.org/
     - dwimmer_setup.pl can now set the password of any user #25
     - by default display login form when not logged in #26
     - and allow the admin to change this setting per site #26
+    - by default hide experimental features #27
 
 v0.20 2011.10.25
 

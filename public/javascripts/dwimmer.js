@@ -74,6 +74,11 @@ $(document).ready(function() {
 	$.getJSON(_url('/_dwimmer/session.json'), function(resp) {
 		page_size = parseInt( resp["data"]["page_size"] );
 		var show_guest_bar = ! resp["data"]["no_guest_bar"]
+		if (resp["data"]["show_experimental_features"]) {
+			$('.experimental_features').show();
+		} else {
+			$('.experimental_features').hide();
+		}
 
 		if (resp["logged_in"] == 1) {
 			$('#admin').height("35px");
@@ -481,6 +486,7 @@ function general_site_config (value) {
 		manage_bar();
 		$('#page_size').val( resp["data"]["page_size"] );
 		$('#no_guest_bar').prop("checked", (resp["data"]["no_guest_bar"] ? true : false));
+		$('#show_experimental_features').prop("checked", (resp["data"]["show_experimental_features"] ? true : false));
 		$('.siteid').val( value );
 		$('#admin_general_site_config').show();
 	});

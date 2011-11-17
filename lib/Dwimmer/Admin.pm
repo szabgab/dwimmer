@@ -617,6 +617,7 @@ sub get_site_config_data {
 	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%params );
 
 	$data{page_size} ||= 10; # default
+	$data{show_experimental_features} = 1;
 
 	return \%data;
 }
@@ -646,11 +647,12 @@ post '/save_site_config.json' => sub {
 	} elsif ( $args{section} eq 'getclicky' ) {
 		%params = _clean_params(qw(getclicky enable_getclicky));
 	} elsif ( $args{section} eq 'general' ) {
-		%params = _clean_params(qw(page_size no_guest_bar));
+		%params = _clean_params(qw(page_size no_guest_bar show_experimental_features));
 	} else {
 		return to_json { error => 'invalid_section' };
 	}
 	$params{no_guest_bar}  = $params{no_guest_bar} eq 'on' ? 1 : 0;
+	$params{show_experimental_features}  = $params{show_experimental_features} eq 'on' ? 1 : 0;
 	foreach my $field ( keys %params ) {
 		_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
 	}
