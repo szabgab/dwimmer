@@ -66,7 +66,12 @@
 <div id="manage-bar">
   <div id="manage-close"><a class="close_manage_bar" href="" value="close">close</a><br></div>
 
-  <div id="manage-display"></div>
+  <div id="manage-display">
+  <div id="manage-display-content">
+  </div>
+  <a href="" id="prev">prev</a>
+  <a href="" id="next">next</a>
+  </div>
 
   <div id="admin-change-password">
     Change password:
@@ -173,6 +178,15 @@
     <input type="hidden" name="section" value="getclicky" />
     GetClicky ID <input id="getclicky" name="getclicky" /><br />
     Enable GetClicky <input type="checkbox" id="enable_getclicky" name="enable_getclicky" /><br />
+    <input type="submit" value="Save" />
+    </form>
+  </div>
+
+  <div id="admin_general_site_config">
+    <form id="general_site_config_form" action="/_dwimmer/save_site_config.json" method="POST">
+    <input type="hidden" class="siteid" name="siteid"  />
+    <input type="hidden" name="section" value="general" />
+    Pagination page size: <input id="page_size" name="page_size" />
     <input type="submit" value="Save" />
     </form>
   </div>

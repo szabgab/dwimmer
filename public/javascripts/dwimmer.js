@@ -13,6 +13,48 @@ function _url(url) {
 	return url;
 }
 
+// this is a hand-written pager, there should be one somewhere
+// together with the next and prev links on the page and the respective triggers
+var page_entries;
+var page_callback;
+var page_size = 5;
+var current_page = 1;
+
+function show_page() {
+	var total = page_entries.length;
+	var page_count = Math.ceil(total / page_size);
+	var from = 1 + page_size * (current_page -1);
+	var to   = Math.min(from + page_size -1, total);
+
+	//alert(page_size);
+	var html = '';
+	html += 'Showing page: '  + current_page + ' of ' + page_count + ' pages. ';
+    html += 'Showing entries ' + from + '-' + to + ' of ' + total;
+	html += '<ul>';
+	for(var i=from-1; i < to; i++) {
+		html += page_entries[i];
+	}
+	html += '</ul>';
+	$('#manage-display').show();
+	$('#manage-display-content').html(html);
+	if (current_page == 1) {
+		$('#prev').html('');
+	} else {
+		$('#prev').html('prev');
+	}
+	if (current_page == page_count) {
+		$('#next').html('');
+	} else {
+		$('#next').html('next');
+	}
+
+	if (page_callback) {
+		page_callback();
+	}
+	return true;
+}
+
+
 $(document).ready(function() {
 	$('#content').show();
 	$('#logged_in_bar').hide();
@@ -37,6 +79,11 @@ $(document).ready(function() {
 			$('#guest_bar').show();
 		}
 	});
+
+	$.getJSON(_url('/_dwimmer/site_config.json'), function(resp) {
+		page_size = parseInt( resp["data"]["page_size"] );
+//alert(page_size);
+    });
 
 	$(".topnav").dropDownPanels({
 		speed: 250,
@@ -70,7 +117,7 @@ $(document).ready(function() {
 			$('#logged_in_bar').hide();
 			$('#manage-bar').hide();
 			$('#manage-bar > div').hide();
-			$('#manage-display').empty();
+			$('#manage-display-content').empty();
 			$('#guest_bar').show();
 		});
 		return false;
@@ -181,23 +228,35 @@ function submit_form(obj, file) {
 	$("#getclicky_form").submit(function() {             return submit_form(this, 'save_site_config') });
 // list values
 
+	$('#next').click(function() {
+		current_page++;
+		show_page();
+		return false;
+	});
+	$('#prev').click(function() {
+		current_page--;
+		show_page();
+		return false;
+	});
+
+
 	$(".list_users").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
-			var html = '<ul>';
+			page_entries = [];
 			for(var i=0; i < resp["users"].length; i++) {
-				html += '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
+				page_entries[i] = '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
 			}
-			html += '</ul>';
-			$('#manage-display').show();
-			$('#manage-display').html(html);
-
-			// Setup the events only after the html was added!
-			$('#manage-display  a').click(function() {
-				var value = $(this).attr('value');
-				get_and_show_user(value);
-				return false;
-			});
+			current_page = 1;
+			page_callback = function() {
+				// Setup the events only after the html was added!
+				$('#manage-display-content  a').click(function() {
+					var value = $(this).attr('value');
+					get_and_show_user(value);
+					return false;
+				});
+			};
+			show_page();
 		});
 
 		return false;
@@ -207,28 +266,37 @@ function submit_form(obj, file) {
 	$(".list_sites").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/sites.json'), function(resp) {
-			var html = '<ul>';
+			page_entries = [];
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["name"];
+				var html = '';
 				html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
-				html += '<a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a></li>';
-				html += '<a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a></li>';
+				html += ' | <a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a>';
+				html += ' | <a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a>';
+				html += ' | <a href="" class="configure_general_site_config" value="' + resp["rows"][i]["id"] + '">Config</a>';
+				html += '</li>';
+				page_entries[i] = html;
 			}
-			html += '</ul>';
-			$('#manage-display').show();
-			$('#manage-display').html(html);
-
-			// Setup the events only after the html was added!
-			$('.configure_google_analytics').click(function() {
-				var value = $(this).attr('value');
-				google_analytics(value);
-				return false;
-			});
-			$('.configure_getclicky').click(function() {
-				var value = $(this).attr('value');
-				getclicky(value);
-				return false;
-			});
+			current_page = 1;
+			page_callback = function() {
+				// Setup the events only after the html was added!
+				$('.configure_google_analytics').click(function() {
+					var value = $(this).attr('value');
+					google_analytics(value);
+					return false;
+				});
+				$('.configure_getclicky').click(function() {
+					var value = $(this).attr('value');
+					getclicky(value);
+					return false;
+				});
+				$('.configure_general_site_config').click(function() {
+					var value = $(this).attr('value');
+					general_site_config(value);
+					return false;
+				});
+			};
+			show_page();
 		});
 
 		return false;
@@ -237,14 +305,14 @@ function submit_form(obj, file) {
 	$(".list_pages").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
-			var html = '<ul>';
+			page_entries = [];
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
-				html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
+				page_entries[i] = '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
 			}
-			html += '</ul>';
-			$('#manage-display').show();
-			$('#manage-display').html(html);
+			current_page = 1;
+			page_callback = function() {};
+			show_page();
 		});
 
 		return false;
@@ -260,10 +328,10 @@ function submit_form(obj, file) {
 			}
 			html += '</ul>';
 			$('#manage-display').show();
-			$('#manage-display').html(html);
+			$('#manage-display-content').html(html);
 
 			// Setup the events only after the html was added!
-			$('#manage-display  a').click(function() {
+			$('#manage-display-content  a').click(function() {
 				var value = $(this).attr('value');
 				get_and_show_collector(value);
 				return false;
@@ -286,7 +354,7 @@ function submit_form(obj, file) {
 			}
 			html += '</ul>';
 			$('#manage-display').show();
-			$('#manage-display').html(html);
+			$('#manage-display-content').html(html);
 
 			$(".show_page_rev").click(function() {
 				var url = _url( $(this).attr('href') );
@@ -375,7 +443,7 @@ function submit_form(obj, file) {
 
 	$(".close_manage_bar").click(function(){
 		//alert("TODO save changes made or alert if not yet saved?");
-		$('#manage-display').empty();
+		$('#manage-display-content').empty();
 		$('#manage-bar').hide();
 		return false;
 	});
@@ -402,6 +470,17 @@ function getclicky (value) {
 	return;
 }
 
+function general_site_config (value) {
+	$.getJSON(_url('/_dwimmer/site_config.json') + '&siteid=' + value, function(resp) {
+		manage_bar();
+		$('#page_size').val( resp["data"]["page_size"] );
+		$('.siteid').val( value );
+		$('#admin_general_site_config').show();
+	});
+	return;
+}
+
+
 
 function get_and_show_user (value) {
 	$.getJSON(_url('/_dwimmer/get_user.json') + '&id=' + value, function(resp) {
@@ -416,7 +495,7 @@ function get_and_show_user (value) {
 		html += '<li>register_ts = ' + resp["register_ts"] + '</li>';
 		html += '</ul>';
 		$('#manage-display').show();
-		$('#manage-display').html(html);
+		$('#manage-display-content').html(html);
 	});
 
 	return;
@@ -437,7 +516,7 @@ function get_and_show_collector (value) {
 		$('#collector').val( value );
 
 		$('#manage-display').show();
-		$('#manage-display').html(html);
+		$('#manage-display-content').html(html);
 	});
 
 	return;
@@ -446,7 +525,7 @@ function get_and_show_collector (value) {
 function manage_bar() {
 	$('#manage-bar').show();
 	$('#manage-bar > div').hide();
-	$('#manage-display').empty();
+	$('#manage-display-content').empty();
 	$('#manage-close').show();
 	//alert('manage_bar');
 }

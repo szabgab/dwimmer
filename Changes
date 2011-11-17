@@ -4,6 +4,7 @@ Changes to the Dwimmer system. See http://dwimmer.org/
     - Use the _clean_params function instaed of manual implementations.
     - Allow changing password. #21
     - Show old version when clicking on link in history #18
+    - Add pagination to the list of pages #14
 
 v0.20 2011.10.25
 

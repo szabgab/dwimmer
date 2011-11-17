@@ -26,7 +26,8 @@ my %open = map { $_ => 1 } qw(
 hook before => sub {
 	my $path = request->path_info;
 
-debug(request->uri);
+	# debug(request->uri);
+
 	my $db = _get_db();
 	my ($version) = $db->storage->dbh->selectrow_array('PRAGMA user_version');
 
