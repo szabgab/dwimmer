@@ -2,6 +2,12 @@ var username;
 var userid;
 var original_content; // to make editor cancellation quick
 
+// paging:
+var page_entries;
+var page_size = 2; // This should be settable
+var page_count = 0;
+var current_page = 1;
+
 function _url(url) {
     if (url.match(/\?/)) {
 	    url = url + '&';
@@ -12,6 +18,26 @@ function _url(url) {
 	//alert(url);
 	return url;
 }
+            //
+function setup_paging() {
+	// this is a hand-written pager, there should be one somewhere
+	var total = page_entries.length;
+	page_count = Math.ceil(total / page_size);
+	current_page = 1;
+
+	var html = '';
+	html += 'Total entries: '  + total        + '; ';
+	html += 'Page count: '   + page_count   + '; ';
+	html += 'Current page: ' + current_page + '; ';
+	html += '<ul>';
+	for(var i=0; i < total; i++) {
+		html += page_entries[i];
+	}
+	html += '</ul>';
+	$('#manage-display').show();
+	$('#manage-display-content').html(html);
+}
+
 
 $(document).ready(function() {
 	$('#content').show();
@@ -70,7 +96,7 @@ $(document).ready(function() {
 			$('#logged_in_bar').hide();
 			$('#manage-bar').hide();
 			$('#manage-bar > div').hide();
-			$('#manage-display').empty();
+			$('#manage-display-content').empty();
 			$('#guest_bar').show();
 		});
 		return false;
@@ -181,6 +207,16 @@ function submit_form(obj, file) {
 	$("#getclicky_form").submit(function() {             return submit_form(this, 'save_site_config') });
 // list values
 
+	$('#next').click(function() {
+		alert('next');
+		return false;
+	});
+	$('#prev').click(function() {
+		alert('prev');
+		return false;
+	});
+
+
 	$(".list_users").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
@@ -190,10 +226,10 @@ function submit_form(obj, file) {
 			}
 			html += '</ul>';
 			$('#manage-display').show();
-			$('#manage-display').html(html);
+			$('#manage-display-content').html(html);
 
 			// Setup the events only after the html was added!
-			$('#manage-display  a').click(function() {
+			$('#manage-display-content  a').click(function() {
 				var value = $(this).attr('value');
 				get_and_show_user(value);
 				return false;
@@ -216,7 +252,7 @@ function submit_form(obj, file) {
 			}
 			html += '</ul>';
 			$('#manage-display').show();
-			$('#manage-display').html(html);
+			$('#manage-display-content').html(html);
 
 			// Setup the events only after the html was added!
 			$('.configure_google_analytics').click(function() {
@@ -237,14 +273,12 @@ function submit_form(obj, file) {
 	$(".list_pages").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
-			var html = '<ul>';
+			page_entries = [];
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
-				html += '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
+				page_entries[i] = '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
 			}
-			html += '</ul>';
-			$('#manage-display').show();
-			$('#manage-display').html(html);
+			setup_paging();
 		});
 
 		return false;
@@ -260,10 +294,10 @@ function submit_form(obj, file) {
 			}
 			html += '</ul>';
 			$('#manage-display').show();
-			$('#manage-display').html(html);
+			$('#manage-display-content').html(html);
 
 			// Setup the events only after the html was added!
-			$('#manage-display  a').click(function() {
+			$('#manage-display-content  a').click(function() {
 				var value = $(this).attr('value');
 				get_and_show_collector(value);
 				return false;
@@ -286,7 +320,7 @@ function submit_form(obj, file) {
 			}
 			html += '</ul>';
 			$('#manage-display').show();
-			$('#manage-display').html(html);
+			$('#manage-display-content').html(html);
 
 			$(".show_page_rev").click(function() {
 				var url = _url( $(this).attr('href') );
@@ -375,7 +409,7 @@ function submit_form(obj, file) {
 
 	$(".close_manage_bar").click(function(){
 		//alert("TODO save changes made or alert if not yet saved?");
-		$('#manage-display').empty();
+		$('#manage-display-content').empty();
 		$('#manage-bar').hide();
 		return false;
 	});
@@ -416,7 +450,7 @@ function get_and_show_user (value) {
 		html += '<li>register_ts = ' + resp["register_ts"] + '</li>';
 		html += '</ul>';
 		$('#manage-display').show();
-		$('#manage-display').html(html);
+		$('#manage-display-content').html(html);
 	});
 
 	return;
@@ -437,7 +471,7 @@ function get_and_show_collector (value) {
 		$('#collector').val( value );
 
 		$('#manage-display').show();
-		$('#manage-display').html(html);
+		$('#manage-display-content').html(html);
 	});
 
 	return;
@@ -446,7 +480,7 @@ function get_and_show_collector (value) {
 function manage_bar() {
 	$('#manage-bar').show();
 	$('#manage-bar > div').hide();
-	$('#manage-display').empty();
+	$('#manage-display-content').empty();
 	$('#manage-close').show();
 	//alert('manage_bar');
 }
