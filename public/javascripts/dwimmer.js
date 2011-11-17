@@ -279,14 +279,7 @@ function submit_form(obj, file) {
 		$.getJSON(_url('/_dwimmer/sites.json'), function(resp) {
 			page_entries = [];
 			for(var i=0; i < resp["rows"].length; i++) {
-				var title = resp["rows"][i]["name"];
-				var html = '';
-				html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
-				html += ' | <a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a>';
-				html += ' | <a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a>';
-				html += ' | <a href="" class="configure_general_site_config" value="' + resp["rows"][i]["id"] + '">Config</a>';
-				html += '</li>';
-				page_entries[i] = html;
+				page_entries[i] = site_admin_links(resp["rows"][i]);
 			}
 			current_page = 1;
 			page_callback = function() {
@@ -353,6 +346,12 @@ function submit_form(obj, file) {
 	});
 
 // some other
+
+    $(".admin_site").click(function(){
+		manage_bar();
+		$(".admin-site").show();
+		return false;
+	});
 
 	$(".show_history").click(function(){
 		manage_bar();
@@ -580,3 +579,15 @@ function dumper(theObj){
 	}
 	return html;
 }
+
+function site_admin_links(site) {
+	var title = site["name"];
+	var html = '';
+	html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
+	html += ' | <a href="" class="configure_google_analytics" value="' + site["id"] + '">Google Analytics</a>';
+	html += ' | <a href="" class="configure_getclicky" value="' + site["id"] + '">GetClicky</a>';
+	html += ' | <a href="" class="configure_general_site_config" value="' + site["id"] + '">Config</a>';
+	html += '</li>';
+	return html;
+}
+
