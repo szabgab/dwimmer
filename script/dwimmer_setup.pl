@@ -15,7 +15,7 @@ use Getopt::Long qw(GetOptions);
 use String::Random;
 use Pod::Usage  qw(pod2usage);
 
-use Dwimmer::Tools qw(sha1_base64 save_page);
+use Dwimmer::Tools qw(sha1_base64 save_page _get_db);
 
 my %opt;
 GetOptions(\%opt,
@@ -26,9 +26,36 @@ GetOptions(\%opt,
     'silent',
     'share=s',
     'upgrade',
+    'resetpw',
+	'username=s',
 );
 usage() if not $opt{root};
 
+if ($opt{resetpw}) {
+	if (not -e $opt{root}) {
+    	die "Root directory ($opt{root}) does NOT exist.";
+	}
+	if (not $opt{password}) {
+		die "Need password to set it";
+	}
+	if (not $opt{username}) {
+		die "Need username to reset password";
+	}
+
+	$ENV{DWIMMER_ROOT} = $opt{root};
+	#my $db_dir = File::Spec->catdir($opt{root}, 'db');
+	#my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
+    #my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
+	#$dbh->
+	my $db = _get_db();
+	my $sha1 = sha1_base64( $opt{password} );
+	my $user = $db->resultset('User')->find( { name => $opt{username} } );
+	die "User was not found" if not $user;
+	$user->sha1($sha1);
+	$user->update;
+
+	exit;
+}
 
 if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) {
     die "Root directory ($opt{root}) already exists"
@@ -168,5 +195,13 @@ REQUIRED PARAMETERS:
 
    --dbonly             Create only the database (for development)
    --silent             no success report (for testing)
+
+
+To reset password give the following flags:
+   --resetpw
+   --root     PATH/TO/ROOT
+   --username USERNAME
+   --password PASSWORD
+
 =cut
 

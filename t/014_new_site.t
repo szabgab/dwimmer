@@ -81,7 +81,9 @@ is_deeply(
 	{
 
 		#rows => [],
-		data => {}
+		data => {
+			page_size => 10,
+		},
 	},
 	'no site config'
 );
@@ -97,7 +99,8 @@ is_deeply(
 is_deeply(
 	$admin->site_config( siteid => 2 ), {
 		'data' => {
-			'google_analytics' => 'abcd'
+			'google_analytics' => 'abcd',
+			page_size  => 10,
 		}
 	}, 'site_config'
 );

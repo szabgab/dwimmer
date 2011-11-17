@@ -19,8 +19,10 @@ our $dbfile;
 
 sub _get_db {
 
-	if ( config->{appdir} ) {
-		$dbfile = path( config->{appdir}, 'db', 'dwimmer.db' );
+	my $root = config->{appdir} || $ENV{DWIMMER_ROOT};
+
+	if ( $root ) {
+		$dbfile = path( $root, 'db', 'dwimmer.db' );
 	}
 
 	die "Could not figure out dbfile" if not $dbfile;
