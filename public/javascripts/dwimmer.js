@@ -76,7 +76,7 @@ $(document).ready(function() {
 		site = resp["site"];
 		page_size = parseInt( resp["data"]["page_size"] );
 		var show_guest_bar = ! resp["data"]["no_guest_bar"]
-		if (resp["data"]["show_experimental_features"]) {
+		if (resp["data"]["show_experimental_features"] == 1) {
 			$('.experimental_features').show();
 		} else {
 			$('.experimental_features').hide();
@@ -475,7 +475,7 @@ function general_site_config (value) {
 		manage_bar();
 		$('#page_size').val( resp["data"]["page_size"] );
 		$('#no_guest_bar').prop("checked", (resp["data"]["no_guest_bar"] ? true : false));
-		$('#show_experimental_features').prop("checked", (resp["data"]["show_experimental_features"] ? true : false));
+		$('#show_experimental_features').prop("checked", (resp["data"]["show_experimental_features"] == 1 ? true : false));
 		$('.siteid').val( value );
 		$('#admin_general_site_config').show();
 	});

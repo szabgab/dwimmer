@@ -622,7 +622,6 @@ sub get_site_config_data {
 	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%params );
 
 	$data{page_size} ||= 10; # default
-	$data{show_experimental_features} = 1;
 
 	return \%data;
 }
