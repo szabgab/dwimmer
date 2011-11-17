@@ -184,9 +184,14 @@ any '/needs_login.json' => sub {
 };
 
 get '/session.json' => sub {
+	my ( $site_name, $site ) = _get_site();
 	my $data = {
 		logged_in => 0,
 		data => get_site_config_data(),
+		site => {
+				name => $site_name,
+				id   => $site->id,
+		},
 	};
 	include_session($data);
 

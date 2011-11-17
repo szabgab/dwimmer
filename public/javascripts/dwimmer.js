@@ -1,6 +1,7 @@
 var username;
 var userid;
 var original_content; // to make editor cancellation quick
+var site;
 
 function _url(url) {
     if (url.match(/\?/)) {
@@ -72,6 +73,7 @@ $(document).ready(function() {
 	// run this only after the other one arrived to make sure we already have
 	// the response (maybe unite the two calls?
 	$.getJSON(_url('/_dwimmer/session.json'), function(resp) {
+		site = resp["site"];
 		page_size = parseInt( resp["data"]["page_size"] );
 		var show_guest_bar = ! resp["data"]["no_guest_bar"]
 		if (resp["data"]["show_experimental_features"]) {
@@ -282,24 +284,8 @@ function submit_form(obj, file) {
 				page_entries[i] = site_admin_links(resp["rows"][i]);
 			}
 			current_page = 1;
-			page_callback = function() {
-				// Setup the events only after the html was added!
-				$('.configure_google_analytics').click(function() {
-					var value = $(this).attr('value');
-					google_analytics(value);
-					return false;
-				});
-				$('.configure_getclicky').click(function() {
-					var value = $(this).attr('value');
-					getclicky(value);
-					return false;
-				});
-				$('.configure_general_site_config').click(function() {
-					var value = $(this).attr('value');
-					general_site_config(value);
-					return false;
-				});
-			};
+			page_callback = set_admin_links;
+
 			show_page();
 		});
 
@@ -349,7 +335,11 @@ function submit_form(obj, file) {
 
     $(".admin_site").click(function(){
 		manage_bar();
-		$(".admin-site").show();
+		$("#admin-site").show();
+		//alert(site["name"] + site["id"]);
+		//alert( site_admin_links(site) );
+		$("#admin-site").html( site_admin_links(site) );
+		set_admin_links();
 		return false;
 	});
 
@@ -590,4 +580,24 @@ function site_admin_links(site) {
 	html += '</li>';
 	return html;
 }
+
+function set_admin_links() {
+	// Setup the events only after the html was added!
+	$('.configure_google_analytics').click(function() {
+		var value = $(this).attr('value');
+		google_analytics(value);
+		return false;
+	});
+	$('.configure_getclicky').click(function() {
+		var value = $(this).attr('value');
+		getclicky(value);
+		return false;
+	});
+	$('.configure_general_site_config').click(function() {
+		var value = $(this).attr('value');
+		general_site_config(value);
+		return false;
+	});
+}
+
 
