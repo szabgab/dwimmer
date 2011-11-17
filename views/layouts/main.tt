@@ -37,11 +37,14 @@
             <li><a class="list_pages"   href="">list pages</a></li>
             <li><a class="add_page"     href="">add a new page</a></li>
             <li><a class="show_history" href="">show history</a></li>
-            <li><a class="list_sites"   href="">list sites</a></li>
-            <li><a class="create_site"  href="">create site</a></li>
-            <li><a class="create_mailing_list"  href="">create mailing list</a></li>
-            <li><a class="list_feed_collectors"  href="">list feed collectors</a></li>
-            <li><a class="create_feed_collector"  href="">create feed collector</a></li>
+            <li><a class="admin_site"   href="">admin site</a></li>
+            <div class="experimental_features">
+            <li><a class="list_sites" href="">list sites</a></li>
+            <li><a class="create_site" href="">create site</a></li>
+            <li><a class="create_mailing_list" href="">create mailing list</a></li>
+            <li><a class="list_feed_collectors" href="">list feed collectors</a></li>
+            <li><a class="create_feed_collector" href="">create feed collector</a></li>
+            </div>
           </ul>
         </div>
       </li>
@@ -90,6 +93,9 @@
     Feed: <input name="feed"><br />
     <input type="submit" value="Add"><br />
     </form>
+  </div>
+
+  <div id="admin-site">
   </div>
 
   <div id="manage-add-user">
@@ -188,6 +194,7 @@
     <input type="hidden" name="section" value="general" />
     Pagination page size: <input id="page_size" name="page_size" /><br />
     Hide login form <input type="checkbox" name="no_guest_bar" id="no_guest_bar" /><br />
+    Show experimental features: <input type="checkbox" name="show_experimental_features" id="show_experimental_features" /><br />
     <input type="submit" value="Save" />
     </form>
   </div>

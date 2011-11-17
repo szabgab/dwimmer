@@ -1,6 +1,7 @@
 var username;
 var userid;
 var original_content; // to make editor cancellation quick
+var site;
 
 function _url(url) {
     if (url.match(/\?/)) {
@@ -72,8 +73,14 @@ $(document).ready(function() {
 	// run this only after the other one arrived to make sure we already have
 	// the response (maybe unite the two calls?
 	$.getJSON(_url('/_dwimmer/session.json'), function(resp) {
+		site = resp["site"];
 		page_size = parseInt( resp["data"]["page_size"] );
 		var show_guest_bar = ! resp["data"]["no_guest_bar"]
+		if (resp["data"]["show_experimental_features"] == 1) {
+			$('.experimental_features').show();
+		} else {
+			$('.experimental_features').hide();
+		}
 
 		if (resp["logged_in"] == 1) {
 			$('#admin').height("35px");
@@ -274,34 +281,11 @@ function submit_form(obj, file) {
 		$.getJSON(_url('/_dwimmer/sites.json'), function(resp) {
 			page_entries = [];
 			for(var i=0; i < resp["rows"].length; i++) {
-				var title = resp["rows"][i]["name"];
-				var html = '';
-				html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
-				html += ' | <a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a>';
-				html += ' | <a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a>';
-				html += ' | <a href="" class="configure_general_site_config" value="' + resp["rows"][i]["id"] + '">Config</a>';
-				html += '</li>';
-				page_entries[i] = html;
+				page_entries[i] = site_admin_links(resp["rows"][i]);
 			}
 			current_page = 1;
-			page_callback = function() {
-				// Setup the events only after the html was added!
-				$('.configure_google_analytics').click(function() {
-					var value = $(this).attr('value');
-					google_analytics(value);
-					return false;
-				});
-				$('.configure_getclicky').click(function() {
-					var value = $(this).attr('value');
-					getclicky(value);
-					return false;
-				});
-				$('.configure_general_site_config').click(function() {
-					var value = $(this).attr('value');
-					general_site_config(value);
-					return false;
-				});
-			};
+			page_callback = set_admin_links;
+
 			show_page();
 		});
 
@@ -348,6 +332,16 @@ function submit_form(obj, file) {
 	});
 
 // some other
+
+    $(".admin_site").click(function(){
+		manage_bar();
+		$("#admin-site").show();
+		//alert(site["name"] + site["id"]);
+		//alert( site_admin_links(site) );
+		$("#admin-site").html( site_admin_links(site) );
+		set_admin_links();
+		return false;
+	});
 
 	$(".show_history").click(function(){
 		manage_bar();
@@ -481,6 +475,7 @@ function general_site_config (value) {
 		manage_bar();
 		$('#page_size').val( resp["data"]["page_size"] );
 		$('#no_guest_bar').prop("checked", (resp["data"]["no_guest_bar"] ? true : false));
+		$('#show_experimental_features').prop("checked", (resp["data"]["show_experimental_features"] == 1 ? true : false));
 		$('.siteid').val( value );
 		$('#admin_general_site_config').show();
 	});
@@ -574,3 +569,35 @@ function dumper(theObj){
 	}
 	return html;
 }
+
+function site_admin_links(site) {
+	var title = site["name"];
+	var html = '';
+	html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
+	html += ' | <a href="" class="configure_google_analytics" value="' + site["id"] + '">Google Analytics</a>';
+	html += ' | <a href="" class="configure_getclicky" value="' + site["id"] + '">GetClicky</a>';
+	html += ' | <a href="" class="configure_general_site_config" value="' + site["id"] + '">Config</a>';
+	html += '</li>';
+	return html;
+}
+
+function set_admin_links() {
+	// Setup the events only after the html was added!
+	$('.configure_google_analytics').click(function() {
+		var value = $(this).attr('value');
+		google_analytics(value);
+		return false;
+	});
+	$('.configure_getclicky').click(function() {
+		var value = $(this).attr('value');
+		getclicky(value);
+		return false;
+	});
+	$('.configure_general_site_config').click(function() {
+		var value = $(this).attr('value');
+		general_site_config(value);
+		return false;
+	});
+}
+
+
