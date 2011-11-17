@@ -646,10 +646,11 @@ post '/save_site_config.json' => sub {
 	} elsif ( $args{section} eq 'getclicky' ) {
 		%params = _clean_params(qw(getclicky enable_getclicky));
 	} elsif ( $args{section} eq 'general' ) {
-		%params = _clean_params(qw(page_size));
+		%params = _clean_params(qw(page_size no_guest_bar));
 	} else {
 		return to_json { error => 'invalid_section' };
 	}
+	$params{no_guest_bar}  = $params{no_guest_bar} eq 'on' ? 1 : 0;
 	foreach my $field ( keys %params ) {
 		_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
 	}

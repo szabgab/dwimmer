@@ -480,6 +480,7 @@ function general_site_config (value) {
 	$.getJSON(_url('/_dwimmer/site_config.json') + '&siteid=' + value, function(resp) {
 		manage_bar();
 		$('#page_size').val( resp["data"]["page_size"] );
+		$('#no_guest_bar').prop("checked", (resp["data"]["no_guest_bar"] ? true : false));
 		$('.siteid').val( value );
 		$('#admin_general_site_config').show();
 	});
