@@ -266,35 +266,37 @@ function submit_form(obj, file) {
 	$(".list_sites").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/sites.json'), function(resp) {
-			var html = '<ul>';
+			page_entries = [];
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["name"];
+				var html = '';
 				html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
 				html += ' | <a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a>';
 				html += ' | <a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a>';
 				html += ' | <a href="" class="configure_general_site_config" value="' + resp["rows"][i]["id"] + '">Config</a>';
 				html += '</li>';
+				page_entries[i] = html;
 			}
-			html += '</ul>';
-			$('#manage-display').show();
-			$('#manage-display-content').html(html);
-
-			// Setup the events only after the html was added!
-			$('.configure_google_analytics').click(function() {
-				var value = $(this).attr('value');
-				google_analytics(value);
-				return false;
-			});
-			$('.configure_getclicky').click(function() {
-				var value = $(this).attr('value');
-				getclicky(value);
-				return false;
-			});
-			$('.configure_general_site_config').click(function() {
-				var value = $(this).attr('value');
-				general_site_config(value);
-				return false;
-			});
+			current_page = 1;
+			page_callback = function() {
+				// Setup the events only after the html was added!
+				$('.configure_google_analytics').click(function() {
+					var value = $(this).attr('value');
+					google_analytics(value);
+					return false;
+				});
+				$('.configure_getclicky').click(function() {
+					var value = $(this).attr('value');
+					getclicky(value);
+					return false;
+				});
+				$('.configure_general_site_config').click(function() {
+					var value = $(this).attr('value');
+					general_site_config(value);
+					return false;
+				});
+			};
+			show_page();
 		});
 
 		return false;
