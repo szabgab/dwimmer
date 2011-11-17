@@ -19,6 +19,7 @@ function _url(url) {
 }
 
 // this is a hand-written pager, there should be one somewhere
+// // together with the next and prev links on the page and the respective triggers
 function show_page() {
 	var total = page_entries.length;
 	var page_count = Math.ceil(total / page_size);
@@ -259,8 +260,8 @@ function submit_form(obj, file) {
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["name"];
 				html += '<li><a href="http://' + title  + '.dwimmer.org/">' + title + '</a> ';
-				html += '<a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a></li>';
-				html += '<a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a></li>';
+				html += '| <a href="" class="configure_google_analytics" value="' + resp["rows"][i]["id"] + '">Google Analytics</a>';
+				html += '| <a href="" class="configure_getclicky" value="' + resp["rows"][i]["id"] + '">GetClicky</a></li>';
 			}
 			html += '</ul>';
 			$('#manage-display').show();
