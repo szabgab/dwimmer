@@ -10,6 +10,7 @@ Changes to the Dwimmer system. See http://dwimmer.org/
     - and allow the admin to change this setting per site #26
     - by default hide experimental features, allow admin to show them #27
     - add link to be able to manege current site  #28
+    - add sitemap.xml listing all the pages #23
 
 v0.20 2011.10.25
 
