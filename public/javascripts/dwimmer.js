@@ -4,8 +4,7 @@ var original_content; // to make editor cancellation quick
 
 // paging:
 var page_entries;
-var page_size = 2; // This should be settable
-var page_count = 0;
+var page_size = 10; // This should be settable
 var current_page = 1;
 
 function _url(url) {
@@ -18,24 +17,34 @@ function _url(url) {
 	//alert(url);
 	return url;
 }
-            //
-function setup_paging() {
-	// this is a hand-written pager, there should be one somewhere
+
+// this is a hand-written pager, there should be one somewhere
+function show_page() {
 	var total = page_entries.length;
-	page_count = Math.ceil(total / page_size);
-	current_page = 1;
+	var page_count = Math.ceil(total / page_size);
+	var from = 1 + page_size * (current_page -1);
+	var to   = Math.min(from + page_size -1, total);
 
 	var html = '';
-	html += 'Total entries: '  + total        + '; ';
-	html += 'Page count: '   + page_count   + '; ';
-	html += 'Current page: ' + current_page + '; ';
+	html += 'Showing page: '  + current_page + ' of ' + page_count + ' pages. ';
+    html += 'Showing entries ' + from + '-' + to + ' of ' + total;
 	html += '<ul>';
-	for(var i=0; i < total; i++) {
+	for(var i=from-1; i < to; i++) {
 		html += page_entries[i];
 	}
 	html += '</ul>';
 	$('#manage-display').show();
 	$('#manage-display-content').html(html);
+	if (current_page == 1) {
+		$('#prev').html('');
+	} else {
+		$('#prev').html('prev');
+	}
+	if (current_page == page_count) {
+		$('#next').html('');
+	} else {
+		$('#next').html('next');
+	}
 }
 
 
@@ -208,11 +217,14 @@ function submit_form(obj, file) {
 // list values
 
 	$('#next').click(function() {
-		alert('next');
+		current_page++;
+		show_page();
+		//alert('next');
 		return false;
 	});
 	$('#prev').click(function() {
-		alert('prev');
+		current_page--;
+		show_page();
 		return false;
 	});
 
@@ -278,7 +290,8 @@ function submit_form(obj, file) {
 				var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
 				page_entries[i] = '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
 			}
-			setup_paging();
+			current_page = 1;
+			show_page();
 		});
 
 		return false;
