@@ -6,6 +6,8 @@ Changes to the Dwimmer system. See http://dwimmer.org/
     - Show old version when clicking on link in history #18
     - Add pagination to the list of pages #14
     - dwimmer_setup.pl can now set the password of any user #25
+    - by default display login form when not logged in #26
+    - and allow the admin to change this setting per site #26
 
 v0.20 2011.10.25
 

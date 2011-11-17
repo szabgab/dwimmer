@@ -184,8 +184,12 @@ any '/needs_login.json' => sub {
 };
 
 get '/session.json' => sub {
-	my $data = { logged_in => 0 };
+	my $data = {
+		logged_in => 0,
+		data => get_site_config_data(),
+	};
 	include_session($data);
+
 	return to_json $data;
 };
 
@@ -592,6 +596,12 @@ get '/sites.json' => sub {
 };
 
 get '/site_config.json' => sub {
+	my $data = get_site_config_data();
+	return to_json { data => $data };
+};
+
+
+sub get_site_config_data {
 
 	my %params = _clean_params(qw(siteid));
 	# default to current site
@@ -599,22 +609,17 @@ get '/site_config.json' => sub {
 		my ( $site_name, $site ) = _get_site();
 		$params{siteid} = $site->id;
 	}
-#debug("siteid: $params{siteid}");
 
 	#return render_response 'error', { 'no_siteid' => 1 } if not $params{siteid};
 
 	my $db = _get_db();
 
-	#my @rows = map { {siteid => $_->siteid, name => $_->name, value => $_->value} }
 	my %data = map { $_->name => $_->value } $db->resultset('SiteConfig')->search( \%params );
 
-#debug(Dumper \%data);
 	$data{page_size} ||= 10; # default
-#debug(Dumper \%data);
 
-	#return to_json { rows => \@rows };
-	return to_json { data => \%data };
-};
+	return \%data;
+}
 
 sub _clean_params {
 	my @fields = @_;
@@ -641,10 +646,11 @@ post '/save_site_config.json' => sub {
 	} elsif ( $args{section} eq 'getclicky' ) {
 		%params = _clean_params(qw(getclicky enable_getclicky));
 	} elsif ( $args{section} eq 'general' ) {
-		%params = _clean_params(qw(page_size));
+		%params = _clean_params(qw(page_size no_guest_bar));
 	} else {
 		return to_json { error => 'invalid_section' };
 	}
+	$params{no_guest_bar}  = $params{no_guest_bar} eq 'on' ? 1 : 0;
 	foreach my $field ( keys %params ) {
 		_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
 	}
