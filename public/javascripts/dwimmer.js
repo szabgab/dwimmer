@@ -63,7 +63,18 @@ $(document).ready(function() {
 	$('#manage-bar > div').hide();
 	$('#admin').height(0);
 
+	//var show_guest_bar;
+	//$.getJSON(_url('/_dwimmer/site_config.json'), function(resp) {
+	//	page_size = parseInt( resp["data"]["page_size"] );
+	//	show_guest_bar = 1; //! resp["data"]["no_guest_bar"]
+    //});
+
+	// run this only after the other one arrived to make sure we already have
+	// the response (maybe unite the two calls?
 	$.getJSON(_url('/_dwimmer/session.json'), function(resp) {
+		page_size = parseInt( resp["data"]["page_size"] );
+		var show_guest_bar = ! resp["data"]["no_guest_bar"]
+
 		if (resp["logged_in"] == 1) {
 			$('#admin').height("35px");
 			$('#admin').show();
@@ -72,18 +83,13 @@ $(document).ready(function() {
 			$("#logged-in").html(resp["username"]);
 			username = resp["username"];
 			userid   = resp["userid"];
-		} else if (window.location.href.indexOf('?_dwimmer') > 0) {
+		} else if (show_guest_bar || window.location.href.indexOf('?_dwimmer') > 0) {
 			$('#admin').height("35px");
 			$('#admin').show();
 			//$('#manage-bar').show();
 			$('#guest_bar').show();
 		}
 	});
-
-	$.getJSON(_url('/_dwimmer/site_config.json'), function(resp) {
-		page_size = parseInt( resp["data"]["page_size"] );
-//alert(page_size);
-    });
 
 	$(".topnav").dropDownPanels({
 		speed: 250,

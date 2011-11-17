@@ -310,7 +310,7 @@ is_deeply(
 	},
 	'user logged in'
 );
-is_deeply( $user->session, { logged_in => 1, username => $users[0]{uname}, userid => 2 }, 'not logged in' );
+cmp_deeply( $user->session, { logged_in => 1, username => $users[0]{uname}, userid => 2, data => ignore() }, 'not logged in' );
 cmp_deeply(
 	$user->get_user( id => 2 ),
 	{   id          => 2,
@@ -334,9 +334,10 @@ is_deeply(
 );
 
 is_deeply( $user->logout, { success => 1 }, 'logout' );
-is_deeply(
+cmp_deeply(
 	$user->session,
 	{   logged_in => 0,
+		data => ignore(),
 
 		#	dwimmer_version => $Dwimmer::Client::VERSION,
 	},
