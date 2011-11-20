@@ -345,8 +345,7 @@ function submit_form(obj, file) {
 
 	$(".show_history").click(function(){
 		manage_bar();
-		var url = _url('/_dwimmer/history.json') + '&filename=' + $(location).attr('pathname');
-		$.getJSON(url, function(resp) {
+		$.getJSON(_url('/_dwimmer/history.json') + '&filename=' + $(location).attr('pathname'), function(resp) {
 			//$('#admin-editor').show();
 			var html = '<ul>';
 			for(var i=0; i < resp["rows"].length; i++) {
@@ -357,8 +356,7 @@ function submit_form(obj, file) {
 			$('#manage-display-content').html(html);
 
 			$(".show_page_rev").click(function() {
-				var url = _url( $(this).attr('href') );
-				$.getJSON(url, function(resp) {
+				$.getJSON(_url( $(this).attr('href') ), function(resp) {
 //					alert(dumper(resp));
 					if (resp["error"]) {
 						alert(resp["error"] + " " + resp["details"]);
@@ -389,8 +387,7 @@ function submit_form(obj, file) {
 	$(".edit_this_page").click(function() {
 		manage_bar();
 		original_content = $('#content').html();
-		var url = _url('/_dwimmer/page.json') + '&filename=' + $(location).attr('pathname');
-		$.getJSON(url, function(resp) {
+		$.getJSON(_url('/_dwimmer/page.json') + '&filename=' + $(location).attr('pathname'), function(resp) {
 			$('#admin-editor').show();
 			$('#admin-editor-filename').hide();
 			$('#create').val( 0 );
