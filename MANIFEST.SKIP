@@ -45,7 +45,8 @@ MYMETA\.(?:yml|yaml|json)$
 .gitignore
 \bdb\b
 \blog\b
-\bpolls\b
+^logs\b
+^polls\b
 SETUP.bat
 
 # copied to the share/ directory
