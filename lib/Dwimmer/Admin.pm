@@ -246,9 +246,14 @@ post '/register' => sub {
 sub register_user {
 	my %args = @_;
 
-	# validate
 	$args{email} = lc $args{email};
 
+	# for now we force the username to be lower case.
+	# later we might allow mixed case usernames but we still want to
+	# make sure the lower case versions are unique
+	$args{uname} = lc $args{uname};
+
+	# validate
 	my $db = _get_db();
 	if ( length $args{uname} < 2 or $args{uname} =~ /[^\w.-]/ ) {
 		return 'invalid_username';
@@ -261,6 +266,7 @@ sub register_user {
 	if ($user) {
 		return 'email_used';
 	}
+
 	if ( length $args{pw1} < 5 ) {
 		return 'short_password';
 	}
