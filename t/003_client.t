@@ -95,9 +95,12 @@ cmp_deeply(
 	'show user details'
 );
 
-is_deeply($admin->get_user( id => 2 ), {
-	error => 'no_such_user',
-}, 'asking for not existing user');
+is_deeply(
+	$admin->get_user( id => 2 ),
+	{   error => 'no_such_user',
+	},
+	'asking for not existing user'
+);
 
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'no verify field provided' );
 $users[0]{verify} = 'abc';
