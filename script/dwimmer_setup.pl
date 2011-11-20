@@ -27,34 +27,31 @@ GetOptions(\%opt,
     'share=s',
     'upgrade',
     'resetpw',
-	'username=s',
+    'username=s',
 );
 usage() if not $opt{root};
 
+
 if ($opt{resetpw}) {
-	if (not -e $opt{root}) {
-    	die "Root directory ($opt{root}) does NOT exist.";
-	}
-	if (not $opt{password}) {
-		die "Need password to set it";
-	}
-	if (not $opt{username}) {
-		die "Need username to reset password";
-	}
+    if (not -e $opt{root}) {
+        die "Root directory ($opt{root}) does NOT exist.";
+    }
+    if (not $opt{password}) {
+        die "Need password to set it";
+    }
+    if (not $opt{username}) {
+        die "Need username to reset password";
+    }
 
-	$ENV{DWIMMER_ROOT} = $opt{root};
-	#my $db_dir = File::Spec->catdir($opt{root}, 'db');
-	#my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
-    #my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
-	#$dbh->
-	my $db = _get_db();
-	my $sha1 = sha1_base64( $opt{password} );
-	my $user = $db->resultset('User')->find( { name => $opt{username} } );
-	die "User was not found" if not $user;
-	$user->sha1($sha1);
-	$user->update;
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my $sha1 = sha1_base64( $opt{password} );
+    my $user = $db->resultset('User')->find( { name => $opt{username} } );
+    die "User was not found" if not $user;
+    $user->sha1($sha1);
+    $user->update;
 
-	exit;
+    exit;
 }
 
 if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) {
@@ -97,6 +94,16 @@ if (not $opt{dbonly}) {
             File::Spec->catdir( $dist_dir, 'config.yml'),
             File::Spec->catdir( $opt{root} )
         );
+}
+
+# backup the database
+if ($opt{upgrade}) {
+    my $db_dir = File::Spec->catdir($opt{root}, 'db');
+    my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
+    my $time = time;
+    if (-e $dbfile) {
+        File::Copy::Recursive::fcopy($dbfile, "$dbfile.$time");
+    }
 }
 
 my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
