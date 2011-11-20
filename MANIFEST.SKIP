@@ -49,12 +49,12 @@ MYMETA\.(?:yml|yaml|json)$
 SETUP.bat
 
 # copied to the share/ directory
-#^public\b
-#^schema\b
-#^views\b
-#^environments\b
-#^bin\n
-#^config.yml
+^public\b
+^schema\b
+^views\b
+^environments\b
+^bin\n
+^config.yml
 
 
 # need to include the share directory as well as apparently
