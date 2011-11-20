@@ -95,6 +95,8 @@ cmp_deeply(
 	'show user details'
 );
 
+# diag(explain($admin->get_user( id => 2 )));
+
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'no verify field provided' );
 $users[0]{verify} = 'abc';
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'really invalid verify field provided' );
