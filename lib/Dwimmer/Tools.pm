@@ -21,7 +21,7 @@ sub _get_db {
 
 	my $root = config->{appdir} || $ENV{DWIMMER_ROOT};
 
-	if ( $root ) {
+	if ($root) {
 		$dbfile = path( $root, 'db', 'dwimmer.db' );
 	}
 

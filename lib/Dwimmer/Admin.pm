@@ -119,7 +119,7 @@ get '/page.json' => sub {
 	if ($data) {
 		return to_json { page => $data };
 	} else {
-		return to_json { error => 'page_does_not_exist', details => "$path revision " . ($revision || '') };
+		return to_json { error => 'page_does_not_exist', details => "$path revision " . ( $revision || '' ) };
 	}
 };
 
@@ -187,10 +187,10 @@ get '/session.json' => sub {
 	my ( $site_name, $site ) = _get_site();
 	my $data = {
 		logged_in => 0,
-		data => get_site_config_data(),
-		site => {
-				name => $site_name,
-				id   => $site->id,
+		data      => get_site_config_data(),
+		site      => {
+			name => $site_name,
+			id   => $site->id,
 		},
 	};
 	include_session($data);
@@ -609,8 +609,9 @@ get '/site_config.json' => sub {
 sub get_site_config_data {
 
 	my %params = _clean_params(qw(siteid));
+
 	# default to current site
-	if (not $params{siteid}) {
+	if ( not $params{siteid} ) {
 		my ( $site_name, $site ) = _get_site();
 		$params{siteid} = $site->id;
 	}
@@ -655,8 +656,8 @@ post '/save_site_config.json' => sub {
 	} else {
 		return to_json { error => 'invalid_section' };
 	}
-	$params{no_guest_bar}  = $params{no_guest_bar} eq 'on' ? 1 : 0;
-	$params{show_experimental_features}  = $params{show_experimental_features} eq 'on' ? 1 : 0;
+	$params{no_guest_bar} = $params{no_guest_bar} eq 'on' ? 1 : 0;
+	$params{show_experimental_features} = $params{show_experimental_features} eq 'on' ? 1 : 0;
 	foreach my $field ( keys %params ) {
 		_set_site_config( siteid => $args{siteid}, name => $field, value => $params{$field} );
 	}

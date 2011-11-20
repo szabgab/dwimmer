@@ -91,27 +91,29 @@ get '/sitemap.xml' => sub {
 	my $db = _get_db();
 	my ( $site_name, $site ) = _get_site();
 	my @res = $db->resultset('Page')->search( { siteid => $site->id } );
+
 	# lastmode => YYYY-MM-DD
 	# changefreq
 	# priority
 	my $host = request->uri_base;
 	my @urls = map { { loc => [ $host . $_->filename ] } } @res;
 
-    my %urlset = (
-        xmlns => 'http://www.sitemaps.org/schemas/sitemap/0.9',
-        url   => \@urls
-    );
+	my %urlset = (
+		xmlns => 'http://www.sitemaps.org/schemas/sitemap/0.9',
+		url   => \@urls
+	);
 
 	require XML::Simple;
-	my $xs  = XML::Simple->new(
+	my $xs = XML::Simple->new(
 		KeepRoot   => 1,
-        ForceArray => 0,
-        KeyAttr    => {urlset => 'xmlns'},
-        XMLDecl    => '<?xml version="1.0" encoding="UTF-8"?>' );
-    my $xml = $xs->XMLout( { urlset => \%urlset } );
+		ForceArray => 0,
+		KeyAttr    => { urlset => 'xmlns' },
+		XMLDecl    => '<?xml version="1.0" encoding="UTF-8"?>'
+	);
+	my $xml = $xs->XMLout( { urlset => \%urlset } );
 
-    content_type "text/xml";
-    return $xml;
+	content_type "text/xml";
+	return $xml;
 };
 
 get qr{^/([a-zA-Z0-9][\w .\$@%-]*)?$} => \&route_index;

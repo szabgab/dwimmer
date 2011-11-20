@@ -97,12 +97,13 @@ is_deeply(
 
 #diag(explain($admin->site_config(siteid => 2)));
 is_deeply(
-	$admin->site_config( siteid => 2 ), {
-		'data' => {
+	$admin->site_config( siteid => 2 ),
+	{   'data' => {
 			'google_analytics' => 'abcd',
-			page_size  => 10,
+			page_size          => 10,
 		}
-	}, 'site_config'
+	},
+	'site_config'
 );
 
 
