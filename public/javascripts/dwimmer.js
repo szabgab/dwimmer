@@ -104,8 +104,7 @@ $(document).ready(function() {
 	});
 
 	$("form.login").submit(function() {
-		var url = "/_dwimmer/login.json";
-		$.post(url, $(this).serialize(), function(resp) {
+		$.post(_url("/_dwimmer/login.json"), $(this).serialize(), function(resp) {
 			if (resp["success"] == 1) {
 				$('#guest_bar').hide();
 				$('#logged_in_bar').show();
@@ -220,8 +219,7 @@ $(document).ready(function() {
 
 // submit the form
 function submit_form(obj, file) {
-	var url = "/_dwimmer/" + file + ".json";
-	$.post(url, $(obj).serialize(), function(resp) {
+	$.post(_url("/_dwimmer/" + file + ".json"), $(obj).serialize(), function(resp) {
 		if (resp["success"] == 1) {
 			alert('added');
 		} else {
@@ -412,11 +410,9 @@ function submit_form(obj, file) {
 	$('#save').click(function(){
 		var body = $('#editor_body').val();
 		var title = $('#editor_title').val();
-
-		var url = '/_dwimmer/save_page.json';
 		var data = $("#editor_form").serialize();
 
-		$.post(url, data, function(resp) {
+		$.post(_url('/_dwimmer/save_page.json'), data, function(resp) {
 			var data = eval('(' + resp + ')');
 			if (data["error"] == "no_file_supplied") {
 				alert("Internal error, no filename supplied. Not saved.");
