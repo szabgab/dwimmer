@@ -85,15 +85,15 @@ mkpath $db_dir if not -e $db_dir;
 
 if (not $opt{dbonly}) {
     foreach my $dir (qw(views public bin environments)) {
-        File::Copy::Recursive::dircopy(
-            File::Spec->catdir( $dist_dir, $dir),
-            File::Spec->catdir( $opt{root}, $dir )
-        );
+        my $from = File::Spec->catdir( $dist_dir, $dir );
+        my $to   = File::Spec->catdir( $opt{root}, $dir );
+	    print "dircopy $from $to\n";
+        File::Copy::Recursive::dircopy( $from, $to ) or die $!;
     }
-    File::Copy::Recursive::fcopy(
-            File::Spec->catdir( $dist_dir, 'config.yml'),
-            File::Spec->catdir( $opt{root} )
-        );
+	my $from = File::Spec->catdir( $dist_dir, 'config.yml');
+    my $to   = File::Spec->catdir( $opt{root} );
+	print "fcopy $from $to\n";
+    File::Copy::Recursive::fcopy( $from, $to ) or die $!;
 }
 
 # backup the database
@@ -190,21 +190,27 @@ sub usage {
 
 =head1 SYNOPSIS
 
-REQUIRED PARAMETERS:
+
+To setup a new instance:
 
    --email email        of administrator
-
    --password PASSWORD  of administrator
-
    --root ROOT          path to the root of the installation
 
-   --upgrade
+Optional parameters:
 
    --dbonly             Create only the database (for development)
    --silent             no success report (for testing)
 
 
+To upgrade run:
+
+   --upgrade
+   --root    PATH/TO/ROOT
+
+
 To reset password give the following flags:
+
    --resetpw
    --root     PATH/TO/ROOT
    --username USERNAME
