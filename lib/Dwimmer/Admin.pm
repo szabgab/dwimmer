@@ -203,7 +203,7 @@ get '/get_user.json' => sub {
 	return to_json { error => 'no_id' } if not defined $id;
 	my $db   = _get_db();
 	my $user = $db->resultset('User')->find($id);
-	return to_josn { error => 'no_such_user' } if not defined $id;
+	return to_json { error => 'no_such_user' } if not defined $id;
 	my @fields = qw(id name email fname lname verified register_ts);
 	my %data = map { $_ => $user->$_ } @fields;
 	return to_json \%data;
