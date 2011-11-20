@@ -40,15 +40,15 @@ __PACKAGE__->table("config");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 30 },
-  "value",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 30 },
+	"value",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
+__PACKAGE__->add_unique_constraint( "name_unique", ["name"] );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07010 @ 2011-07-27 18:33:50

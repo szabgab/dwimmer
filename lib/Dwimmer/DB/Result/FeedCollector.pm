@@ -45,17 +45,17 @@ __PACKAGE__->table("feed_collector");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "owner",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "created_ts",
-  { data_type => "integer", is_nullable => 0 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"owner",
+	{ data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+	"created_ts",
+	{ data_type => "integer", is_nullable => 0 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
+__PACKAGE__->add_unique_constraint( "name_unique", ["name"] );
 
 =head1 RELATIONS
 
@@ -68,10 +68,10 @@ Related object: L<Dwimmer::DB::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-  "owner",
-  "Dwimmer::DB::Result::User",
-  { id => "owner" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+	"owner",
+	"Dwimmer::DB::Result::User",
+	{ id            => "owner" },
+	{ is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 =head2 feeds
@@ -83,10 +83,10 @@ Related object: L<Dwimmer::DB::Result::Feed>
 =cut
 
 __PACKAGE__->has_many(
-  "feeds",
-  "Dwimmer::DB::Result::Feed",
-  { "foreign.collector" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"feeds",
+	"Dwimmer::DB::Result::Feed",
+	{ "foreign.collector" => "self.id" },
+	{ cascade_copy        => 0, cascade_delete => 0 },
 );
 
 

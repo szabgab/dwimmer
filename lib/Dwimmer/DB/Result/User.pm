@@ -88,32 +88,32 @@ __PACKAGE__->table("user");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 30 },
-  "sha1",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "email",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "fname",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "lname",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "country",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "state",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "validation_key",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "verified",
-  { data_type => "bool", default_value => 0, is_nullable => 1 },
-  "register_ts",
-  { data_type => "integer", default_value => \"NOW", is_nullable => 1 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 30 },
+	"sha1",
+	{ data_type => "varchar", is_nullable => 1, size => 255 },
+	"email",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"fname",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"lname",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"country",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"state",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"validation_key",
+	{ data_type => "varchar", is_nullable => 1, size => 255 },
+	"verified",
+	{ data_type => "bool", default_value => 0, is_nullable => 1 },
+	"register_ts",
+	{ data_type => "integer", default_value => \"NOW", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
-__PACKAGE__->add_unique_constraint("email_unique", ["email"]);
+__PACKAGE__->add_unique_constraint( "name_unique",  ["name"] );
+__PACKAGE__->add_unique_constraint( "email_unique", ["email"] );
 
 =head1 RELATIONS
 
@@ -126,10 +126,10 @@ Related object: L<Dwimmer::DB::Result::Site>
 =cut
 
 __PACKAGE__->has_many(
-  "sites",
-  "Dwimmer::DB::Result::Site",
-  { "foreign.owner" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"sites",
+	"Dwimmer::DB::Result::Site",
+	{ "foreign.owner" => "self.id" },
+	{ cascade_copy    => 0, cascade_delete => 0 },
 );
 
 =head2 page_histories
@@ -141,10 +141,10 @@ Related object: L<Dwimmer::DB::Result::PageHistory>
 =cut
 
 __PACKAGE__->has_many(
-  "page_histories",
-  "Dwimmer::DB::Result::PageHistory",
-  { "foreign.author" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"page_histories",
+	"Dwimmer::DB::Result::PageHistory",
+	{ "foreign.author" => "self.id" },
+	{ cascade_copy     => 0, cascade_delete => 0 },
 );
 
 =head2 mailing_lists
@@ -156,10 +156,10 @@ Related object: L<Dwimmer::DB::Result::MailingList>
 =cut
 
 __PACKAGE__->has_many(
-  "mailing_lists",
-  "Dwimmer::DB::Result::MailingList",
-  { "foreign.owner" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"mailing_lists",
+	"Dwimmer::DB::Result::MailingList",
+	{ "foreign.owner" => "self.id" },
+	{ cascade_copy    => 0, cascade_delete => 0 },
 );
 
 =head2 mailing_list_members
@@ -171,10 +171,10 @@ Related object: L<Dwimmer::DB::Result::MailingListMember>
 =cut
 
 __PACKAGE__->has_many(
-  "mailing_list_members",
-  "Dwimmer::DB::Result::MailingListMember",
-  { "foreign.listid" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"mailing_list_members",
+	"Dwimmer::DB::Result::MailingListMember",
+	{ "foreign.listid" => "self.id" },
+	{ cascade_copy     => 0, cascade_delete => 0 },
 );
 
 =head2 feed_collectors
@@ -186,10 +186,10 @@ Related object: L<Dwimmer::DB::Result::FeedCollector>
 =cut
 
 __PACKAGE__->has_many(
-  "feed_collectors",
-  "Dwimmer::DB::Result::FeedCollector",
-  { "foreign.owner" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"feed_collectors",
+	"Dwimmer::DB::Result::FeedCollector",
+	{ "foreign.owner" => "self.id" },
+	{ cascade_copy    => 0, cascade_delete => 0 },
 );
 
 
@@ -292,32 +292,32 @@ __PACKAGE__->table("user");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 30 },
-  "sha1",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "email",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "fname",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "lname",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "country",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "state",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "validation_key",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "verified",
-  { data_type => "bool", default_value => 0, is_nullable => 1 },
-  "register_ts",
-  { data_type => "integer defaul now", is_nullable => 1 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 30 },
+	"sha1",
+	{ data_type => "varchar", is_nullable => 1, size => 255 },
+	"email",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"fname",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"lname",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"country",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"state",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"validation_key",
+	{ data_type => "varchar", is_nullable => 1, size => 255 },
+	"verified",
+	{ data_type => "bool", default_value => 0, is_nullable => 1 },
+	"register_ts",
+	{ data_type => "integer defaul now", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
-__PACKAGE__->add_unique_constraint("email_unique", ["email"]);
+__PACKAGE__->add_unique_constraint( "name_unique",  ["name"] );
+__PACKAGE__->add_unique_constraint( "email_unique", ["email"] );
 
 =head1 RELATIONS
 
@@ -330,10 +330,10 @@ Related object: L<Dwimmer::DB::Result::Site>
 =cut
 
 __PACKAGE__->has_many(
-  "sites",
-  "Dwimmer::DB::Result::Site",
-  { "foreign.owner" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"sites",
+	"Dwimmer::DB::Result::Site",
+	{ "foreign.owner" => "self.id" },
+	{ cascade_copy    => 0, cascade_delete => 0 },
 );
 
 =head2 page_histories
@@ -345,10 +345,10 @@ Related object: L<Dwimmer::DB::Result::PageHistory>
 =cut
 
 __PACKAGE__->has_many(
-  "page_histories",
-  "Dwimmer::DB::Result::PageHistory",
-  { "foreign.author" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"page_histories",
+	"Dwimmer::DB::Result::PageHistory",
+	{ "foreign.author" => "self.id" },
+	{ cascade_copy     => 0, cascade_delete => 0 },
 );
 
 
@@ -358,7 +358,8 @@ __PACKAGE__->has_many(
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
-# End of lines loaded from '/home/gabor/perl5/lib/perl5/Dwimmer/DB/Result/User.pm' 
+
+# End of lines loaded from '/home/gabor/perl5/lib/perl5/Dwimmer/DB/Result/User.pm'
 # These lines were loaded from '/home/gabor/perl5/lib/perl5/Dwimmer/DB/Result/User.pm' found in @INC.
 # They are now part of the custom portion of this file
 # for you to hand-edit.  If you do not either delete
@@ -456,32 +457,32 @@ __PACKAGE__->table("user");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 30 },
-  "sha1",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "email",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "fname",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "lname",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "country",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "state",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
-  "validation_key",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "verified",
-  { data_type => "bool", default_value => 0, is_nullable => 1 },
-  "register_ts",
-  { data_type => "integer defaul now", is_nullable => 1 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 30 },
+	"sha1",
+	{ data_type => "varchar", is_nullable => 1, size => 255 },
+	"email",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"fname",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"lname",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"country",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"state",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
+	"validation_key",
+	{ data_type => "varchar", is_nullable => 1, size => 255 },
+	"verified",
+	{ data_type => "bool", default_value => 0, is_nullable => 1 },
+	"register_ts",
+	{ data_type => "integer defaul now", is_nullable => 1 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("name_unique", ["name"]);
-__PACKAGE__->add_unique_constraint("email_unique", ["email"]);
+__PACKAGE__->add_unique_constraint( "name_unique",  ["name"] );
+__PACKAGE__->add_unique_constraint( "email_unique", ["email"] );
 
 =head1 RELATIONS
 
@@ -494,10 +495,10 @@ Related object: L<Dwimmer::DB::Result::Site>
 =cut
 
 __PACKAGE__->has_many(
-  "sites",
-  "Dwimmer::DB::Result::Site",
-  { "foreign.owner" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"sites",
+	"Dwimmer::DB::Result::Site",
+	{ "foreign.owner" => "self.id" },
+	{ cascade_copy    => 0, cascade_delete => 0 },
 );
 
 =head2 page_histories
@@ -509,10 +510,10 @@ Related object: L<Dwimmer::DB::Result::PageHistory>
 =cut
 
 __PACKAGE__->has_many(
-  "page_histories",
-  "Dwimmer::DB::Result::PageHistory",
-  { "foreign.author" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+	"page_histories",
+	"Dwimmer::DB::Result::PageHistory",
+	{ "foreign.author" => "self.id" },
+	{ cascade_copy     => 0, cascade_delete => 0 },
 );
 
 
@@ -522,7 +523,8 @@ __PACKAGE__->has_many(
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
-# End of lines loaded from '/home/gabor/perl5/lib/perl5/Dwimmer/DB/Result/User.pm' 
+
+# End of lines loaded from '/home/gabor/perl5/lib/perl5/Dwimmer/DB/Result/User.pm'
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

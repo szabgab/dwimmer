@@ -62,23 +62,23 @@ __PACKAGE__->table("mailing_list_member");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "listid",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "email",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "validation_code",
-  { data_type => "varchar", is_nullable => 1, size => 255 },
-  "approved",
-  { data_type => "bool", is_nullable => 1 },
-  "register_ts",
-  { data_type => "integer", is_nullable => 1 },
-  "name",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"listid",
+	{ data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+	"email",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"validation_code",
+	{ data_type => "varchar", is_nullable => 1, size => 255 },
+	"approved",
+	{ data_type => "bool", is_nullable => 1 },
+	"register_ts",
+	{ data_type => "integer", is_nullable => 1 },
+	"name",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
 );
 __PACKAGE__->set_primary_key("id");
-__PACKAGE__->add_unique_constraint("validation_code_unique", ["validation_code"]);
+__PACKAGE__->add_unique_constraint( "validation_code_unique", ["validation_code"] );
 
 =head1 RELATIONS
 
@@ -91,10 +91,10 @@ Related object: L<Dwimmer::DB::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-  "listid",
-  "Dwimmer::DB::Result::User",
-  { id => "listid" },
-  { is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
+	"listid",
+	"Dwimmer::DB::Result::User",
+	{ id            => "listid" },
+	{ is_deferrable => 1, on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
 

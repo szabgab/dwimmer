@@ -45,14 +45,14 @@ __PACKAGE__->table("site_config");
 =cut
 
 __PACKAGE__->add_columns(
-  "id",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "siteid",
-  { data_type => "integer", is_nullable => 0 },
-  "name",
-  { data_type => "varchar", is_nullable => 0, size => 100 },
-  "value",
-  { data_type => "varchar", is_nullable => 1, size => 100 },
+	"id",
+	{ data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+	"siteid",
+	{ data_type => "integer", is_nullable => 0 },
+	"name",
+	{ data_type => "varchar", is_nullable => 0, size => 100 },
+	"value",
+	{ data_type => "varchar", is_nullable => 1, size => 100 },
 );
 __PACKAGE__->set_primary_key("id");
 

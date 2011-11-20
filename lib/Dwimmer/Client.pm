@@ -4,18 +4,18 @@ use Moose;
 use WWW::Mechanize;
 use JSON qw(from_json);
 
-has host => (is => 'ro', isa => 'Str', required => 1);
-has mech => (is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
+has host => ( is => 'ro', isa => 'Str', required => 1 );
+has mech => ( is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 # get_user parameters can be    id => 1
 
 sub save_page {
-	my ($self, %args) = @_;
+	my ( $self, %args ) = @_;
 	my $m = $self->mech;
-	$args{editor_body} = delete $args{body};
+	$args{editor_body}  = delete $args{body};
 	$args{editor_title} = delete $args{title};
 	$m->post( $self->host . "/_dwimmer/save_page.json", \%args );
 	return from_json $m->content;
@@ -42,6 +42,7 @@ my %GET = map { $_ => $_ } qw(
 my %POST = map { $_ => $_ } qw(
 	add_feed
 	add_user
+	change_password
 	create_feed_collector
 	create_list
 	create_site
@@ -51,19 +52,21 @@ my %POST = map { $_ => $_ } qw(
 
 AUTOLOAD {
 	our $AUTOLOAD;
-	(my $sub = $AUTOLOAD) =~ s/^Dwimmer::Client:://;
-	my ($self, %attr) = @_;
+	( my $sub = $AUTOLOAD ) =~ s/^Dwimmer::Client:://;
+	my ( $self, %attr ) = @_;
 
 	my $m = $self->mech;
-	if ($GET{$sub}) {
-		my $params = join "&", map { "$_=$attr{$_}" } keys %attr;
+	if ( $GET{$sub} ) {
+		my $params = join "&", map {"$_=$attr{$_}"} keys %attr;
 		my $url = $self->host . "/_dwimmer/$GET{$sub}.json?$params";
+
 		#warn $url;
 		$m->get($url);
-	} elsif ($POST{$sub}) {
+	} elsif ( $POST{$sub} ) {
 		my $url = $self->host . "/_dwimmer/$POST{$sub}.json";
+
 		#warn $url;
-		$m->post($url, \%attr);
+		$m->post( $url, \%attr );
 	} else {
 		die "Could not locate method '$sub'\n";
 	}

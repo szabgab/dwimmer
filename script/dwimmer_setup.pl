@@ -15,7 +15,7 @@ use Getopt::Long qw(GetOptions);
 use String::Random;
 use Pod::Usage  qw(pod2usage);
 
-use Dwimmer::Tools qw(sha1_base64 save_page);
+use Dwimmer::Tools qw(sha1_base64 save_page _get_db);
 
 my %opt;
 GetOptions(\%opt,
@@ -26,9 +26,33 @@ GetOptions(\%opt,
     'silent',
     'share=s',
     'upgrade',
+    'resetpw',
+    'username=s',
 );
 usage() if not $opt{root};
 
+
+if ($opt{resetpw}) {
+    if (not -e $opt{root}) {
+        die "Root directory ($opt{root}) does NOT exist.";
+    }
+    if (not $opt{password}) {
+        die "Need password to set it";
+    }
+    if (not $opt{username}) {
+        die "Need username to reset password";
+    }
+
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my $sha1 = sha1_base64( $opt{password} );
+    my $user = $db->resultset('User')->find( { name => $opt{username} } );
+    die "User was not found" if not $user;
+    $user->sha1($sha1);
+    $user->update;
+
+    exit;
+}
 
 if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) {
     die "Root directory ($opt{root}) already exists"
@@ -61,15 +85,25 @@ mkpath $db_dir if not -e $db_dir;
 
 if (not $opt{dbonly}) {
     foreach my $dir (qw(views public bin environments)) {
-        File::Copy::Recursive::dircopy(
-            File::Spec->catdir( $dist_dir, $dir),
-            File::Spec->catdir( $opt{root}, $dir )
-        );
+        my $from = File::Spec->catdir( $dist_dir, $dir );
+        my $to   = File::Spec->catdir( $opt{root}, $dir );
+	    print "dircopy $from $to\n";
+        File::Copy::Recursive::dircopy( $from, $to ) or die $!;
     }
-    File::Copy::Recursive::fcopy(
-            File::Spec->catdir( $dist_dir, 'config.yml'),
-            File::Spec->catdir( $opt{root} )
-        );
+	my $from = File::Spec->catdir( $dist_dir, 'config.yml');
+    my $to   = File::Spec->catdir( $opt{root} );
+	print "fcopy $from $to\n";
+    File::Copy::Recursive::fcopy( $from, $to ) or die $!;
+}
+
+# backup the database
+if ($opt{upgrade}) {
+    my $db_dir = File::Spec->catdir($opt{root}, 'db');
+    my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
+    my $time = time;
+    if (-e $dbfile) {
+        File::Copy::Recursive::fcopy($dbfile, "$dbfile.$time");
+    }
 }
 
 my $dbfile = File::Spec->catfile( $db_dir, 'dwimmer.db' );
@@ -156,17 +190,31 @@ sub usage {
 
 =head1 SYNOPSIS
 
-REQUIRED PARAMETERS:
+
+To setup a new instance:
 
    --email email        of administrator
-
    --password PASSWORD  of administrator
-
    --root ROOT          path to the root of the installation
 
-   --upgrade
+Optional parameters:
 
    --dbonly             Create only the database (for development)
    --silent             no success report (for testing)
+
+
+To upgrade run:
+
+   --upgrade
+   --root    PATH/TO/ROOT
+
+
+To reset password give the following flags:
+
+   --resetpw
+   --root     PATH/TO/ROOT
+   --username USERNAME
+   --password PASSWORD
+
 =cut
 
