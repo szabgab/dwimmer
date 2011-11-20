@@ -44,6 +44,18 @@ MYMETA\.(?:yml|yaml|json)$
 \bsessions
 .gitignore
 \bdb\b
+\blog\b
+\bpolls\b
+SETUP.bat
+
+# copied to the share/ directory
+#^public\b
+#^schema\b
+#^views\b
+#^environments\b
+#^bin\n
+#^config.yml
+
 
 # need to include the share directory as well as apparently
 # Module::Install is only installing stuff listed in the MANIFEST file.
