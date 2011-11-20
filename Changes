@@ -1,5 +1,8 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+    - Eliminate duplicate files from distribution
+    - Fix a syntax typo (alanhaggai)
+
 v0.22 2011.11.20
 
     - Move the site checking to the 'before' hook to eliminate duplication.

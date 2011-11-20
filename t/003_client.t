@@ -18,7 +18,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 49 );
+plan( tests => 50 );
 
 my @pages = (
 	{},
@@ -95,7 +95,9 @@ cmp_deeply(
 	'show user details'
 );
 
-# diag(explain($admin->get_user( id => 2 )));
+is_deeply($admin->get_user( id => 2 ), {
+	error => 'no_such_user',
+}, 'asking for not existing user');
 
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'no verify field provided' );
 $users[0]{verify} = 'abc';
