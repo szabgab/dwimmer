@@ -9,7 +9,7 @@ use YAML;
 
 use Dwimmer::DB;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 our $SCHEMA_VERSION = 1;
 

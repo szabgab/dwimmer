@@ -1,5 +1,7 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+v0.23 2011.11.20
+
     - Eliminate duplicate files from distribution
     - Fix a syntax typo (alanhaggai)
     - Allow only lower case usernames (#5)
