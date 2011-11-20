@@ -72,9 +72,11 @@ if (not $opt{upgrade}) {
 my $dist_dir;
 
 # When we are in the development environment (have .git) set this to the root directory
-# When we are in the installation environment (have Makefile.PL) set this to the root directory
-if (grep { -e File::Spec->catdir(dirname(dirname abs_path($0)) , $_) } ('.git', 'Makefile.PL')) {
+# When we are in the installation environment (have Makefile.PL) set this to the share/ subdirectory
+if (-e File::Spec->catdir(dirname(dirname abs_path($0)) , '.git') ) {
     $dist_dir = dirname(dirname abs_path($0))
+} elsif (-e File::Spec->catdir(dirname(dirname abs_path($0)) , 'Makefile.PL') ) {
+    $dist_dir = File::Spec->catdir( dirname(dirname abs_path($0)), 'share' );
 } else {
     $dist_dir = File::ShareDir::dist_dir('Dwimmer');
 }

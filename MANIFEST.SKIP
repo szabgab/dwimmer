@@ -45,16 +45,17 @@ MYMETA\.(?:yml|yaml|json)$
 .gitignore
 \bdb\b
 \blog\b
-\bpolls\b
+^logs\b
+^polls\b
 SETUP.bat
 
 # copied to the share/ directory
-#^public\b
-#^schema\b
-#^views\b
-#^environments\b
-#^bin\n
-#^config.yml
+^public\b
+^schema\b
+^views\b
+^environments\b
+^bin\n
+^config.yml
 
 
 # need to include the share directory as well as apparently

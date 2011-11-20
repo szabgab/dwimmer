@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 use Data::Dumper qw(Dumper);
 use Email::Valid   ();
@@ -203,7 +203,7 @@ get '/get_user.json' => sub {
 	return to_json { error => 'no_id' } if not defined $id;
 	my $db   = _get_db();
 	my $user = $db->resultset('User')->find($id);
-	return to_json { error => 'no_such_user' } if not defined $id;
+	return to_json { error => 'no_such_user' } if not defined $user;
 	my @fields = qw(id name email fname lname verified register_ts);
 	my %data = map { $_ => $user->$_ } @fields;
 	return to_json \%data;
@@ -246,9 +246,14 @@ post '/register' => sub {
 sub register_user {
 	my %args = @_;
 
-	# validate
 	$args{email} = lc $args{email};
 
+	# for now we force the username to be lower case.
+	# later we might allow mixed case usernames but we still want to
+	# make sure the lower case versions are unique
+	$args{uname} = lc $args{uname};
+
+	# validate
 	my $db = _get_db();
 	if ( length $args{uname} < 2 or $args{uname} =~ /[^\w.-]/ ) {
 		return 'invalid_username';
@@ -261,6 +266,7 @@ sub register_user {
 	if ($user) {
 		return 'email_used';
 	}
+
 	if ( length $args{pw1} < 5 ) {
 		return 'short_password';
 	}

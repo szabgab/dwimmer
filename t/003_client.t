@@ -18,7 +18,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 49 );
+plan( tests => 51 );
 
 my @pages = (
 	{},
@@ -95,6 +95,13 @@ cmp_deeply(
 	'show user details'
 );
 
+is_deeply(
+	$admin->get_user( id => 2 ),
+	{   error => 'no_such_user',
+	},
+	'asking for not existing user'
+);
+
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'no verify field provided' );
 $users[0]{verify} = 'abc';
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'invalid_verify' }, 'really invalid verify field provided' );
@@ -108,12 +115,18 @@ is_deeply(
 	'try to add user with same mail after ucfirst'
 );
 
+diag('email is case insensitive and saves as lower case');
 $users[0]{email} = uc $users[0]{email};
 is_deeply( $admin->add_user( %{ $users[0] } ), { error => 'email_used' }, 'try to add user with same mail after uc' );
 
 $users[0]{email} = 'test2@dwimmer.org';
 $users[0]{pw1} = $users[0]{pw2} = $users[0]{password};
-is_deeply( $admin->add_user( %{ $users[0] } ), { success => 1 }, 'add user with same mail' );
+is_deeply( $admin->add_user( %{ $users[0] } ), { success => 1 }, 'add user with different mail' );
+
+my %usr = %{ $users[0] };
+$usr{uname} = uc $usr{uname};
+$usr{email} =  'test3@dwimmer.org';
+is_deeply( $admin->add_user( %usr ), { error => 'username_taken' }, 'add user with same username in different case' );
 
 is_deeply(
 	$admin->list_users,
@@ -149,6 +162,8 @@ cmp_deeply(
 	},
 	'show user details'
 );
+
+
 
 cmp_deeply(
 	$admin->get_pages,
