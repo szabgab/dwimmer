@@ -18,7 +18,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 53 );
+plan( tests => 55 );
 
 my @pages = (
 	{},
@@ -53,6 +53,12 @@ test_rss(
 		'dc:date'    => ignore(), #'2011-12-07T17:53:48+00:00',
 		'description' => '<h1>Dwimmer</h1>'
 	},
+);
+
+test_sitemap(
+		{
+			'loc' => 'http://localhost:3001/'
+		}
 );
 
 my $u = Test::WWW::Mechanize->new;
@@ -456,6 +462,17 @@ test_rss([
              'description' => 'New text [link] here and [space and.dot and $@% too] here'
            }
 ]);
+test_sitemap([
+           {
+             'loc' => 'http://localhost:3001/'
+           },
+           {
+             'loc' => 'http://localhost:3001/xyz'
+           },
+           {
+             'loc' => 'http://localhost:3001/space and.dot and $@% too'
+           }
+         ]);
 
 exit;
 
@@ -476,5 +493,27 @@ sub test_rss {
 #	diag(Dumper $rss->{'rdf:RDF'}{channel});
 #	diag(Dumper $rss->{'rdf:RDF'}{item});
 	cmp_deeply($rss->{'rdf:RDF'}{item}, $expected_items);
+
+	return;
+}
+
+
+sub test_sitemap {
+	my ($expected) = @_;
+
+	local $Test::Builder::Level = $Test::Builder::Level + 1;
+	my $sitemap_str = LWP::Simple::get("$url/sitemap.xml");
+	diag($sitemap_str);
+	my $xml = XML::Simple->new(
+		KeepRoot   => 1,
+		ForceArray => 0,
+		KeyAttr    => { urlset => 'xmlns' },
+	);
+	my $sitemap = $xml->XMLin( $sitemap_str );
+	#diag(Dumper $sitemap);
+	#diag(Dumper $sitemap->{urlset}{url});
+	cmp_deeply($sitemap->{urlset}{url}, $expected, 'sitemap');
+
+	return;
 }
 
