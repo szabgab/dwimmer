@@ -9,8 +9,11 @@ use Data::Dumper qw(Dumper);
 use Dwimmer::DB;
 use Dwimmer::Tools qw(_get_db _get_site read_file $SCHEMA_VERSION);
 
-use Fcntl qw(:flock);
+use Encode     qw(decode);
+use Fcntl      qw(:flock);
+use List::Util qw(min);
 use Template;
+use XML::RSS;
 
 load_app 'Dwimmer::Admin', prefix => "/_dwimmer";
 
@@ -82,7 +85,56 @@ sub route_index {
 			return Dwimmer::Admin::render_response( 'error', { page_does_not_exist => 1 } );
 		}
 	}
-}
+};
+
+get '/update.rss' => sub {
+	my $db = _get_db();
+	my ( $site_name, $site ) = _get_site();
+
+	my $host = request->uri_base;
+	my $rss = XML::RSS->new( version => '1.0' );
+	my $year = 1900 + (localtime)[5];
+	$rss->channel(
+		title       => "Dwimmer.org",
+		link        => $host,
+		description => "A Dwimmer based site",
+		dc => {
+			language  => 'en-us',
+			publisher => 'szabgab@gmail.com',
+			rights    => "Copyright $year",
+		},
+		syn => {
+			updatePeriod     => "hourly",
+			updateFrequency  => "1",
+			updateBase       => "1901-01-01T00:00+00:00",
+		}
+	);
+
+	my @pages = $db->resultset('Page')->search( { siteid => $site->id } );
+	#my @urls = map { { loc => [ $host . $_->filename ] } } @res;
+
+	my $RSS = 10;
+
+	# TODO this whole thing should be a single query and not one for each item!
+	foreach my $p (reverse @pages[-min($RSS, scalar @pages) .. -1]) {
+		my $page = $db->resultset('PageHistory')->find( { siteid => $site->id, pageid => $p->id, revision => $p->revision } );
+		my $text = $page->body;
+#        $text =~ s{"/}{"$host/}g;
+		$rss->add_item(
+			title => decode('utf-8', $page->title),
+			link  => $host . $page->filename,
+			description => decode('utf-8', $text),
+			dc => {
+				creator => $page->author->name,
+				date    => POSIX::strftime("%Y-%m-%dT%H:%M:%S+00:00", localtime $page->timestamp),     # 2008-05-14T13:43:49+00:00
+				subject => $page->title,
+			}
+		);
+    }
+
+    return $rss->as_string;
+};
+
 
 # http://www.sitemaps.org/protocol.html
 get '/sitemap.xml' => sub {

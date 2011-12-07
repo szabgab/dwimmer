@@ -28,9 +28,11 @@ my %prereq = (
 	'DBIx::RunSQL'        => 0,
 	'Email::Valid'        => 0,
 	'Encode'              => 0,
+	'Fcntl'               => 0,
 	'File::ShareDir'      => '1.00',
 	'File::Slurp'         => 0,
 	'Getopt::Long'        => 0,
+	'List::Util'          => 0,
 	'JSON'                => 0,
 	'MIME::Lite'          => 0,
 	'Moose'               => 0,
@@ -39,6 +41,7 @@ my %prereq = (
 	'Template'            => 0,
 	'XML::Feed'           => 0,
 	'XML::RSS'            => 0,
+	'XML::Simple'         => 0,
 	'YAML'                => 0,
 );
 

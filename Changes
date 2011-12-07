@@ -1,6 +1,7 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
-    - integrated the CLEditor Javascript based html editor
+    - Add RSS feed with basic testing (#30)
+    - integrated the CLEditor Javascript based html editor (#15)
 
 v0.23 2011.11.20
 
