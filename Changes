@@ -1,5 +1,7 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+    - integrated the CLEditor Javascript based html editor
+
 v0.23 2011.11.20
 
     - Eliminate duplicate files from distribution
