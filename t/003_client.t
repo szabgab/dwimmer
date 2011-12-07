@@ -503,7 +503,7 @@ sub test_sitemap {
 
 	local $Test::Builder::Level = $Test::Builder::Level + 1;
 	my $sitemap_str = LWP::Simple::get("$url/sitemap.xml");
-	diag($sitemap_str);
+	#diag($sitemap_str);
 	my $xml = XML::Simple->new(
 		KeepRoot   => 1,
 		ForceArray => 0,

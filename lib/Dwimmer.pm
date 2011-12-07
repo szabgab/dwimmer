@@ -148,17 +148,11 @@ get '/sitemap.xml' => sub {
 	# changefreq
 	# priority
 	my $host = request->uri_base;
-	my @urls = map { { loc => [ $host . $_->filename ] } } @res;
-
-	my %urlset = (
-		xmlns => 'http://www.sitemaps.org/schemas/sitemap/0.9',
-		url   => \@urls
-	);
 
 	my $xml = qq(<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n);
-	foreach my $url (@urls) {
+	foreach my $r (@res) {
 		$xml .= qq(  <url>\n);
-		$xml .= qq(     <loc>$url->{loc}[0]</loc>\n);
+		$xml .= qq(     <loc>$host) . $r->filename . qq(</loc>\n);
 		$xml .= qq(  </url>\n);
 	}
 	$xml .= qq(</urlset>);
