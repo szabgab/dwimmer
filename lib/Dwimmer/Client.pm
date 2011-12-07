@@ -34,6 +34,7 @@ my %GET = map { $_ => $_ } qw(
 	list_users
 	logout
 	register_email
+	search
 	session
 	site_config
 	sites

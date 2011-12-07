@@ -328,6 +328,8 @@ cmp_deeply(
 $w->get_ok("$url$pages[2]{filename}");
 $w->content_like(qr{$pages[2]{body}});
 
+#diag(explain($admin->search( text => 'xyz' )));
+
 
 my $user = Dwimmer::Client->new( host => $url );
 is_deeply(
