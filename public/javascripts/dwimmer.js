@@ -176,7 +176,7 @@ $(document).ready(function() {
 		$('#create').val( 1 );
 		$('#admin-editor').show();
 		$('#admin-editor-filename').show();
-		$('#editor_body').keyup();    // update preview
+//		$('#editor_body').keyup();    // update preview
 
 		return false;
 	});
@@ -188,7 +188,7 @@ $(document).ready(function() {
 		$('#admin-editor').show();
 		$('#filename').val( $(location).attr('pathname') );
 		$('#admin-editor-filename').show();
-		$('#editor_body').keyup();    // update preview
+//		$('#editor_body').keyup();    // update preview
 
 		return false;
 	});
@@ -392,7 +392,11 @@ function submit_form(obj, file) {
 			$('#filename').val( resp["page"]["filename"] );
 			$('#editor_title').val( resp["page"]["title"] );
 			$('#editor_body').val( resp["page"]["body"] );
-			$('#editor_body').keyup();    // update preview
+			// $('#editor_body').keyup();    // update preview
+			$('#editor_body').cleditor({
+               width: 700,
+               height: 300,
+            });
 		});
 		return false;
 	});
@@ -426,11 +430,11 @@ function submit_form(obj, file) {
 		return false;
 	});
 
-	$('#editor_body').keyup(function(){
-		var body = $('#editor_body').val();
-		var html = markup(body);
-		$('#content').html(html); // preview
-	});
+//	$('#editor_body').keyup(function(){
+//		var body = $('#editor_body').val();
+//		var html = markup(body);
+//		$('#content').html(html); // preview
+//	});
 
 
 
