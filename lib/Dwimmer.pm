@@ -155,14 +155,13 @@ get '/sitemap.xml' => sub {
 		url   => \@urls
 	);
 
-	require XML::Simple;
-	my $xs = XML::Simple->new(
-		KeepRoot   => 1,
-		ForceArray => 0,
-		KeyAttr    => { urlset => 'xmlns' },
-		XMLDecl    => '<?xml version="1.0" encoding="UTF-8"?>'
-	);
-	my $xml = $xs->XMLout( { urlset => \%urlset } );
+	my $xml = qq(<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n);
+	foreach my $url (@urls) {
+		$xml .= qq(  <url>\n);
+		$xml .= qq(     <loc>$url->{loc}[0]</loc>\n);
+		$xml .= qq(  </url>\n);
+	}
+	$xml .= qq(</urlset>);
 
 	content_type "text/xml";
 	return $xml;
