@@ -62,13 +62,8 @@ get '/search' => sub {
 	return 'No search term provided'
 		if not defined $text or $text =~ /^\s*$/;
 
-	my $result = Dwimmer::Admin::search(text => $text);
-	my $html = "OK<br>\n";
-	foreach my $r (@$result) {
-		$html .= qq(<a href="$r->{filename}">$r->{title}</a><br>\n);
-	}
-	$html .= localtime;
-	return $html;
+	my $results = Dwimmer::Admin::search(text => $text);
+	template 'search_results', { results => $results };
 };
 
 
