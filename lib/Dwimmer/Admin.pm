@@ -718,11 +718,17 @@ sub _set_site_config {
 }
 
 get '/search.json' => sub {
-	my ($site_name, $site) = _get_site();
-
 	my %params = _clean_params(qw(text));
 	return to_json { error => 'no_search_text' } if not $params{text};
 
+	search(%params);
+	to_json {ok => 1};
+};
+
+sub search {
+	my %params = @_;
+
+	my ($site_name, $site) = _get_site();
 	my $db = _get_db();
 
 	# in each page (last
@@ -734,8 +740,7 @@ get '/search.json' => sub {
 	} }
 	$db->resultset('PageHistory')->search( { siteid => $site->id, filename => $params{text} } );
 #	title, body, description, abstract, filename
-
-};
+}
 
 
 true;
