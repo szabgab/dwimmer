@@ -57,6 +57,16 @@ hook before => sub {
 	return;
 };
 
+get '/search' => sub {
+	my $text = param('text');
+	return 'No search term provided'
+		if not defined $text or $text =~ /^\s*$/;
+
+	my $results = Dwimmer::Admin::search(text => $text);
+	template 'search_results', { results => $results };
+};
+
+
 sub route_index {
 	my ( $site_name, $site ) = _get_site();
 

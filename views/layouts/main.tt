@@ -207,10 +207,8 @@
 
 </div>
 
-<div id="content">
-<% content %>
-</div>
-
+<p>&nbsp;</p>
+<% INCLUDE layouts/search.tt %>
 
 
 
