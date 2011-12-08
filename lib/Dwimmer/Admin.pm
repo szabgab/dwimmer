@@ -721,8 +721,8 @@ get '/search.json' => sub {
 	my %params = _clean_params(qw(text));
 	return to_json { error => 'no_search_text' } if not $params{text};
 
-	search(%params);
-	to_json {ok => 1};
+	my $data = search(%params);
+	to_json {ok => 1, data => $data};
 };
 
 sub search {
@@ -731,15 +731,17 @@ sub search {
 	my ($site_name, $site) = _get_site();
 	my $db = _get_db();
 
-	# in each page (last
-	my @history = map { {
-		revision  => $_->revision,
-		timestamp => $_->timestamp,
-		author    => $_->author->name,
-#		filename  => $path,
-	} }
-	$db->resultset('PageHistory')->search( { siteid => $site->id, filename => $params{text} } );
+	debug("sarch for '$params{text}'");
 #	title, body, description, abstract, filename
+	my @results = map { {
+			title => $_->filename,
+			filename => $_->filename,
+		} }  $db->resultset('Page')->search( {
+			siteid => $site->id,
+			#filename => { like => ('%' . $params{text} . '%') },
+			filename => { like => '%' },
+			} );
+	return \@results;
 }
 
 

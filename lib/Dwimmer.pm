@@ -63,7 +63,12 @@ get '/search' => sub {
 		if not defined $text or $text =~ /^\s*$/;
 
 	my $result = Dwimmer::Admin::search(text => $text);
-	return 'OK';
+	my $html = "OK<br>\n";
+	foreach my $r (@$result) {
+		$html .= qq(<a href="$r->{filename}">$r->{title}</a><br>\n);
+	}
+	$html .= localtime;
+	return $html;
 };
 
 
