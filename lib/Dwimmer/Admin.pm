@@ -738,8 +738,7 @@ sub search {
 			filename => $_->filename,
 		} }  $db->resultset('Page')->search( {
 			siteid => $site->id,
-			#filename => { like => ('%' . $params{text} . '%') },
-			filename => { like => '%' },
+			filename => { like => ('%' . $params{text} . '%') },
 			} );
 	return \@results;
 }
