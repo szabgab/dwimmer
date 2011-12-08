@@ -8,7 +8,7 @@ has host => ( is => 'ro', isa => 'Str', required => 1 );
 has mech => ( is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 # get_user parameters can be    id => 1
 
@@ -34,6 +34,7 @@ my %GET = map { $_ => $_ } qw(
 	list_users
 	logout
 	register_email
+	search
 	session
 	site_config
 	sites

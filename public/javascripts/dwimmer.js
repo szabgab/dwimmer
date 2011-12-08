@@ -104,8 +104,7 @@ $(document).ready(function() {
 	});
 
 	$("form.login").submit(function() {
-		var url = "/_dwimmer/login.json";
-		$.post(url, $(this).serialize(), function(resp) {
+		$.post(_url("/_dwimmer/login.json"), $(this).serialize(), function(resp) {
 			if (resp["success"] == 1) {
 				$('#guest_bar').hide();
 				$('#logged_in_bar').show();
@@ -177,7 +176,7 @@ $(document).ready(function() {
 		$('#create').val( 1 );
 		$('#admin-editor').show();
 		$('#admin-editor-filename').show();
-		$('#editor_body').keyup();    // update preview
+//		$('#editor_body').keyup();    // update preview
 
 		return false;
 	});
@@ -189,7 +188,7 @@ $(document).ready(function() {
 		$('#admin-editor').show();
 		$('#filename').val( $(location).attr('pathname') );
 		$('#admin-editor-filename').show();
-		$('#editor_body').keyup();    // update preview
+//		$('#editor_body').keyup();    // update preview
 
 		return false;
 	});
@@ -220,8 +219,7 @@ $(document).ready(function() {
 
 // submit the form
 function submit_form(obj, file) {
-	var url = "/_dwimmer/" + file + ".json";
-	$.post(url, $(obj).serialize(), function(resp) {
+	$.post(_url("/_dwimmer/" + file + ".json"), $(obj).serialize(), function(resp) {
 		if (resp["success"] == 1) {
 			alert('added');
 		} else {
@@ -345,8 +343,7 @@ function submit_form(obj, file) {
 
 	$(".show_history").click(function(){
 		manage_bar();
-		var url = _url('/_dwimmer/history.json') + '&filename=' + $(location).attr('pathname');
-		$.getJSON(url, function(resp) {
+		$.getJSON(_url('/_dwimmer/history.json') + '&filename=' + $(location).attr('pathname'), function(resp) {
 			//$('#admin-editor').show();
 			var html = '<ul>';
 			for(var i=0; i < resp["rows"].length; i++) {
@@ -357,8 +354,7 @@ function submit_form(obj, file) {
 			$('#manage-display-content').html(html);
 
 			$(".show_page_rev").click(function() {
-				var url = _url( $(this).attr('href') );
-				$.getJSON(url, function(resp) {
+				$.getJSON(_url( $(this).attr('href') ), function(resp) {
 //					alert(dumper(resp));
 					if (resp["error"]) {
 						alert(resp["error"] + " " + resp["details"]);
@@ -389,15 +385,18 @@ function submit_form(obj, file) {
 	$(".edit_this_page").click(function() {
 		manage_bar();
 		original_content = $('#content').html();
-		var url = _url('/_dwimmer/page.json') + '&filename=' + $(location).attr('pathname');
-		$.getJSON(url, function(resp) {
+		$.getJSON(_url('/_dwimmer/page.json') + '&filename=' + $(location).attr('pathname'), function(resp) {
 			$('#admin-editor').show();
 			$('#admin-editor-filename').hide();
 			$('#create').val( 0 );
 			$('#filename').val( resp["page"]["filename"] );
 			$('#editor_title').val( resp["page"]["title"] );
 			$('#editor_body').val( resp["page"]["body"] );
-			$('#editor_body').keyup();    // update preview
+			// $('#editor_body').keyup();    // update preview
+			$('#editor_body').cleditor({
+               width: 700,
+               height: 300,
+            });
 		});
 		return false;
 	});
@@ -415,11 +414,9 @@ function submit_form(obj, file) {
 	$('#save').click(function(){
 		var body = $('#editor_body').val();
 		var title = $('#editor_title').val();
-
-		var url = '/_dwimmer/save_page.json';
 		var data = $("#editor_form").serialize();
 
-		$.post(url, data, function(resp) {
+		$.post(_url('/_dwimmer/save_page.json'), data, function(resp) {
 			var data = eval('(' + resp + ')');
 			if (data["error"] == "no_file_supplied") {
 				alert("Internal error, no filename supplied. Not saved.");
@@ -433,11 +430,11 @@ function submit_form(obj, file) {
 		return false;
 	});
 
-	$('#editor_body').keyup(function(){
-		var body = $('#editor_body').val();
-		var html = markup(body);
-		$('#content').html(html); // preview
-	});
+//	$('#editor_body').keyup(function(){
+//		var body = $('#editor_body').val();
+//		var html = markup(body);
+//		$('#content').html(html); // preview
+//	});
 
 
 

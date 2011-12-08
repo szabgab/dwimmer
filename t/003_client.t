@@ -18,7 +18,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 51 );
+plan( tests => 55 );
 
 my @pages = (
 	{},
@@ -39,6 +39,27 @@ $w->content_like( qr{Welcome to your Dwimmer installation}, 'content ok' );
 $w->get_ok("$url/other");
 $w->content_like( qr{Page does not exist}, 'content of missing pages is ok' );
 $w->content_unlike( qr{Would you like to create it}, 'no creation offer' );
+
+require LWP::Simple;
+require XML::Simple;
+
+test_rss(
+	{
+		'dc:creator' => 'admin',
+		'link'       => 'http://localhost:3001/',
+		'rdf:about'  => 'http://localhost:3001/',
+		'dc:subject' => 'Welcome to your Dwimmer installation',
+		'title'      => 'Welcome to your Dwimmer installation',
+		'dc:date'    => ignore(), #'2011-12-07T17:53:48+00:00',
+		'description' => '<h1>Dwimmer</h1>'
+	},
+);
+
+test_sitemap(
+		{
+			'loc' => 'http://localhost:3001/'
+		}
+);
 
 my $u = Test::WWW::Mechanize->new;
 $u->get_ok($url);
@@ -307,6 +328,8 @@ cmp_deeply(
 $w->get_ok("$url$pages[2]{filename}");
 $w->content_like(qr{$pages[2]{body}});
 
+#diag(explain($admin->search( text => 'xyz' )));
+
 
 my $user = Dwimmer::Client->new( host => $url );
 is_deeply(
@@ -411,4 +434,88 @@ is_deeply(
 	},
 	'user logged in with new password'
 );
+
+test_rss([
+           {
+             'dc:creator' => 'admin',
+             'link' => 'http://localhost:3001/space and.dot and $@% too',
+             'rdf:about' => 'http://localhost:3001/space and.dot and $@% too',
+             'dc:subject' => 'dotspace',
+             'title' => 'dotspace',
+             'dc:date' => ignore(),
+             'description' => 'File with space and dot'
+           },
+           {
+             'dc:creator' => 'admin',
+             'link' => 'http://localhost:3001/xyz',
+             'rdf:about' => 'http://localhost:3001/xyz',
+             'dc:subject' => 'New title of xyz',
+             'title' => 'New title of xyz',
+             'dc:date' => ignore(),
+             'description' => 'New text'
+           },
+           {
+             'dc:creator' => 'admin',
+             'link' => 'http://localhost:3001/',
+             'rdf:about' => 'http://localhost:3001/',
+             'dc:subject' => 'New main title',
+             'title' => 'New main title',
+             'dc:date' => ignore(),
+             'description' => 'New text [link] here and [space and.dot and $@% too] here'
+           }
+]);
+test_sitemap([
+           {
+             'loc' => 'http://localhost:3001/'
+           },
+           {
+             'loc' => 'http://localhost:3001/xyz'
+           },
+           {
+             'loc' => 'http://localhost:3001/space and.dot and $@% too'
+           }
+         ]);
+
+exit;
+
+sub test_rss {
+	my ($expected_items) = @_;
+
+	local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+	my $rss_str = LWP::Simple::get("$url/update.rss");
+	#diag($rss_str);
+	my $xml = XML::Simple->new(
+		KeepRoot   => 1,
+		ForceArray => 0,
+		KeyAttr    => { urlset => 'xmlns' },
+	);
+	my $rss = $xml->XMLin( $rss_str );
+#	diag(Dumper $rss);
+#	diag(Dumper $rss->{'rdf:RDF'}{channel});
+#	diag(Dumper $rss->{'rdf:RDF'}{item});
+	cmp_deeply($rss->{'rdf:RDF'}{item}, $expected_items);
+
+	return;
+}
+
+
+sub test_sitemap {
+	my ($expected) = @_;
+
+	local $Test::Builder::Level = $Test::Builder::Level + 1;
+	my $sitemap_str = LWP::Simple::get("$url/sitemap.xml");
+	#diag($sitemap_str);
+	my $xml = XML::Simple->new(
+		KeepRoot   => 1,
+		ForceArray => 0,
+		KeyAttr    => { urlset => 'xmlns' },
+	);
+	my $sitemap = $xml->XMLin( $sitemap_str );
+	#diag(Dumper $sitemap);
+	#diag(Dumper $sitemap->{urlset}{url});
+	cmp_deeply($sitemap->{urlset}{url}, $expected, 'sitemap');
+
+	return;
+}
 
