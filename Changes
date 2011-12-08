@@ -1,5 +1,7 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+    - Add minimal search capability
+
 v0.24 2011.11.08
 
     - Add RSS feed with basic testing (#30)
