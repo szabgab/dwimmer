@@ -1,6 +1,7 @@
 package Dwimmer::Feed::DB;
 use Moose;
 
+use Data::Dumper qw(Dumper);
 use DBI;
 
 has 'store' => (is => 'ro', isa => 'Str', required => 1);
@@ -19,6 +20,12 @@ CREATE TABLE entries (
 	content   BLOB,
 	tags      VARCHAR(100)
 );
+
+CREATE TABLE delivery_queue (
+	channel  VARCHAR(30) NOT NULL,
+	entry    INTEGER     NOT NULL
+);
+
 SCHEMA
 
 sub connect {
@@ -59,8 +66,20 @@ sub add {
 	my $sql = "INSERT INTO entries ($f) VALUES($p)";
 	#main::LOG("SQL: $sql");
 	$self->dbh->do($sql, {}, @args{@fields});
+	my $id = $self->dbh->last_insert_id('', '', '', '');
+	main::LOG("ID: $id");
+
+	$self->dbh->do(q{INSERT INTO delivery_queue (channel, entry) VALUES ('mail', ?)}, {}, $id);
 
 	return;
+}
+
+sub search {
+	my ($self, %args) = @_;
+
+	#SELECT from delivery_queue
+
+
 }
 
 1;
