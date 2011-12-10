@@ -95,5 +95,49 @@ sub collect {
 	}
 }
 
+# should be in its own class?
+# plan: N item on front page or last N days?
+# every day gets its own page in archice/YYYY/MM/DD
+sub generate_html {
+	my ($self, $dir) = @_;
+	die if not $dir or not -d $dir;
+
+	my $FRONT = 10;
+	my $entries = $self->db->get_all_entries;
+	use List::Util qw(min);
+	use Template;
+	my $size = min($FRONT, scalar @$entries);
+	my @front = @$entries[0 .. $size-1];
+	#die scalar @front;
+
+my $template = <<'TEMPLATE';
+<html>
+<head>
+<title>Perlsphere - the Perl blog aggregator</title>
+</head>
+<body>
+[% FOR e IN entries %]
+  <h2><a href="[% e.link %]">[% e.title %]</a></h2>
+  <div class="entry">
+  [% e.summary %]
+  </div>
+  <div class="permalink">For the full article visit <a href="[% e.link %]">[% e.title %]</a></div>
+[% END %]
+
+</body>
+</html>
+TEMPLATE
+
+	my $t = Template->new();
+    $t->process(\$template, {entries => \@front}, "$dir/index.html") or die $t->error;
+	#foreach my $e (@$entries) {
+	#	print $e->{issued}, "\n";
+	#}
+
+	return;
+}
+
+
+
 1;
 

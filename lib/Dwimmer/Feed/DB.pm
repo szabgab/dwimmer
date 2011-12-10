@@ -48,6 +48,18 @@ sub connect {
 	return $self->dbh;
 }
 
+sub get_all_entries {
+	my ($self) = @_;
+	my $sth = $self->dbh->prepare('SELECT * FROM entries ORDER BY issued DESC');
+	$sth->execute;
+	my @result;
+	while (my $h = $sth->fetchrow_hashref) {
+		push @result, $h;
+	}
+
+	return \@result;
+}
+
 sub find {
 	my ($self, %args) = @_;
 

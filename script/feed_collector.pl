@@ -13,16 +13,24 @@ my %opt;
 GetOptions(\%opt,
 	'store=s',
 	'sources=s',
+
+	'collect',
 	'sendmail',
+	'html=s',
 ) or usage();
 usage() if not $opt{store} or not $opt{sources};
 
 my $t0 = time;
 
 my $collector = Dwimmer::Feed::Collector->new(%opt);
-$collector->collect();
 
-# TODO: generate html and feeds
+if ($opt{collect}) {
+	$collector->collect();
+}
+
+if ($opt{html}) {
+	$collector->generate_html( $opt{html} );
+}
 
 if ($opt{sendmail}) {
 	my $mail = Dwimmer::Feed::Sendmail->new(%opt);
@@ -43,7 +51,7 @@ sub LOG {
 }
 
 sub usage {
-	die "Usage: $0 --store storage.db  --sources sources.json\n";
+	die "Usage: $0 --store storage.db  --sources sources.json  [--collect --sendmail --html DIR]\n";
 }
 
 
