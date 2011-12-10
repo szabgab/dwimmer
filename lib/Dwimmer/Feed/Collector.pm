@@ -36,6 +36,7 @@ sub collect {
 
 			main::LOG("Processing $e->{title}");
 			my $feed = XML::Feed->parse(URI->new($e->{feed}));
+			alarm 0;
 			if (not $feed) {
 				main::LOG("ERROR: " . XML::Feed->errstr);
 				next;
@@ -49,40 +50,45 @@ sub collect {
 
 			for my $entry ($feed->entries) {
 				#print $entry, "\n";
+				eval {
+					# checking for new hostname
+					my $hostname = $entry->link;
+					$hostname =~ s{^(https?://[^/]+).*}{$1};
+					#main::LOG("HOST: $hostname");
+					if ( not $self->db->find( link => "$hostname%" ) ) {
+						main::LOG("ALERT: new hostname ($hostname) in URL: " . $entry->link);
+						use MIME::Lite   ();
+						my $msg = MIME::Lite->new(
+							From    => 'dwimmer@dwimmer.com',
+							To      => 'szabgab@gmail.com',
+							Subject => "Dwimmer: new URL noticed $hostname",
+							Data    => $entry->link,
+						);
+						$msg->send;
+					}
+					if ( not $self->db->find( link => $entry->link ) ) {
+						my %current = (
+							source    => $e->{feed},
+							link      => $entry->link,
+							author    => ($entry->{author} || ''),
+							remote_id => ($entry->{id} || ''),
+							issued    => $entry->issued->ymd . ' ' . $entry->issued->hms,
+							title     => ($entry->title || ''),
+							summary   => ($entry->summary->body || ''),
+							content   => ($entry->content->body || ''),
+							tags    => '', #$entry->tags,
+						);
+						main::LOG("Adding $current{link}");
+						$self->db->add(%current);
+					}
+				};
+				if ($@) {
+					main::LOG("EXCEPTION $@");
+				}
 
-				# checking for new hostname
-				my $hostname = $entry->link;
-				$hostname =~ s{^(https?://[^/]+).*}{$1};
-				#main::LOG("HOST: $hostname");
-				if ( not $self->db->find( link => "$hostname%" ) ) {
-					main::LOG("ALERT: new hostname ($hostname) in URL: " . $entry->link);
-					use MIME::Lite   ();
-					my $msg = MIME::Lite->new(
-						From    => 'dwimmer@dwimmer.com',
-						To      => 'szabgab@gmail.com',
-						Subject => "Dwimmer: new URL noticed $hostname",
-						Data    => $entry->link,
-					);
-					$msg->send;
-				}
-				if ( not $self->db->find( link => $entry->link ) ) {
-					my %current = (
-						source    => $e->{feed},
-						link      => $entry->link,
-						author    => ($entry->{author} || ''),
-						remote_id => ($entry->{id} || ''),
-						issued    => $entry->issued->ymd . ' ' . $entry->issued->hms,
-						title     => ($entry->title || ''),
-						summary   => ($entry->summary->body || ''),
-						content   => ($entry->content->body || ''),
-						tags    => '', #$entry->tags,
-					);
-					main::LOG("Adding $current{link}");
-					$self->db->add(%current);
-				}
 			}
 		};
-		alarm(0);
+		alarm 0;
 		if ($@) {
 			main::LOG("EXCEPTION $@");
 		}
