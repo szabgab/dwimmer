@@ -19,8 +19,8 @@ usage() if not $opt{store} or not $opt{sources};
 
 my $t0 = time;
 
-# my $collector = Dwimmer::Feed::Collector->new(%opt);
-# $collector->collect();
+my $collector = Dwimmer::Feed::Collector->new(%opt);
+$collector->collect();
 
 # TODO: generate html and feeds
 
