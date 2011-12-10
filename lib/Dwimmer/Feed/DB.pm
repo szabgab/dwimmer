@@ -51,7 +51,7 @@ sub connect {
 sub find {
 	my ($self, %args) = @_;
 
-	my $ref = $self->dbh->selectrow_hashref('SELECT * FROM entries WHERE link = ?', {}, $args{link});
+	my $ref = $self->dbh->selectrow_hashref('SELECT * FROM entries WHERE link LIKE ?', {}, $args{link});
 
 	return $ref;
 }

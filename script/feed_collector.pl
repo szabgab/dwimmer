@@ -45,3 +45,11 @@ sub LOG {
 sub usage {
 	die "Usage: $0 --store storage.db  --sources sources.json\n";
 }
+
+
+# TODO: comprehensive link collection (sources: feeds, aggregators, twitter, reddit), delicious
+# TODO: languages
+# TODO: display summary of all, allow for javascript setting which language(s) to show
+# TODO: display social icons with counters (Twitter, Reddit, Google+, FaceBook, HackerNews)
+
+
