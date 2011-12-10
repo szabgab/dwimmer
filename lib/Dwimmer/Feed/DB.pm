@@ -74,13 +74,26 @@ sub add {
 	return;
 }
 
-sub search {
-	my ($self, %args) = @_;
+sub get_queue {
+	my ($self, $channel) = @_;
 
-	#SELECT from delivery_queue
-
-
+	my $sth = $self->dbh->prepare('SELECT * FROM entries, delivery_queue WHERE entries.id=delivery_queue.entry AND channel = ?');
+	$sth->execute($channel);
+	my @results;
+	while (my $h = $sth->fetchrow_hashref) {
+		push @results, $h;
+	}
+	return \@results;
 }
+
+sub delete_from_queue {
+	my ($self, $channel, $id) = @_;
+
+	$self->dbh->do('DELETE FROM delivery_queue WHERE channel=? AND entry=?', {}, $channel, $id);
+
+	return;
+}
+
 
 1;
 
