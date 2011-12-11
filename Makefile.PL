@@ -10,6 +10,7 @@ use inc::Module::Install 1.00;
 # stuff above here no longer needed.
 configure_requires 'ExtUtils::MakeMaker'   => '6.52';
 configure_requires 'File::Copy::Recursive' => 0;
+configure_requires 'File::Find::Rule'      => 0;
 configure_requires 'File::Spec'            => 0;
 
 name 'Dwimmer';
