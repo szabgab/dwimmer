@@ -17,6 +17,7 @@ require Test::WWW::Mechanize;
 plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
+my $URL = "$url/";
 
 plan( tests => 55 );
 
@@ -34,7 +35,7 @@ my @links = map { $_->{filename} ? substr( $_->{filename}, 1 ) : '' } @pages;
 my @exp_links = map { quotemeta($_) } @links;
 
 my $w = Test::WWW::Mechanize->new;
-$w->get_ok($url);
+$w->get_ok($URL);
 $w->content_like( qr{Welcome to your Dwimmer installation}, 'content ok' );
 $w->get_ok("$url/other");
 $w->content_like( qr{Page does not exist}, 'content of missing pages is ok' );
@@ -46,8 +47,8 @@ require XML::Simple;
 test_rss(
 	{
 		'dc:creator' => 'admin',
-		'link'       => 'http://localhost:3001/',
-		'rdf:about'  => 'http://localhost:3001/',
+		'link'       => $URL,
+		'rdf:about'  => $URL,
 		'dc:subject' => 'Welcome to your Dwimmer installation',
 		'title'      => 'Welcome to your Dwimmer installation',
 		'dc:date'    => ignore(), #'2011-12-07T17:53:48+00:00',
@@ -57,12 +58,12 @@ test_rss(
 
 test_sitemap(
 		{
-			'loc' => 'http://localhost:3001/'
+			'loc' => $URL
 		}
 );
 
 my $u = Test::WWW::Mechanize->new;
-$u->get_ok($url);
+$u->get_ok($URL);
 $u->post_ok(
 	"$url/_dwimmer/login.json",
 	{   username => 'admin',
@@ -246,7 +247,7 @@ is_deeply(
 	'page data after save'
 );
 
-$w->get_ok($url);
+$w->get_ok($URL);
 
 $w->content_like(
 	qr{New text <a href="link">link</a> here and <a href="$exp_links[2]">$exp_links[2]</a> here},
@@ -401,7 +402,7 @@ is_deeply(
 	'cannot get user data afer logout'
 );
 
-my $guest = Dwimmer::Client->new( host => $url );
+my $guest = Dwimmer::Client->new( host => $URL );
 is_deeply(
 	$guest->list_users,
 	{   dwimmer_version => $Dwimmer::Client::VERSION,
@@ -438,8 +439,8 @@ is_deeply(
 test_rss([
            {
              'dc:creator' => 'admin',
-             'link' => 'http://localhost:3001/space and.dot and $@% too',
-             'rdf:about' => 'http://localhost:3001/space and.dot and $@% too',
+             'link' => "$url/space and.dot and " . '$@% too',
+             'rdf:about' => "$url/space and.dot and " . '$@% too',
              'dc:subject' => 'dotspace',
              'title' => 'dotspace',
              'dc:date' => ignore(),
@@ -447,8 +448,8 @@ test_rss([
            },
            {
              'dc:creator' => 'admin',
-             'link' => 'http://localhost:3001/xyz',
-             'rdf:about' => 'http://localhost:3001/xyz',
+             'link' => "$url/xyz",
+             'rdf:about' => "$url/xyz",
              'dc:subject' => 'New title of xyz',
              'title' => 'New title of xyz',
              'dc:date' => ignore(),
@@ -456,8 +457,8 @@ test_rss([
            },
            {
              'dc:creator' => 'admin',
-             'link' => 'http://localhost:3001/',
-             'rdf:about' => 'http://localhost:3001/',
+             'link' => $URL,
+             'rdf:about' => $URL,
              'dc:subject' => 'New main title',
              'title' => 'New main title',
              'dc:date' => ignore(),
@@ -466,13 +467,13 @@ test_rss([
 ]);
 test_sitemap([
            {
-             'loc' => 'http://localhost:3001/'
+             'loc' => $URL
            },
            {
-             'loc' => 'http://localhost:3001/xyz'
+             'loc' => "$url/xyz"
            },
            {
-             'loc' => 'http://localhost:3001/space and.dot and $@% too'
+             'loc' => "$url/space and.dot and " . '$@% too'
            }
          ]);
 
