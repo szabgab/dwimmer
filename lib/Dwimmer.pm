@@ -3,7 +3,7 @@ use Dancer ':syntax';
 
 use 5.008005;
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 use Data::Dumper qw(Dumper);
 use Dwimmer::DB;
