@@ -2,7 +2,11 @@ Changes to the Dwimmer system. See http://dwimmer.org/
 
     - Add minimal search capability
 
-v0.24 2011.11.08
+v0.25 2011.12.11
+    - use File::Find::Rule to chmod 0644 files before trying
+      to overwrite them during installation
+
+v0.24 2011.12.08
 
     - Add RSS feed with basic testing (#30)
     - integrated the CLEditor Javascript based html editor (#15)

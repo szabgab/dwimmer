@@ -8,6 +8,7 @@ use DBIx::RunSQL;
 use Email::Valid;
 use File::Basename qw(dirname);
 use File::Copy::Recursive;
+use File::Find::Rule;
 use File::Path qw(mkpath);
 use File::Spec;
 use File::ShareDir;
@@ -90,11 +91,13 @@ if (not $opt{dbonly}) {
         my $from = File::Spec->catdir( $dist_dir, $dir );
         my $to   = File::Spec->catdir( $opt{root}, $dir );
 	    print "dircopy $from $to\n";
+		chmod 0644, File::Find::Rule->file()->in($to);
         File::Copy::Recursive::dircopy( $from, $to ) or die $!;
     }
 	my $from = File::Spec->catdir( $dist_dir, 'config.yml');
     my $to   = File::Spec->catdir( $opt{root} );
 	print "fcopy $from $to\n";
+	chmod 0644, File::Find::Rule->file()->in($to);
     File::Copy::Recursive::fcopy( $from, $to ) or die $!;
 }
 
