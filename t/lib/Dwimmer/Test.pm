@@ -8,6 +8,7 @@ our @EXPORT = qw(start stop $admin_mail @users read_file);
 
 #use File::Basename qw(dirname);
 
+use File::Basename qw(basename);
 use File::Spec;
 use File::Temp qw(tempdir);
 use File::Copy qw(copy);
@@ -21,9 +22,10 @@ sub start {
     my $dir = tempdir( CLEANUP => 1 );
 
     # print STDERR "# $dir\n";
+	my ($cnt) = split /_/, basename $0;
 
     $ENV{DWIMMER_TEST} = 1;
-    $ENV{DWIMMER_PORT} = 3001;
+    $ENV{DWIMMER_PORT} = 3000+$cnt;
     $ENV{DWIMMER_MAIL} = File::Spec->catfile( $dir, 'mail.txt' );
 
     our $admin_mail = 'test@dwimmer.org';
