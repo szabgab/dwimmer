@@ -128,7 +128,7 @@ body {
   margin: 0;
   padding: 0;
   /* text-align: center;*/
-  width: 600px;
+  width: 800px;
   margin-left: auto;
   margin-right: auto;
   font-size: 16px;
