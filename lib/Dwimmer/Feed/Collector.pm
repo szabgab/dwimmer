@@ -26,72 +26,72 @@ sub collect {
 
 
 	for my $e ( @{ $sources->{feeds}{entries} } ) {
+		next if not $e->{status} or $e->{status} ne 'enabled';
 		if (not $e->{feed}) {
 			main::LOG("ERROR: No feed for $e->{title}");
 			next;
 		}
-		next if not $e->{status} or $e->{status} ne 'enabled';
+		my $feed;
 		eval {
 			local $SIG{ALRM} = sub { die 'TIMEOUT' };
 			alarm 10;
 
 			main::LOG("Processing $e->{title}");
-			my $feed = XML::Feed->parse(URI->new($e->{feed}));
-			alarm 0;
-			if (not $feed) {
-				main::LOG("ERROR: " . XML::Feed->errstr);
-				next;
-			}
-			if ($feed->title) {
-				main::LOG("Title: " . $feed->title);
-			} else {
-				main::LOG("WARN: no title");
-			}
-
-
-			for my $entry ($feed->entries) {
-				#print $entry, "\n";
-				eval {
-					# checking for new hostname
-					my $hostname = $entry->link;
-					$hostname =~ s{^(https?://[^/]+).*}{$1};
-					#main::LOG("HOST: $hostname");
-					if ( not $self->db->find( link => "$hostname%" ) ) {
-						main::LOG("ALERT: new hostname ($hostname) in URL: " . $entry->link);
-						use MIME::Lite   ();
-						my $msg = MIME::Lite->new(
-							From    => 'dwimmer@dwimmer.com',
-							To      => 'szabgab@gmail.com',
-							Subject => "Dwimmer: new URL noticed $hostname",
-							Data    => $entry->link,
-						);
-						$msg->send;
-					}
-					if ( not $self->db->find( link => $entry->link ) ) {
-						my %current = (
-							source    => $e->{feed},
-							link      => $entry->link,
-							author    => ($entry->{author} || ''),
-							remote_id => ($entry->{id} || ''),
-							issued    => $entry->issued->ymd . ' ' . $entry->issued->hms,
-							title     => ($entry->title || ''),
-							summary   => ($entry->summary->body || ''),
-							content   => ($entry->content->body || ''),
-							tags    => '', #$entry->tags,
-						);
-						main::LOG("Adding $current{link}");
-						$self->db->add(%current);
-					}
-				};
-				if ($@) {
-					main::LOG("EXCEPTION $@");
-				}
-
-			}
+			$feed = XML::Feed->parse(URI->new($e->{feed}));
 		};
+		my $err = $@;
 		alarm 0;
-		if ($@) {
-			main::LOG("EXCEPTION $@");
+		if ($err) {
+			main::LOG("EXCEPTION $err");
+		}
+		if (not $feed) {
+			main::LOG("ERROR: " . XML::Feed->errstr);
+			next;
+		}
+		if ($feed->title) {
+			main::LOG("Title: " . $feed->title);
+		} else {
+			main::LOG("WARN: no title");
+		}
+
+
+		for my $entry ($feed->entries) {
+			#print $entry, "\n";
+			eval {
+				# checking for new hostname
+				my $hostname = $entry->link;
+				$hostname =~ s{^(https?://[^/]+).*}{$1};
+				#main::LOG("HOST: $hostname");
+				if ( not $self->db->find( link => "$hostname%" ) ) {
+					main::LOG("ALERT: new hostname ($hostname) in URL: " . $entry->link);
+					use MIME::Lite   ();
+					my $msg = MIME::Lite->new(
+						From    => 'dwimmer@dwimmer.com',
+						To      => 'szabgab@gmail.com',
+						Subject => "Dwimmer: new URL noticed $hostname",
+						Data    => $entry->link,
+					);
+					$msg->send;
+				}
+				if ( not $self->db->find( link => $entry->link ) ) {
+					my %current = (
+						source    => $e->{feed},
+						link      => $entry->link,
+						author    => ($entry->{author} || ''),
+						remote_id => ($entry->{id} || ''),
+						issued    => $entry->issued->ymd . ' ' . $entry->issued->hms,
+						title     => ($entry->title || ''),
+						summary   => ($entry->summary->body || ''),
+						content   => ($entry->content->body || ''),
+						tags    => '', #$entry->tags,
+					);
+					main::LOG("Adding $current{link}");
+					$self->db->add(%current);
+				}
+			};
+			if ($@) {
+				main::LOG("EXCEPTION $@");
+			}
 		}
 	}
 }
