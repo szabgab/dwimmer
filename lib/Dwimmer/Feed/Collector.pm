@@ -30,6 +30,7 @@ sub collect {
 			main::LOG("ERROR: No feed for $e->{title}");
 			next;
 		}
+		next if not $e->{status} or $e->{status} ne 'enabled';
 		eval {
 			local $SIG{ALRM} = sub { die 'TIMEOUT' };
 			alarm 10;
