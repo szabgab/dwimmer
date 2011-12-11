@@ -305,7 +305,7 @@ sub _check_validate_mail {
 	my $link       = '';
 	my $found_code = '';
 	if ( $VAR1->{Data}
-		=~ s{(http://localhost:3001/_dwimmer/validate_email\?listid=1&email=$email\@dwimmer\.org&code=(\w+))}{<% url %>}
+		=~ s{(http://localhost:$ENV{DWIMMER_PORT}/_dwimmer/validate_email\?listid=1&email=$email\@dwimmer\.org&code=(\w+))}{<% url %>}
 		)
 	{
 		( $link, $found_code ) = ( $1, $2 );
