@@ -2,6 +2,7 @@ package Dwimmer::Feed::DB;
 use Moose;
 
 use Data::Dumper qw(Dumper);
+use DateTime;
 use DBI;
 
 has 'store' => (is => 'ro', isa => 'Str', required => 1);
@@ -75,13 +76,20 @@ sub add {
 	my $f = join ',', @fields;
 	my $p = join ',', (('?') x scalar @fields);
 
+	my $issued = $args{issued};
+	$args{issued} = $issued->ymd . ' ' . $issued->hms;
+
 	my $sql = "INSERT INTO entries ($f) VALUES($p)";
 	#main::LOG("SQL: $sql");
 	$self->dbh->do($sql, {}, @args{@fields});
 	my $id = $self->dbh->last_insert_id('', '', '', '');
 	main::LOG("ID: $id");
 
-	$self->dbh->do(q{INSERT INTO delivery_queue (channel, entry) VALUES ('mail', ?)}, {}, $id);
+	# only deliver new things
+	my $NOT_TOO_OLD = 60*60*24;
+	if ($issued->epoch > time - $NOT_TOO_OLD) {
+		$self->dbh->do(q{INSERT INTO delivery_queue (channel, entry) VALUES ('mail', ?)}, {}, $id);
+	}
 
 	return;
 }

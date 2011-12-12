@@ -89,7 +89,7 @@ sub collect {
 						link      => $entry->link,
 						author    => ($entry->{author} || ''),
 						remote_id => ($entry->{id} || ''),
-						issued    => $entry->issued->ymd . ' ' . $entry->issued->hms,
+						issued    => $entry->issued,
 						title     => ($entry->title || ''),
 						summary   => ($entry->summary->body || ''),
 						content   => ($entry->content->body || ''),
