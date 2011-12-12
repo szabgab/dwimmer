@@ -96,6 +96,25 @@ sub collect {
 	}
 }
 
+
+my $FRONT_PAGE_SIZE = 20;
+my $FEED_SIZE = 20;
+my $TITLE = "Perlsphere";
+my $URL   = "http://feed.szabgab.com/";
+my $AUTHOR = 'szabgab@gmail.com';
+
+sub get_entries {
+	my ($self, $size) = @_;
+
+	my $entries = $self->db->get_all_entries;
+	use List::Util qw(min);
+	use Template;
+	$size = min($size, scalar @$entries);
+	my @front = @$entries[0 .. $size-1];
+
+	return \@front;
+}
+
 # should be in its own class?
 # plan: N item on front page or last N days?
 # every day gets its own page in archice/YYYY/MM/DD
@@ -103,93 +122,17 @@ sub generate_html {
 	my ($self, $dir) = @_;
 	die if not $dir or not -d $dir;
 
-	my $FRONT = 10;
-	my $entries = $self->db->get_all_entries;
-	use List::Util qw(min);
-	use Template;
-	my $size = min($FRONT, scalar @$entries);
-	my @front = @$entries[0 .. $size-1];
-	#die scalar @front;
+	my $entries = $self->get_entries($FRONT_PAGE_SIZE);
 
-my $template = <<'TEMPLATE';
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
-<head>
-<title>Perlsphere - the Perl blog aggregator</title>
-</head>
- <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<body>
-<style>
-html {
-  margin: 0;
-  padding: 0;
-}
-body {
-  margin: 0;
-  padding: 0;
-  /* text-align: center;*/
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 16px;
+	use File::Basename qw(dirname);
+	use Cwd qw(abs_path);
+	my $root = dirname dirname abs_path $0;
 
-}
-#header_text {
-}
-
-.entry {
-  background-color: #DDD;
-  padding: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border: 1px solid #000;
-
-}
-.title {
-  font-size: 24px;
-  font-weight: bold;
-}
-.title a {
-   text-decoration: none;
-}
-</style>
-
-
-  <h1>Perlsphere</h1>
-  <div id="header_text">
-  The Perl firehose! The Web's biggest collection of Perl blogs.
-  If you'd like your Perl blog or tech blog's Perl category to appear here, send mail to szabgab@gmail.com
-  (Please have several posts already).
-  </div>
-
-[% FOR e IN entries %]
-  <div class="entry">
-  <div class="title"><a href="[% e.link %]">[% e.title %]</a></div>
-  <div class="summary">
-  [% e.summary %]
-  </div>
-  <div class="date">Posted on [% e.issued %]</div>
-  <div class="permalink">For the full article visit <a href="[% e.link %]">[% e.title %]</a></div>
-  </div>
-[% END %]
-
-</div>
-</body>
-</html>
-TEMPLATE
-
-	my $t = Template->new();
-    $t->process(\$template, {entries => \@front}, "$dir/index.html") or die $t->error;
-	#foreach my $e (@$entries) {
-	#	print $e->{issued}, "\n";
-	#}
+	my $t = Template->new({ ABSOLUTE => 1, });
+	$t->process("$root/views/feed_index.tt", {entries => $entries}, "$dir/index.html") or die $t->error;
 
 	return;
 }
-
 
 
 1;
