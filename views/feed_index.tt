@@ -140,5 +140,6 @@ body {
 Last updated: [% last_update %]
 </div>
 </div>
+[% track %]
 </body>
 </html>

@@ -23,6 +23,14 @@ sub BUILD {
 	return;
 }
 
+my $TRACK = <<'TRACK';
+
+<script src="//static.getclicky.com/js" type="text/javascript"></script>
+<script type="text/javascript">try{ clicky.init(66514197); }catch(e){}</script>
+<noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/66514197ns.gif" /></p></noscript>
+
+TRACK
+
 sub collect {
 	my ($self) = @_;
 
@@ -152,6 +160,7 @@ sub generate_html {
 		id              => $URL,
 		dwimmer_version => $VERSION,
 		last_update     => scalar localtime,
+		track           => $TRACK,
 
 	);
 
