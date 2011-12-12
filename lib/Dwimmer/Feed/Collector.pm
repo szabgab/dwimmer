@@ -5,6 +5,9 @@ use 5.008005;
 
 our $VERSION = '0.24';
 
+my $MAX_SIZE = 500;
+my $TRIM_SIZE = 400;
+
 use XML::Feed    ();
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
@@ -125,11 +128,9 @@ sub generate_html {
 	my @entries = @$all_entries[0 .. $size-1];
 
 	foreach my $e (@entries) {
-		#warn $e->{source_id};
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
-		#use Data::Dumper;
-		#warn Dumper $e;
+		$e->{display} = $e->{summary} || $e->{content};
 	}
 
 	my %site = (

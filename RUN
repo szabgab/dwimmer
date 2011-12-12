@@ -1,0 +1,11 @@
+
+#setup DB
+perl -Ilib script/dwimmer_feed_setup.pl ~/collect.db /home/gabor/work/gabor/config/dwimmer/sources.json
+
+perl -Ilib script/feed_collector.pl --store ~/collect.db  --collect            --html /home/gabor/tmp/feed
+#perl -Ilib script/feed_collector.pl --store ~/collect.db --collect --sendmail --html /home/gabor/tmp/feed
+#perl -Ilib script/feed_collector.pl --store ~/collect.db                      --html /home/gabor/tmp/feed
+
+#perl -Ilib script/feed_collector.pl --store ~/collect.db --sources /home/gabor/work/gabor/config/dwimmer/sources.json --collect --sendmail --html /home/gabor/tmp/feed
+
+#scp -P 529 /home/gabor/tmp/feed/* s6:/var/www/szabgab.com/feed/

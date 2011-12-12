@@ -48,7 +48,8 @@ foreach my $sql (split /;/, $SCHEMA) {
 	$db->dbh->do($sql);
 }
 
-my $sources = from_json scalar read_file $sources_json;
+my $sources = from_json scalar read_file $sources_json, binmode => ':utf8';
+
 for my $e ( @{ $sources->{feeds}{entries} } ) {
 	$db->add_source($e);
 };
