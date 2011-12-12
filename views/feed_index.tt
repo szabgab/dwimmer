@@ -125,7 +125,7 @@ body {
     <div class="source"><a href="[% e.source_url %]">[% e.source_name %]</a></div>
     <div class="title"><a href="[% e.link %]">[% e.title %]</a></div>
     <div class="summary">
-    [% e.summary %]
+    [% e.display %]
     </div>
     </div>
     <div class="entry_info">

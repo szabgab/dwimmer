@@ -130,7 +130,16 @@ sub generate_html {
 	foreach my $e (@entries) {
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
-		$e->{display} = $e->{summary} || $e->{content};
+		$e->{display} = $e->{summary};
+		if (not $e->{display} and $e->{content} and length $e->{content} < $MAX_SIZE) {
+			$e->{display} = $e->{content};
+		}
+		# trimming needs more work to ensure all the tags in the content are properly closed.
+
+#		$e->{display} = $e->{summary} || $e->{content};
+#		if ($e->{display} and length $e->{display} > $MAX_SIZE) {
+#			$e->{display} = substr $e->{display}, 0, $TRIM_SIZE;
+#		}
 	}
 
 	my %site = (
