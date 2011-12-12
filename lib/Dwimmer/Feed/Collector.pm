@@ -163,8 +163,11 @@ sub generate_html {
 
 
 	my %latest_entry_of;
+	my %entries_on;
 	foreach my $e (@$all_entries) {
 		my $field = $e->{source_id};
+		my ($date) = split / /, $e->{issued};
+		push @{$entries_on{$date}}, $e;
 		next if $latest_entry_of{ $field } and $latest_entry_of{ $field } gt $e->{issued};
 		$latest_entry_of{ $field } = $e;
 	}
@@ -183,6 +186,14 @@ sub generate_html {
 	$t->process("$root/views/feed_rss.tt",   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
 	$t->process("$root/views/feed_atom.tt",  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
 	$t->process("$root/views/feed_feeds.tt", {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
+
+	foreach my $date (keys %entries_on) {
+		my ($year, $month, $day) = split /-/, $date;
+		my $path = "$dir/archive/$year/$month";
+		use File::Path qw(mkpath);
+		mkpath $path;
+		$t->process("$root/views/feed_index.tt", {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
+	}
 
 	return;
 }
