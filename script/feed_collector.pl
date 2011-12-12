@@ -53,10 +53,4 @@ sub usage {
 	die "Usage: $0 --store storage.db  [--collect --sendmail --html DIR]\n";
 }
 
-# TODO: display when were feeds last colleted
-# TODO: comprehensive link collection (sources: feeds, aggregators, twitter, reddit), delicious
-# TODO: languages
-# TODO: display summary of all, allow for javascript setting which language(s) to show
-# TODO: display social icons with counters (Twitter, Reddit, Google+, FaceBook, HackerNews)
-
 

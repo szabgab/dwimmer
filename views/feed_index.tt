@@ -5,6 +5,8 @@
  <link href="/rss.xml" rel="alternate" type="application/rss+xml" title ="Perlsphere RSS Feed" />
  <link href="/atom.xml" rel="alternate" type="application/atom+xml" title ="Perlspehere ATOM Feed" />
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+ <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
 </head>
 <body>
 <style>
@@ -34,8 +36,40 @@ body {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border: 1px solid #000;
+  
+  min-height: 300px;
+  height:auto !important; 
+  min-height: 300px;
+}
+
+.left {
+  width: 675px;
+  position: relative;
+  background-color: #DEDEDE;
+
+  padding: 5px;
+
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 1px solid #000;
 
 }
+
+.social_link {
+  float: right;
+  position: relative;
+  width: 70px;
+  background-color: #DFDFDF;
+  text-align: center;
+
+  padding: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 1px solid #000;
+
+}
+
+
 .title {
   font-size: 24px;
   font-weight: bold;
@@ -55,6 +89,29 @@ body {
 
 [% FOR e IN entries %]
   <div class="entry">
+
+    <div class="social_link">
+        <a href="http://twitter.com/share" class="twitter-share-button"
+         data-text="[% e.title %]" data-url="[% e.link %]" data-count="vertical" data-via="perlsphere">Tweet</a>
+        <script type="text/javascript" src="http://platform.twitter.com/widgets.js">
+        </script>
+
+      <script>reddit_url='[% e.link %]'</script>
+      <script>reddit_title='[% e.title %]'</script>
+      <script type="text/javascript" src="http://reddit.com/button.js?t=2"></script>
+
+
+       <g:plusone size="tall" href="[% e.link %]"></g:plusone>
+
+<!--
+        <a name="fb_share" type="box_count" class="fb_share" 
+        share_url="[% e.link %]">Share</a>
+         <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
+-->
+
+    </div>
+
+    <div class="left">
     <div class="source"><a href="[% e.source_url %]">[% e.source_name %]</a></div>
     <div class="title"><a href="[% e.link %]">[% e.title %]</a></div>
     <div class="summary">
@@ -62,8 +119,12 @@ body {
     </div>
     <div class="date">Posted on [% e.issued %]</div>
     <div class="permalink">For the full article visit <a href="[% e.link %]">[% e.title %]</a></div>
+    </div>
+
   </div>
 [% END %]
+
+<div>
 
 </div>
 </body>

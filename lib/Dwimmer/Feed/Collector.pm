@@ -98,8 +98,8 @@ sub collect {
 }
 
 
-my $FRONT_PAGE_SIZE = 20;
-my $FEED_SIZE = 20;
+my $FRONT_PAGE_SIZE = 15;
+# my $FEED_SIZE = 20;
 my $TITLE = "Perlsphere";
 my $URL   = "http://feed.szabgab.com/";
 my $DESCRIPTION = 'The largest source of Perl related news';
