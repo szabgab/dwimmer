@@ -106,17 +106,6 @@ my $DESCRIPTION = 'The largest source of Perl related news';
 my $ADMIN_NAME  = 'Gabor Szabo';
 my $ADMIN_EMAIL = 'szabgab@gmail.com';
 
-sub get_entries {
-	my ($self, $size) = @_;
-
-	my $entries = $self->db->get_all_entries;
-	use List::Util qw(min);
-	use Template;
-	$size = min($size, scalar @$entries);
-	my @front = @$entries[0 .. $size-1];
-
-	return \@front;
-}
 
 # should be in its own class?
 # plan: N item on front page or last N days?
@@ -128,8 +117,14 @@ sub generate_html {
 	my $sources = $self->db->get_sources();
 	my %src = map { $_->{id } => $_  } @$sources;
 
-	my $entries = $self->get_entries($FRONT_PAGE_SIZE);
-	foreach my $e (@$entries) {
+
+	my $all_entries = $self->db->get_all_entries;
+	use List::Util qw(min);
+	use Template;
+	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
+	my @entries = @$all_entries[0 .. $size-1];
+
+	foreach my $e (@entries) {
 		#warn $e->{source_id};
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
@@ -155,17 +150,28 @@ sub generate_html {
 			@$sources;
 
 
+	my %latest_entry_of;
+	foreach my $e (@$all_entries) {
+		my $field = $e->{source_id};
+		next if $latest_entry_of{ $field } and $latest_entry_of{ $field } gt $e->{issued};
+		$latest_entry_of{ $field } = $e;
+	}
+
+	foreach my $f (@feeds) {
+		$f->{latest_entry} = $latest_entry_of{ $f->{id} };
+	}
+
+
 	use File::Basename qw(dirname);
 	use Cwd qw(abs_path);
 	my $root = dirname dirname abs_path $0;
 
 	my $t = Template->new({ ABSOLUTE => 1, });
-	$t->process("$root/views/feed_index.tt", {entries => $entries}, "$dir/index.html") or die $t->error;
+	$t->process("$root/views/feed_index.tt", {entries => \@entries}, "$dir/index.html") or die $t->error;
 
-	
 
-	$t->process("$root/views/feed_rss.tt", {entries => $entries, %site}, "$dir/rss.xml") or die $t->error;
-	$t->process("$root/views/feed_atom.tt", {entries => $entries, %site}, "$dir/atom.xml") or die $t->error;
+	$t->process("$root/views/feed_rss.tt", {entries => \@entries, %site}, "$dir/rss.xml") or die $t->error;
+	$t->process("$root/views/feed_atom.tt", {entries => \@entries, %site}, "$dir/atom.xml") or die $t->error;
 	$t->process("$root/views/feed_feeds.tt", {entries => \@feeds}, "$dir/feeds.html") or die $t->error;
 
 	return;

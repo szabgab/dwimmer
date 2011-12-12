@@ -50,6 +50,7 @@ body {
 [% FOR e IN entries %]
   <div class="entry">
   <div class="title"><a href="[% e.url %]">[% e.title %]</a></div>
+  <div class="latest">Latest: <a href="[% e.latest_entry.link %]">[% e.latest_entry.title %]</a> on [% e.latest_entry.issued %]</div>
   </div>
 [% END %]
 
