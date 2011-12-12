@@ -2,8 +2,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
 <title>Perlsphere - the Perl blog aggregator</title>
- <link href="/rss.xml" rel="alternate" type="application/rss+xml" title ="Perlsphere RSS Feed" />
- <link href="/atom.xml" rel="alternate" type="application/atom+xml" title ="Perlspehere ATOM Feed" />
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body>
@@ -46,21 +44,12 @@ body {
 </style>
 
 
-  <h1>Perlsphere</h1>
-  <div id="header_text">
-  The Perl firehose! The Web's biggest collection of Perl blogs.
-  If you'd like your Perl blog or tech blog's Perl category to appear here, send mail to szabgab@gmail.com
-  (Please have several posts already). <a href="/feeds.html">feeds</a>.
-  </div>
+  <h1>Perlsphere feeds</h1>
+  <a href="/">home</a>
 
 [% FOR e IN entries %]
   <div class="entry">
-  <div class="title"><a href="[% e.link %]">[% e.title %]</a></div>
-  <div class="summary">
-  [% e.summary %]
-  </div>
-  <div class="date">Posted on [% e.issued %]</div>
-  <div class="permalink">For the full article visit <a href="[% e.link %]">[% e.title %]</a></div>
+  <div class="title"><a href="[% e.url %]">[% e.title %]</a></div>
   </div>
 [% END %]
 

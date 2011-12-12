@@ -22,10 +22,16 @@ sub BUILD {
 	return;
 }
 
+sub get_sources {
+	my ($self) = @_;
+	
+	return from_json scalar read_file $self->sources;
+}
+
 sub collect {
 	my ($self) = @_;
 
-	my $sources = from_json scalar read_file $self->sources;
+	my $sources = $self->get_sources();
 	main::LOG("sources loaded");
 
 
@@ -128,6 +134,8 @@ sub generate_html {
 	my ($self, $dir) = @_;
 	die if not $dir or not -d $dir;
 
+	my $sources = $self->get_sources();
+
 	my $entries = $self->get_entries($FRONT_PAGE_SIZE);
 
 	use File::Basename qw(dirname);
@@ -152,6 +160,7 @@ sub generate_html {
 	
 	$t->process("$root/views/feed_rss.tt", {entries => $entries, %site}, "$dir/rss.xml") or die $t->error;
 	$t->process("$root/views/feed_atom.tt", {entries => $entries, %site}, "$dir/atom.xml") or die $t->error;
+	$t->process("$root/views/feed_feeds.tt", $sources->{feeds}, "$dir/feeds.html") or die $t->error;
 
 	return;
 }
