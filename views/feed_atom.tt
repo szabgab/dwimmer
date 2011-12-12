@@ -23,7 +23,8 @@
   <link href="[% e.link %]"/>
   <id>[% e.id %]</id>
   <updated>[% e.issued %]</updated>
-  <summary>[% e.summary %]</summary>
+  <published>[% e.issued %]</published>
+  <summary><![CDATA[[% e.display %]]]></summary>
 </entry>
 [% END %]
 

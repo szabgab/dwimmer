@@ -15,6 +15,8 @@
 <item>
   <title>[% e.title %]</title>
   <link>[% e.link %]</link>
+  <description><![CDATA[[% e.display %]]]></description>
+  <dc:date>[% e.issued %]</dc:date>
 </item>
 [% END %]
 
