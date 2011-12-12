@@ -37,15 +37,15 @@ body {
   -webkit-border-radius: 5px;
   border: 1px solid #000;
   
-  min-height: 300px;
+  min-height: 220px;
   height:auto !important; 
-  min-height: 300px;
+  min-height: 220px;
 }
 
 .left {
   width: 675px;
   position: relative;
-  background-color: #DEDEDE;
+  background-color: #EEEEEE;
 
   padding: 5px;
 
@@ -53,6 +53,16 @@ body {
   -webkit-border-radius: 5px;
   border: 1px solid #000;
 
+}
+
+.entry_info {
+  margin-top: 10px;
+  width: 675px;
+  background-color: #E4E4E4;
+  padding: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 1px solid #000;
 }
 
 .social_link {
@@ -117,10 +127,11 @@ body {
     <div class="summary">
     [% e.summary %]
     </div>
+    </div>
+    <div class="entry_info">
     <div class="date">Posted on [% e.issued %]</div>
     <div class="permalink">For the full article visit <a href="[% e.link %]">[% e.title %]</a></div>
     </div>
-
   </div>
 [% END %]
 
