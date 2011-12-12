@@ -12,13 +12,12 @@ use Getopt::Long qw(GetOptions);
 my %opt;
 GetOptions(\%opt,
 	'store=s',
-	'sources=s',
 
 	'collect',
 	'sendmail',
 	'html=s',
 ) or usage();
-usage() if not $opt{store} or not $opt{sources};
+usage() if not $opt{store};
 
 my $t0 = time;
 
@@ -51,7 +50,7 @@ sub LOG {
 }
 
 sub usage {
-	die "Usage: $0 --store storage.db  --sources sources.json  [--collect --sendmail --html DIR]\n";
+	die "Usage: $0 --store storage.db  [--collect --sendmail --html DIR]\n";
 }
 
 # TODO: display when were feeds last colleted

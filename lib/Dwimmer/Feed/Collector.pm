@@ -5,11 +5,9 @@ use 5.008005;
 
 our $VERSION = '0.24';
 
-use File::Slurp  qw(read_file);
-use JSON         qw(from_json);
 use XML::Feed    ();
 
-has 'sources' => (is => 'ro', isa => 'Str', required => 1);
+#has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
 has 'db'      => (is => 'rw', isa => 'Dwimmer::Feed::DB');
 
@@ -22,20 +20,13 @@ sub BUILD {
 	return;
 }
 
-sub get_sources {
-	my ($self) = @_;
-	
-	return from_json scalar read_file $self->sources;
-}
-
 sub collect {
 	my ($self) = @_;
 
-	my $sources = $self->get_sources();
-	main::LOG("sources loaded");
+	my $sources = $self->db->get_sources();
+	main::LOG("sources loaded: " . @$sources);
 
-
-	for my $e ( @{ $sources->{feeds}{entries} } ) {
+	for my $e ( @$sources ) {
 		next if not $e->{status} or $e->{status} ne 'enabled';
 		if (not $e->{feed}) {
 			main::LOG("ERROR: No feed for $e->{title}");
@@ -85,7 +76,7 @@ sub collect {
 				}
 				if ( not $self->db->find( link => $entry->link ) ) {
 					my %current = (
-						source    => $e->{feed},
+						source_id => $e->{id},
 						link      => $entry->link,
 						author    => ($entry->{author} || ''),
 						remote_id => ($entry->{id} || ''),
@@ -134,7 +125,7 @@ sub generate_html {
 	my ($self, $dir) = @_;
 	die if not $dir or not -d $dir;
 
-	my $sources = $self->get_sources();
+	my $sources = $self->db->get_sources();
 
 	my $entries = $self->get_entries($FRONT_PAGE_SIZE);
 
@@ -160,7 +151,7 @@ sub generate_html {
 	
 	my @feeds = sort {lc($a->{title}) cmp lc($b->{title})}
 			grep { $_->{status} and $_->{status} eq 'enabled' }
-			@{ $sources->{feeds}{entries} };
+			@$sources;
 
 	$t->process("$root/views/feed_rss.tt", {entries => $entries, %site}, "$dir/rss.xml") or die $t->error;
 	$t->process("$root/views/feed_atom.tt", {entries => $entries, %site}, "$dir/atom.xml") or die $t->error;

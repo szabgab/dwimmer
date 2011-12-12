@@ -8,45 +8,28 @@ use DBI;
 has 'store' => (is => 'ro', isa => 'Str', required => 1);
 has 'dbh'   => (is => 'rw', isa => 'DBI::db');
 
-my $SCHEMA = <<'SCHEMA';
-CREATE TABLE entries (
-	id        INTEGER PRIMARY KEY,
-	source    VARCHAR(100),
-	link      VARCHAR(100) UNIQUE NOT NULL,
-	remote_id VARCHAR(100),
-	author    VARCHAR(100),
-	issued    VARCHAR(100),
-	title     VARCHAR(100),
-	summary   BLOB,
-	content   BLOB,
-	tags      VARCHAR(100)
-);
-
-CREATE TABLE delivery_queue (
-	channel  VARCHAR(30) NOT NULL,
-	entry    INTEGER     NOT NULL
-);
-
-SCHEMA
 
 sub connect {
 	my ($self) = @_;
 
 	if (not $self->dbh) {
-		my $need_create = not -e $self->store;
-
 		my $dbh = DBI->connect("dbi:SQLite:dbname=" . $self->store, "", "", {
 			FetchHashKeyName => 'NAME_lc',
 			RaiseError       => 1,
 			PrintError       => 0,
 		});
 		$self->dbh( $dbh );
-		if ($need_create) {
-			$dbh->do($SCHEMA);
-		}
 	}
 
 	return $self->dbh;
+}
+
+sub add_source {
+	my ($self, $e) = @_;
+	
+	$self->dbh->do('INSERT INTO sources (title, url, feed, comment, status) VALUES(?, ?, ?, ?, ?)',
+		{},
+		@$e{qw{title url feed comment status}});
 }
 
 sub get_all_entries {
@@ -72,7 +55,7 @@ sub find {
 sub add {
 	my ($self, %args) = @_;
 
-	my @fields = grep {defined $args{$_}} qw(id source link author issued title summary content tags);
+	my @fields = grep {defined $args{$_}} qw(id source_id link author issued title summary content tags);
 	my $f = join ',', @fields;
 	my $p = join ',', (('?') x scalar @fields);
 
@@ -114,6 +97,18 @@ sub delete_from_queue {
 	return;
 }
 
+sub get_sources {
+	my ($self) = @_;
+	
+	my $sth = $self->dbh->prepare('SELECT * FROM sources WHERE status="enabled"');
+	$sth->execute;
+	my @r;
+	while (my $h = $sth->fetchrow_hashref) {
+		push @r, $h;
+	}
+
+	return \@r;
+}
 
 1;
 
