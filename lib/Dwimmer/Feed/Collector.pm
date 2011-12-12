@@ -151,6 +151,8 @@ sub generate_html {
 		admin_email     => $ADMIN_EMAIL,
 		id              => $URL,
 		dwimmer_version => $VERSION,
+		last_update     => scalar localtime,
+
 	);
 
 	$site{last_build_date} = localtime;
@@ -177,12 +179,10 @@ sub generate_html {
 	my $root = dirname dirname abs_path $0;
 
 	my $t = Template->new({ ABSOLUTE => 1, });
-	$t->process("$root/views/feed_index.tt", {entries => \@entries}, "$dir/index.html") or die $t->error;
-
-
-	$t->process("$root/views/feed_rss.tt", {entries => \@entries, %site}, "$dir/rss.xml") or die $t->error;
-	$t->process("$root/views/feed_atom.tt", {entries => \@entries, %site}, "$dir/atom.xml") or die $t->error;
-	$t->process("$root/views/feed_feeds.tt", {entries => \@feeds}, "$dir/feeds.html") or die $t->error;
+	$t->process("$root/views/feed_index.tt", {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
+	$t->process("$root/views/feed_rss.tt",   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
+	$t->process("$root/views/feed_atom.tt",  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
+	$t->process("$root/views/feed_feeds.tt", {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
 
 	return;
 }

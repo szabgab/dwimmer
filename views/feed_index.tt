@@ -136,7 +136,9 @@ body {
 [% END %]
 
 <div>
-
+<div>
+Last updated: [% last_update %]
+</div>
 </div>
 </body>
 </html>
