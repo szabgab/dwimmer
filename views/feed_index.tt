@@ -2,8 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
 <title>Perlsphere - the Perl blog aggregator</title>
-</head>
+ <link href="/rss.xml" rel="alternate" type="application/rss+xml" title ="Perlsphere RSS Feed" />
+ <link href="/atom.xml" rel="alternate" type="application/atom+xml" title ="Perlspehere ATOM Feed" />
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
 <body>
 <style>
 html {

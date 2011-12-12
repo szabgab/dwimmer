@@ -1,6 +1,10 @@
 package Dwimmer::Feed::Collector;
 use Moose;
 
+use 5.008005;
+
+our $VERSION = '0.24';
+
 use File::Slurp  qw(read_file);
 use JSON         qw(from_json);
 use XML::Feed    ();
@@ -101,7 +105,9 @@ my $FRONT_PAGE_SIZE = 20;
 my $FEED_SIZE = 20;
 my $TITLE = "Perlsphere";
 my $URL   = "http://feed.szabgab.com/";
-my $AUTHOR = 'szabgab@gmail.com';
+my $DESCRIPTION = 'The largest source of Perl related news';
+my $ADMIN_NAME  = 'Gabor Szabo';
+my $ADMIN_EMAIL = 'szabgab@gmail.com';
 
 sub get_entries {
 	my ($self, $size) = @_;
@@ -130,6 +136,22 @@ sub generate_html {
 
 	my $t = Template->new({ ABSOLUTE => 1, });
 	$t->process("$root/views/feed_index.tt", {entries => $entries}, "$dir/index.html") or die $t->error;
+
+	my %site = (
+		url             => $URL,
+		title           => $TITLE,
+		description     => $DESCRIPTION,
+		language        => 'en',
+		admin_name      => $ADMIN_NAME,
+		admin_email     => $ADMIN_EMAIL,
+		id              => $URL,
+		dwimmer_version => $VERSION,
+	);
+
+	$site{last_build_date} = localtime;
+	
+	$t->process("$root/views/feed_rss.tt", {entries => $entries, %site}, "$dir/rss.xml") or die $t->error;
+	$t->process("$root/views/feed_atom.tt", {entries => $entries, %site}, "$dir/atom.xml") or die $t->error;
 
 	return;
 }
