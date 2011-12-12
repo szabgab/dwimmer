@@ -158,9 +158,13 @@ sub generate_html {
 
 	$site{last_build_date} = localtime;
 	
+	my @feeds = sort {lc($a->{title}) cmp lc($b->{title})}
+			grep { $_->{status} and $_->{status} eq 'enabled' }
+			@{ $sources->{feeds}{entries} };
+
 	$t->process("$root/views/feed_rss.tt", {entries => $entries, %site}, "$dir/rss.xml") or die $t->error;
 	$t->process("$root/views/feed_atom.tt", {entries => $entries, %site}, "$dir/atom.xml") or die $t->error;
-	$t->process("$root/views/feed_feeds.tt", $sources->{feeds}, "$dir/feeds.html") or die $t->error;
+	$t->process("$root/views/feed_feeds.tt", {entries => \@feeds}, "$dir/feeds.html") or die $t->error;
 
 	return;
 }
