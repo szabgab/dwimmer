@@ -55,12 +55,13 @@ body {
 
 [% FOR e IN entries %]
   <div class="entry">
-  <div class="title"><a href="[% e.link %]">[% e.title %]</a></div>
-  <div class="summary">
-  [% e.summary %]
-  </div>
-  <div class="date">Posted on [% e.issued %]</div>
-  <div class="permalink">For the full article visit <a href="[% e.link %]">[% e.title %]</a></div>
+    <div class="source"><a href="[% e.source_url %]">[% e.source_name %]</a></div>
+    <div class="title"><a href="[% e.link %]">[% e.title %]</a></div>
+    <div class="summary">
+    [% e.summary %]
+    </div>
+    <div class="date">Posted on [% e.issued %]</div>
+    <div class="permalink">For the full article visit <a href="[% e.link %]">[% e.title %]</a></div>
   </div>
 [% END %]
 

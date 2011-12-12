@@ -126,15 +126,16 @@ sub generate_html {
 	die if not $dir or not -d $dir;
 
 	my $sources = $self->db->get_sources();
+	my %src = map { $_->{id } => $_  } @$sources;
 
 	my $entries = $self->get_entries($FRONT_PAGE_SIZE);
-
-	use File::Basename qw(dirname);
-	use Cwd qw(abs_path);
-	my $root = dirname dirname abs_path $0;
-
-	my $t = Template->new({ ABSOLUTE => 1, });
-	$t->process("$root/views/feed_index.tt", {entries => $entries}, "$dir/index.html") or die $t->error;
+	foreach my $e (@$entries) {
+		#warn $e->{source_id};
+		$e->{source_name} = $src{ $e->{source_id} }{title};
+		$e->{source_url} = $src{ $e->{source_id} }{url};
+		#use Data::Dumper;
+		#warn Dumper $e;
+	}
 
 	my %site = (
 		url             => $URL,
@@ -148,10 +149,20 @@ sub generate_html {
 	);
 
 	$site{last_build_date} = localtime;
-	
+
 	my @feeds = sort {lc($a->{title}) cmp lc($b->{title})}
 			grep { $_->{status} and $_->{status} eq 'enabled' }
 			@$sources;
+
+
+	use File::Basename qw(dirname);
+	use Cwd qw(abs_path);
+	my $root = dirname dirname abs_path $0;
+
+	my $t = Template->new({ ABSOLUTE => 1, });
+	$t->process("$root/views/feed_index.tt", {entries => $entries}, "$dir/index.html") or die $t->error;
+
+	
 
 	$t->process("$root/views/feed_rss.tt", {entries => $entries, %site}, "$dir/rss.xml") or die $t->error;
 	$t->process("$root/views/feed_atom.tt", {entries => $entries, %site}, "$dir/atom.xml") or die $t->error;
