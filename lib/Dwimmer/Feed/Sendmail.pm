@@ -26,7 +26,7 @@ sub send {
 		my $text = '';
 		$text .= "Title: $e->{title}\n";
 		$text .= "Link: $e->{link}\n\n";
-		$text .= "Source: $e->{source}\n\n";
+		#$text .= "Source: $e->{source}\n\n";
 		$text .= "Tags: $e->{tags}\n\n";
 		$text .= "Author: $e->{author}\n\n";
 		$text .= "Date: $e->{issued}\n\n";
@@ -37,7 +37,7 @@ sub send {
 		my $html = qq{<html><head><title></title></head><body>\n};
 		$html .= qq{<h1><a href="$e->{link}">$e->{title}</a></h1>\n};
 		$html .= qq{<p>Link: $e->{link}</p>\n};
-		$html .= qq{<p>Source: $e->{source}</p>\n};
+		#$html .= qq{<p>Source: $e->{source}</p>\n};
 		$html .= qq{<p>Tags: $e->{tags}</p>\n};
 		$html .= qq{<p>Author: $e->{author}</p>\n};
 		$html .= qq{<p>Date: $e->{issued}</p>\n};
