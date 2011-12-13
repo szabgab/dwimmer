@@ -102,7 +102,7 @@ body {
 
     <div class="social_link">
         <a href="http://twitter.com/share" class="twitter-share-button"
-         data-text="[% e.title %]" data-url="[% e.link %]" data-count="vertical" data-via="perlsphere">Tweet</a>
+         data-text="[% e.title %]" data-url="[% e.link %]" data-count="vertical" data-via="szabgab">Tweet</a>
         <script type="text/javascript" src="http://platform.twitter.com/widgets.js">
         </script>
 
