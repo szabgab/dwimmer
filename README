@@ -24,22 +24,8 @@ cpan Dwimmer
 dwimmer_setup.pl --password ADMIN_PASSWORD --root path/to/your/installation --upgrade
 
 
-Markup language
-=====================
-- Use a very simple markup language and allow any HTML.
-  [linkname]
-  [linkname link title]
-  [schema://specialcase]
-  [schema://specialcase link title]
 
-- When arriving at a page that does not exist yet,
-  display this info and if the user is logged in then offer the page
-  to be edited/created.
-
-- From the web site allow the creation of a site with basic usage.
-  - At first only the admin can create sites but later we might allow
-    regular users as well to create sites using the main site.
-
+==============
 Sources:
 JQuery http://jquery.com/
 http://www.scriptbreaker.com/javascript/script/JQuery-Drop-down-panel-menu
