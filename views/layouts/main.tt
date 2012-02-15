@@ -123,6 +123,7 @@
     <form id="editor_form" action="/_dwimmer/save" method="POST">
       <input type="button" id="save" value="Save" />
       <input type="button" id="cancel" value="Cancel" />
+      <input type="button" id="preview" value="Preview" />
 <!--
       <br />
       <input type="button" id="editor-bold" title="bold" value="b" />
@@ -211,7 +212,9 @@
 
 <p>&nbsp;</p>
 <% INCLUDE layouts/search.tt %>
-
+<div id="content">
+<% content %>
+</div>
 
 
 <div id="footer">

@@ -411,6 +411,11 @@ function submit_form(obj, file) {
 		return false;
 	});
 
+	$('#preview').click(function(){
+		preview();
+		return false;
+	});
+
 	$('#save').click(function(){
 		var body = $('#editor_body').val();
 		var title = $('#editor_title').val();
@@ -431,9 +436,7 @@ function submit_form(obj, file) {
 	});
 
 //	$('#editor_body').keyup(function(){
-//		var body = $('#editor_body').val();
-//		var html = markup(body);
-//		$('#content').html(html); // preview
+//	    preview();
 //	});
 
 
@@ -597,4 +600,10 @@ function set_admin_links() {
 	});
 }
 
+function preview() {
+	$('#editor_title').val();
+	var body = $('#editor_body').val();
+	var html = markup(body);
+	$('#content').html(html); // preview
+}
 
