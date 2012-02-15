@@ -538,7 +538,8 @@ function markup(text) {
 	// free URL?
 	// html = html.replace(/https?:\/\/\S+
 	// [link]
-	html = html.replace(/\[([\w\/\-]+)\]/g, '<a href="$1">$1</a>');
+	// html = html.replace(/\[\[([\w\/\-]+)\]\]/g, '<a href="$1">$1</a>');
+	html = html.replace(/\[\[([^\]]+)\]\]/g, '<a href="$1">$1</a>');
 	return html;
 }
 
