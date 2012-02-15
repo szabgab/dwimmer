@@ -87,9 +87,10 @@ sub route_index {
 			}
 		}
 
-		$data->{body} =~ s{\[(\w+)://([^]]+)\]}{_process($1, $2)}eg;
+		# disable special tag processing for now, will need to
+		# $data->{body} =~ s{\[(\w+)://([^]]+)\]}{_process($1, $2)}eg;
+		# $data->{body} =~ s{\[([\w .\$@%-]+)\]}{<a href="$1">$1</a>}g;
 
-		$data->{body} =~ s{\[([\w .\$@%-]+)\]}{<a href="$1">$1</a>}g;
 		return Dwimmer::Admin::render_response( 'index', { page => $data } );
 	} else {
 
