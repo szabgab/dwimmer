@@ -347,7 +347,8 @@ function submit_form(obj, file) {
 			//$('#admin-editor').show();
 			var html = '<ul>';
 			for(var i=0; i < resp["rows"].length; i++) {
-				html += '<li><a class="show_page_rev" href="/_dwimmer/page.json?filename=' + resp["rows"][i]["filename"] + '&revision=' + resp["rows"][i]["revision"]  + '">' + resp["rows"][i]["revision"] + ' ' + resp["rows"][i]["author"] + ' ' + + resp["rows"][i]["timestamp"] + '</li>';
+				var d = new Date(resp["rows"][i]["timestamp"] * 1000);
+				html += '<li><a class="show_page_rev" href="/_dwimmer/page.json?filename=' + resp["rows"][i]["filename"] + '&revision=' + resp["rows"][i]["revision"]  + '">' + resp["rows"][i]["revision"] + ' ' + resp["rows"][i]["author"] + ' (' + d + ')</li>';
 			}
 			html += '</ul>';
 			$('#manage-display').show();
@@ -361,9 +362,11 @@ function submit_form(obj, file) {
 						return;
 					}
 					var body = resp["page"]["body"];
+					var title = resp["page"]["title"];
 					var revision = resp["page"]["revision"];
 					var html = "<p>Showing revision " + revision  + "<hr></p>" + markup(body);
-					//$('#content').html(html); // preview
+					$('#editor_body').val(body);
+					$('#editor_title').val(title);
 					preview();
 
 					//alert('hi');
