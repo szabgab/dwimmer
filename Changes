@@ -1,6 +1,9 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
     - Add minimal search capability
+    - The special links now need [[ ]] instead of [ ]
+    - Preview button
+    - Table editor
 
 v0.25 2011.12.11
     - use File::Find::Rule to chmod 0644 files before trying

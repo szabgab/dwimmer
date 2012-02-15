@@ -85,7 +85,7 @@ is_deeply(
 
 is_deeply(
 	$admin->save_page(
-		body     => 'New text [link] here',
+		body     => 'New text [[link]] here',
 		title    => 'New main title',
 		filename => '/',
 	),
@@ -101,7 +101,7 @@ is_deeply(
 		#	logged_in => 1,
 		#	username => 'admin',
 		page => {
-			body     => 'New text [link] here',
+			body     => 'New text [[link]] here',
 			title    => 'New main title',
 			filename => '/',
 			author   => 'admin',
@@ -127,7 +127,7 @@ is_deeply(
 is_deeply(
 	$admin->page( filename => '/', revision => 2 ),
 	{   page => {
-			body     => 'New text [link] here',
+			body     => 'New text [[link]] here',
 			title    => 'New main title',
 			filename => '/',
 			author   => 'admin',
