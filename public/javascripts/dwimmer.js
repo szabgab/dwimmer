@@ -16,7 +16,9 @@ function _url(url) {
 
 // this is a hand-written pager, there should be one somewhere
 // together with the next and prev links on the page and the respective triggers
+var page_before;
 var page_entries;
+var page_after;
 var page_callback;
 var page_size = 5;
 var current_page = 1;
@@ -31,11 +33,13 @@ function show_page() {
 	var html = '';
 	html += 'Showing page: '  + current_page + ' of ' + page_count + ' pages. ';
     html += 'Showing entries ' + from + '-' + to + ' of ' + total;
+	html += page_before();
 	html += '<ul>';
 	for(var i=from-1; i < to; i++) {
 		html += page_entries[i];
 	}
 	html += '</ul>';
+	html += page_after();
 	$('#manage-display').show();
 	$('#manage-display-content').html(html);
 	if (current_page == 1) {
@@ -49,9 +53,7 @@ function show_page() {
 		$('#next').html('next');
 	}
 
-	if (page_callback) {
-		page_callback();
-	}
+	page_callback();
 	return true;
 }
 
@@ -254,11 +256,10 @@ function submit_form(obj, file) {
 	$(".list_users").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/list_users.json'), function(resp) {
-			page_entries = [];
+			reset_page();
 			for(var i=0; i < resp["users"].length; i++) {
 				page_entries[i] = '<li><a href="" value="' + resp["users"][i]["id"]  + '">' + resp["users"][i]["name"] + '</li>';
 			}
-			current_page = 1;
 			page_callback = function() {
 				// Setup the events only after the html was added!
 				$('#manage-display-content  a').click(function() {
@@ -267,6 +268,7 @@ function submit_form(obj, file) {
 					return false;
 				});
 			};
+
 			show_page();
 		});
 
@@ -277,11 +279,10 @@ function submit_form(obj, file) {
 	$(".list_sites").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/sites.json'), function(resp) {
-			page_entries = [];
+			reset_page();
 			for(var i=0; i < resp["rows"].length; i++) {
 				page_entries[i] = site_admin_links(resp["rows"][i]);
 			}
-			current_page = 1;
 			page_callback = set_admin_links;
 
 			show_page();
@@ -293,13 +294,12 @@ function submit_form(obj, file) {
 	$(".list_pages").click(function(){
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/get_pages.json'), function(resp) {
-			page_entries = [];
+			reset_page();
 			for(var i=0; i < resp["rows"].length; i++) {
 				var title = resp["rows"][i]["title"] ? resp["rows"][i]["title"] : resp["rows"][i]["filename"];
 				page_entries[i] = '<li><a href="' + resp["rows"][i]["filename"]  + '">' + title + '</li>';
 			}
-			current_page = 1;
-			page_callback = function() {};
+
 			show_page();
 		});
 
@@ -345,36 +345,73 @@ function submit_form(obj, file) {
 		manage_bar();
 		$.getJSON(_url('/_dwimmer/history.json') + '&filename=' + $(location).attr('pathname'), function(resp) {
 			//$('#admin-editor').show();
-			var html = '<ul>';
+			reset_page();
+			page_before = function() {
+				var h = '<form id="history_form">';
+				h += '<input id="history_filename" type="hidden" value="' + $(location).attr('pathname') + '" />';
+				return h;
+			};
 			for(var i=0; i < resp["rows"].length; i++) {
 				var d = new Date(resp["rows"][i]["timestamp"] * 1000);
-				html += '<li><a class="show_page_rev" href="/_dwimmer/page.json?filename=' + resp["rows"][i]["filename"] + '&revision=' + resp["rows"][i]["revision"]  + '">' + resp["rows"][i]["revision"] + ' ' + resp["rows"][i]["author"] + ' (' + d + ')</li>';
+				page_entries[i] = '<li><input type="radio" name="revision" value="' + resp["rows"][i]["revision"] +'" />' + resp["rows"][i]["revision"] + ' ' + resp["rows"][i]["author"] + ' (' + d + ')</li>';
 			}
-			html += '</ul>';
-			$('#manage-display').show();
-			$('#manage-display-content').html(html);
+			page_after = function() {
+				var h = '';
+				h += '<input type="button" id="save" value="Save" />';
+				h += '<input type="button" id="preview_old" value="Preview" />';
+				return h;
+			};
 
-			$(".show_page_rev").click(function() {
-				$.getJSON(_url( $(this).attr('href') ), function(resp) {
-//					alert(dumper(resp));
-					if (resp["error"]) {
-						alert(resp["error"] + " " + resp["details"]);
-						return;
-					}
-					var body = resp["page"]["body"];
-					var title = resp["page"]["title"];
-					var revision = resp["page"]["revision"];
-					var html = "<p>Showing revision " + revision  + "<hr></p>" + markup(body);
-					$('#editor_body').val(body);
-					$('#editor_title').val(title);
-					preview();
 
-					//alert('hi');
-					// show the content of the specific revision of the file
+			page_callback = function() {
+				$(".show_page_rev").click(function() {
+					$.getJSON(_url( $(this).attr('href') ), function(resp) {
+						if (resp["error"]) {
+							alert(resp["error"] + " " + resp["details"]);
+							return;
+						}
+						var body = resp["page"]["body"];
+						var title = resp["page"]["title"];
+						// var revision = resp["page"]["revision"];
+						// var html = "<p>Showing revision " + revision  + "<hr></p>" + markup(body);
+						$('#editor_body').val(body);
+						$('#editor_title').val(title);
+						preview();
+
+						//alert('hi');
+						// show the content of the specific revision of the file
+					});
 				});
-				return false;
-			});
+
+				$('#preview_old').click(function(){
+					// TODO: fetch the filename and the revision number (selected radio) from the form call GET it and run preview
+					var url = _url('/_dwimmer/page.json') + '&filename=' + $(location).attr('pathname');
+					url += '&revision=' + $('input[name=revision]:checked', '#history_form').val();
+
+					//alert(url);
+					//return false;
+					$.getJSON(url, function(resp) {
+						var body = resp["page"]["body"];
+						var title = resp["page"]["title"];
+						$('#editor_body').val(body);
+						$('#editor_title').val(title);
+						$('#filename').val( resp["page"]["filename"] );
+
+						preview();
+					});
+
+					return false;
+				});
+
+				$('#save').click(function(){
+					save_form();
+				});
+
+			};
+
+			show_page();
 		});
+
 		return false;
 	});
 
@@ -420,23 +457,9 @@ function submit_form(obj, file) {
 		return false;
 	});
 
+
 	$('#save').click(function(){
-		var body = $('#editor_body').val();
-		var title = $('#editor_title').val();
-		var data = $("#editor_form").serialize();
-
-		$.post(_url('/_dwimmer/save_page.json'), data, function(resp) {
-			var data = eval('(' + resp + ')');
-			if (data["error"] == "no_file_supplied") {
-				alert("Internal error, no filename supplied. Not saved.");
-			} else if (data["error"] == "no_site") {
-				alert("Internal error, dont know which site are you on.");
-			} else { // assume success?
-				window.location = $(location).attr('href');
-			}
-		});
-
-		return false;
+		save_form();
 	});
 
 //	$('#editor_body').keyup(function(){
@@ -612,4 +635,32 @@ function preview() {
 	html += markup(body);
 	$('#content').html(html);
 }
+
+function reset_page() {
+	page_before   = function() { return '' };
+	page_after    = function() { return '' };
+	page_callback = function() { return '' };
+	page_entries  = [];
+	current_page = 1;
+}
+
+function save_form() {
+		var body = $('#editor_body').val();
+		var title = $('#editor_title').val();
+		var data = $("#editor_form").serialize();
+
+		$.post(_url('/_dwimmer/save_page.json'), data, function(resp) {
+			var data = eval('(' + resp + ')');
+			if (data["error"] == "no_file_supplied") {
+				alert("Internal error, no filename supplied. Not saved.");
+			} else if (data["error"] == "no_site") {
+				alert("Internal error, dont know which site are you on.");
+			} else { // assume success?
+				window.location = $(location).attr('href');
+			}
+		});
+
+		return false;
+};
+
 
