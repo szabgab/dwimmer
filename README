@@ -14,12 +14,12 @@ Setup:
 If you already have a CPAN enabled perl installed then type "cpan Dwimmer" in your command prompt.
 If you don't have perl yet then we have a binary packaged version for windows. Install Dwimperl.
 
-dwimmer_setup.pl --password ADMIN_PASSWORD --email email-of-admin@company.com --root path/to/your/installation 
+dwimmer_setup.pl --password ADMIN_PASSWORD --email email-of-admin@company.com --root path/to/your/installation
 
 ------------
 Upgrade:
 
-cpan Dwimmer 
+cpan Dwimmer
 
 dwimmer_setup.pl --password ADMIN_PASSWORD --root path/to/your/installation --upgrade
 
@@ -29,4 +29,10 @@ dwimmer_setup.pl --password ADMIN_PASSWORD --root path/to/your/installation --up
 Sources:
 JQuery http://jquery.com/
 http://www.scriptbreaker.com/javascript/script/JQuery-Drop-down-panel-menu
+
+
+
+CLEditor WYSIWYG HTML Editor v1.3.0
+http://premiumsoftware.net/cleditor
+Advanced Table Plug-in Version 1.0.0
 
