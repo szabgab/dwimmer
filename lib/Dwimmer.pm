@@ -7,7 +7,7 @@ our $VERSION = '0.25';
 
 use Data::Dumper qw(Dumper);
 use Dwimmer::DB;
-use Dwimmer::Tools qw(_get_db _get_site read_file $SCHEMA_VERSION);
+use Dwimmer::Tools qw(_get_db _get_site _get_redirect read_file $SCHEMA_VERSION);
 
 use Encode     qw(decode);
 use Fcntl      qw(:flock);
@@ -38,6 +38,12 @@ hook before => sub {
 	if ( $version != $SCHEMA_VERSION ) {
 		return halt("Database is currently at version $version while we need version $SCHEMA_VERSION");
 	}
+	my ( $host, $url ) = _get_redirect();
+	if ($host) {
+		debug("Redirection to $url");
+		return redirect $url;
+	}
+
 	my ( $site_name, $site ) = _get_site();
 	return halt("Could not find site called '$site_name' in the database") if not $site;
 
