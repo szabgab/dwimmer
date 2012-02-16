@@ -9,11 +9,12 @@ use YAML;
 
 use Dwimmer::DB;
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 our $SCHEMA_VERSION = 1;
 
-our @EXPORT_OK = qw(sha1_base64 _get_db _get_site save_page create_site read_file trim $SCHEMA_VERSION);
+our @EXPORT_OK = qw(sha1_base64 _get_db _get_site _get_redirect
+	save_page create_site read_file trim $SCHEMA_VERSION);
 
 our $dbfile;
 
@@ -29,6 +30,21 @@ sub _get_db {
 
 	Dwimmer::DB->connect( "dbi:SQLite:dbname=$dbfile", '', '' );
 }
+
+sub _get_redirect {
+	my $host_name = request->host;
+
+	$host_name =~ s/:\d+.*//;
+
+	my $db = _get_db();
+	my $host = $db->resultset('Host')->find( { name => $host_name } );
+	return if not $host;
+
+	my $new = $host->main->name;
+	my $url = 'http://' . $new .  ':' . request->port . request->path_info;
+	return ($new, $url);
+}
+
 
 sub _get_site {
 	my $site_name = 'www';

@@ -90,7 +90,7 @@ if (not $opt{dbonly}) {
     foreach my $dir (qw(views public bin environments)) {
         my $from = File::Spec->catdir( $dist_dir, $dir );
         my $to   = File::Spec->catdir( $opt{root}, $dir );
-	    print "dircopy $from $to\n";
+		print "dircopy $from $to\n";
 		chmod 0644, File::Find::Rule->file()->in($to) if -d $to;
         File::Copy::Recursive::dircopy( $from, $to ) or die $!;
     }
@@ -117,17 +117,18 @@ if (not $opt{upgrade}) {
 }
 
 my @upgrade_from;
-push @upgrade_from, sub {
-    my $dbfile = shift;
 
-    my $sql = File::Spec->catfile($dist_dir, 'schema', '1.sql');
-    DBIx::RunSQL->create(
-        dsn => "dbi:SQLite:dbname=$dbfile",
-        sql => $sql,
-        verbose => 0,
-    );
-};
+foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '[0-9].sql' ) ) {
+	push @upgrade_from, sub {
+	    my $dbfile = shift;
 
+	    DBIx::RunSQL->create(
+	        dsn => "dbi:SQLite:dbname=$dbfile",
+	        sql => $sql,
+	        verbose => 0,
+	    );
+	};
+}
 
 upgrades($dbfile);
 

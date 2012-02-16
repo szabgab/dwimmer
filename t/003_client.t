@@ -221,7 +221,7 @@ is_deeply(
 
 is_deeply(
 	$admin->save_page(
-		body     => "New text [link] here and [$links[2]] here",
+		body     => "New text [[link]] here and [[$links[2]]] here",
 		title    => 'New main title',
 		filename => '/',
 	),
@@ -237,7 +237,7 @@ is_deeply(
 		#	logged_in => 1,
 		#	username => 'admin',
 		page => {
-			body     => "New text [link] here and [$links[2]] here",
+			body     => "New text [[link]] here and [[$links[2]]] here",
 			title    => 'New main title',
 			filename => '/',
 			author   => 'admin',
@@ -462,7 +462,7 @@ test_rss([
              'dc:subject' => 'New main title',
              'title' => 'New main title',
              'dc:date' => ignore(),
-             'description' => 'New text [link] here and [space and.dot and $@% too] here'
+             'description' => 'New text [[link]] here and [[space and.dot and $@% too]] here'
            }
 ]);
 test_sitemap([

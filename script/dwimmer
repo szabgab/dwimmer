@@ -55,5 +55,12 @@ REQUIRED PARAMETERS:
    --password  OF_CURRENT_USER
    --url       OF_DWIMMER_SITE
 
+
+For example if you would like to add a user called 'foo' with a password 'secret'
+to the system you run
+
+  add_user foo foo@mycompany.com secret --url http://mycompany.com/ --password ADMIN_PASSWORD
+
+
 =cut
 

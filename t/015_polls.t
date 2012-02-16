@@ -24,11 +24,11 @@ my @pages = (
 		title    => 'Welcome to your Dwimmer installation',
 		filename => '/',
 	},
-	{   body     => 'before [http://www.dwimmer.org/selftest] between [https://www.security.org/] after',
+	{   body     => 'before [[http://www.dwimmer.org/selftest]] between [[https://www.security.org/]] after',
 		title    => 'dotspace',
 		filename => '/mylinks',
 	},
-	{   body     => '[poll://testing-polls]',
+	{   body     => '[[poll://testing-polls]]',
 		title    => 'dotspace',
 		filename => '/mypoll',
 	}

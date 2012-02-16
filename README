@@ -8,64 +8,31 @@ or a beginnnig of either of those.
 
 Mostly it is an experiment to write some stuff.
 
-
 =================================================
-Some notes:
+Setup:
 
-Stand alone installation:
-- Install everyting
-- Run database creation script that will ask for admin password
+If you already have a CPAN enabled perl installed then type "cpan Dwimmer" in your command prompt.
+If you don't have perl yet then we have a binary packaged version for windows. Install Dwimperl.
 
+dwimmer_setup.pl --password ADMIN_PASSWORD --email email-of-admin@company.com --root path/to/your/installation
 
-TODO: Authorization
-===============
-- Groups and authorization, each site should be able to allow/disallow users to do things on their site
-  but there are some global permissions so we might need to have two tables:
-user - global_permission
-user - site - permission
+------------
+Upgrade:
 
-  - Super dupper - initial user belongs to this, can do anything anywhere (or maybe just admin tasks?)
-  - can comment
+cpan Dwimmer
+
+dwimmer_setup.pl --password ADMIN_PASSWORD --root path/to/your/installation --upgrade
 
 
-- users
-- groups (that can hold either users or other groups)
-- actions (comment, edit page)
 
-- each page has its properties
-  1) a blog page normally has one editor but allows comments
-  2) a wiki page normally can be edited by anyone and has no comments (though it could)
-- each site can have global
-
-
-TODO Weekly
-=============
-- Setup, select from designs
-- Admin:
-  Add URL, title, date, text, tags,    warn if the URL is alrady in the database but allow it
-  status: new, included, excluded
-- Admin Send message
-- Admin can add users without confirmation
-- Admin can import CSV File?
-
-
-Markup language
-=====================
-- Use a very simple markup language and allow any HTML.
-  [linkname]
-  [linkname link title]
-  [schema://specialcase]
-  [schema://specialcase link title]
-
-- When arriving at a page that does not exist yet,
-  display this info and if the user is logged in then offer the page
-  to be edited/created.
-
-- From the web site allow the creation of a site with basic usage.
-  - At first only the admin can create sites but later we might allow
-    regular users as well to create sites using the main site.
-
+==============
 Sources:
 JQuery http://jquery.com/
 http://www.scriptbreaker.com/javascript/script/JQuery-Drop-down-panel-menu
+
+
+
+CLEditor WYSIWYG HTML Editor v1.3.0
+http://premiumsoftware.net/cleditor
+Advanced Table Plug-in Version 1.0.0
 
