@@ -1,9 +1,12 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+0.26 2012.02.16
+
     - Add minimal search capability
     - The special links now need [[ ]] instead of [ ]
     - Preview button
     - Table editor
+    - Fix show history and allow user to promote older version.
 
 v0.25 2011.12.11
     - use File::Find::Rule to chmod 0644 files before trying
