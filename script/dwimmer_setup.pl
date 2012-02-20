@@ -118,7 +118,8 @@ if (not $opt{upgrade}) {
 
 my @upgrade_from;
 
-foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '[0-9].sql' ) ) {
+foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '*.sql' ) ) {
+	next if $sql !~ m{/\d+\.sql$};
 	push @upgrade_from, sub {
 	    my $dbfile = shift;
 
