@@ -15,6 +15,7 @@ GetOptions(\%opt,
 	'list:s',
 	'enable=i',
 	'disable=i',
+	'update=i',
 ) or usage();
 usage() if not $opt{store};
 
@@ -25,16 +26,27 @@ if (exists $opt{list}) {
 	$admin->enable( $opt{enable} );
 } elsif ( defined $opt{disable} ) {
 	$admin->disable( $opt{disable} );
+} elsif ( defined $opt{update} ) {
+	my $str = shift;
+	usage('Need update value') if not $str;
+	my ($field, $value) = split /=/, $str;
+	$admin->update($opt{update}, $field, $value);
 }
 
 
 sub usage {
+	my $text = shift || '';
+
 	die <<"END_USAGE";
+$text
 
 Usage: $0 --store storage.db
 
        --list [filter]
        --enable ID
        --disable ID
+
+       --update ID "feed=http://..."
+       --update ID "comment=some text here"
 END_USAGE
 }

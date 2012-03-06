@@ -53,6 +53,15 @@ sub able {
 	return;
 }
 
+sub update {
+	my ($self, $id, $field, $value) = @_;
+	_dump($self->db->get_source_by_id($id));
+	$self->db->update($id, $field, $value);
+	_dump($self->db->get_source_by_id($id));
+	return;
+}
+
+
 sub _dump {
 	print Dumper shift;
 }

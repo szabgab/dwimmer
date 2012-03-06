@@ -1,6 +1,7 @@
 package Dwimmer::Feed::DB;
 use Moose;
 
+use Carp ();
 use Data::Dumper qw(Dumper);
 use DateTime;
 use DBI;
@@ -128,6 +129,15 @@ sub able {
 	$able = $able ? 'enabled' : 'disabled';
 	my $sql = qq{UPDATE sources SET status = "$able" WHERE id=?};
 	$self->dbh->do($sql, undef, $id);
+}
+sub update {
+	my ($self, $id, $field, $value) = @_;
+
+	Carp::croak("Invalid field '$field'")
+		if $field ne 'feed' and $field ne 'comment';
+
+	my $sql = qq{UPDATE sources SET $field = ? WHERE id=?};
+	$self->dbh->do($sql, undef, $value, $id);
 }
 
 1;
