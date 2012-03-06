@@ -66,7 +66,7 @@ sub add {
 	#main::LOG("SQL: $sql");
 	$self->dbh->do($sql, {}, @args{@fields});
 	my $id = $self->dbh->last_insert_id('', '', '', '');
-	main::LOG("ID: $id");
+	main::LOG("   ID: $id");
 
 	# only deliver new things
 	my $NOT_TOO_OLD = 60*60*24;
@@ -98,7 +98,7 @@ sub delete_from_queue {
 }
 
 sub get_sources {
-	my ($self, %opt ) = @_;
+	my ( $self, %opt ) = @_;
 
 	my $sql = 'SELECT * FROM sources';
 	if ($opt{enabled}) {
@@ -112,6 +112,22 @@ sub get_sources {
 	}
 
 	return \@r;
+}
+
+sub get_source_by_id {
+	my ( $self, $id ) = @_;
+
+	my $sources = $self->get_sources;
+	my ($s) = grep { $_->{id} eq $id }  @$sources;
+	return $s;
+}
+
+
+sub able {
+	my ($self, $id, $able) = @_;
+	$able = $able ? 'enabled' : 'disabled';
+	my $sql = qq{UPDATE sources SET status = "$able" WHERE id=?};
+	$self->dbh->do($sql, undef, $id);
 }
 
 1;
