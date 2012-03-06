@@ -98,9 +98,13 @@ sub delete_from_queue {
 }
 
 sub get_sources {
-	my ($self) = @_;
-	
-	my $sth = $self->dbh->prepare('SELECT * FROM sources WHERE status="enabled"');
+	my ($self, %opt ) = @_;
+
+	my $sql = 'SELECT * FROM sources';
+	if ($opt{enabled}) {
+		$sql .= ' WHERE status="enabled"';
+	}
+	my $sth = $self->dbh->prepare($sql);
 	$sth->execute;
 	my @r;
 	while (my $h = $sth->fetchrow_hashref) {

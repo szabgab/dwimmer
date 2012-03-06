@@ -8,6 +8,8 @@ our $VERSION = '0.26';
 my $MAX_SIZE = 500;
 my $TRIM_SIZE = 400;
 
+use Dwimmer::Feed::DB;
+
 use XML::Feed    ();
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
@@ -36,7 +38,7 @@ sub collect {
 
 	my $INDENT = ' ' x 11;
 
-	my $sources = $self->db->get_sources();
+	my $sources = $self->db->get_sources( enabled => 1 );
 	main::LOG("sources loaded: " . @$sources);
 
 	for my $e ( @$sources ) {
@@ -130,7 +132,7 @@ sub generate_html {
 	my ($self, $dir) = @_;
 	die if not $dir or not -d $dir;
 
-	my $sources = $self->db->get_sources();
+	my $sources = $self->db->get_sources( enabled => 1 );
 	my %src = map { $_->{id } => $_  } @$sources;
 
 
