@@ -23,7 +23,7 @@ sub list {
 	my ($self, $filter) = @_;
 	my $sources = $self->db->get_sources;
 	foreach my $s (@$sources) {
-		next if $filter and $s->{feed} !~ /$filter/ and $s->{url} !~ /$filter/;
+		next if $filter and $s->{feed} !~ /$filter/ and $s->{url} !~ /$filter/ and $s->{status} !~ /$filter/;
 		_dump($s);
 	}
 	return;
