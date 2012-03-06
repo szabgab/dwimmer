@@ -26,7 +26,7 @@ sub connect {
 
 sub add_source {
 	my ($self, $e) = @_;
-	
+
 	$self->dbh->do('INSERT INTO sources (title, url, feed, comment, status) VALUES(?, ?, ?, ?, ?)',
 		{},
 		@$e{qw{title url feed comment status}});

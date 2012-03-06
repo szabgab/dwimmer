@@ -34,10 +34,13 @@ TRACK
 sub collect {
 	my ($self) = @_;
 
+	my $INDENT = ' ' x 11;
+
 	my $sources = $self->db->get_sources();
 	main::LOG("sources loaded: " . @$sources);
 
 	for my $e ( @$sources ) {
+		main::LOG('');
 		next if not $e->{status} or $e->{status} ne 'enabled';
 		if (not $e->{feed}) {
 			main::LOG("ERROR: No feed for $e->{title}");
@@ -48,22 +51,24 @@ sub collect {
 			local $SIG{ALRM} = sub { die 'TIMEOUT' };
 			alarm 10;
 
-			main::LOG("Processing $e->{title}");
+			main::LOG("Processing feed");
+			main::LOG("$INDENT $e->{feed}");
+			main::LOG("$INDENT Title by us  : $e->{title}");
 			$feed = XML::Feed->parse(URI->new($e->{feed}));
 		};
 		my $err = $@;
 		alarm 0;
 		if ($err) {
-			main::LOG("EXCEPTION $err");
+			main::LOG("   EXCEPTION: $err");
 		}
 		if (not $feed) {
-			main::LOG("ERROR: " . XML::Feed->errstr);
+			main::LOG("   ERROR: " . XML::Feed->errstr);
 			next;
 		}
 		if ($feed->title) {
-			main::LOG("Title: " . $feed->title);
+			main::LOG("$INDENT Title by them: " . $feed->title);
 		} else {
-			main::LOG("WARN: no title");
+			main::LOG("   WARN: no title");
 		}
 
 
@@ -75,7 +80,7 @@ sub collect {
 				$hostname =~ s{^(https?://[^/]+).*}{$1};
 				#main::LOG("HOST: $hostname");
 				if ( not $self->db->find( link => "$hostname%" ) ) {
-					main::LOG("ALERT: new hostname ($hostname) in URL: " . $entry->link);
+					main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
 					use MIME::Lite   ();
 					my $msg = MIME::Lite->new(
 						From    => 'dwimmer@dwimmer.com',
@@ -89,20 +94,20 @@ sub collect {
 					my %current = (
 						source_id => $e->{id},
 						link      => $entry->link,
-						author    => ($entry->{author} || ''),
-						remote_id => ($entry->{id} || ''),
-						issued    => $entry->issued,
+						author    => ($entry->author || ''),
+						remote_id => ($entry->id || ''),
+						issued    => ($entry->issued || $entry->modified),
 						title     => ($entry->title || ''),
 						summary   => ($entry->summary->body || ''),
 						content   => ($entry->content->body || ''),
 						tags    => '', #$entry->tags,
 					);
-					main::LOG("Adding $current{link}");
+					main::LOG("   INFO: Adding $current{link}");
 					$self->db->add(%current);
 				}
 			};
 			if ($@) {
-				main::LOG("EXCEPTION $@");
+				main::LOG("   EXCEPTION: $@");
 			}
 		}
 	}
