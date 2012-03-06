@@ -31,6 +31,7 @@ sub add_source {
 	$self->dbh->do('INSERT INTO sources (title, url, feed, comment, status) VALUES(?, ?, ?, ?, ?)',
 		{},
 		@$e{qw{title url feed comment status}});
+	return $self->dbh->last_insert_id('', '', '', '');
 }
 
 sub get_all_entries {

@@ -16,6 +16,7 @@ GetOptions(\%opt,
 	'enable=i',
 	'disable=i',
 	'update=i',
+	'add',
 ) or usage();
 usage() if not $opt{store};
 
@@ -31,6 +32,8 @@ if (exists $opt{list}) {
 	usage('Need update value') if not $str;
 	my ($field, $value) = split /=/, $str;
 	$admin->update($opt{update}, $field, $value);
+} elsif (exists $opt{add}) {
+	$admin->add;
 }
 
 

@@ -58,14 +58,40 @@ sub update {
 	_dump($self->db->get_source_by_id($id));
 	$self->db->update($id, $field, $value);
 	_dump($self->db->get_source_by_id($id));
+
+	return;
+}
+
+sub add {
+	my ($self) = @_;
+	my %data;
+	$data{url}     = prompt('URL');
+	$data{feed}    = prompt('Feed (Atom or RSS)');
+	$data{title}   = prompt('Title');
+	$data{status}  = 'enabled';
+	$data{comment} = prompt('Comment');
+
+	my $id = $self->db->add_source(\%data);
+	_dump($self->db->get_source_by_id($id));
+
 	return;
 }
 
 
 sub _dump {
 	print Dumper shift;
+	return;
 }
 
+sub prompt {
+	my ($text) = @_;
+
+	print "$text :";
+	my $input = <STDIN>;
+	chomp $input;
+
+	return $input;
+}
 
 1;
 
