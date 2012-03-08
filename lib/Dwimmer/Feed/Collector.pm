@@ -10,7 +10,13 @@ my $TRIM_SIZE = 400;
 
 use Dwimmer::Feed::DB;
 
-use XML::Feed    ();
+use Cwd            qw(abs_path);
+use File::Basename qw(dirname);
+use File::Path     qw(mkpath);
+use List::Util     qw(min);
+use MIME::Lite     ();
+use Template;
+use XML::Feed      ();
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
@@ -83,7 +89,6 @@ sub collect {
 				#main::LOG("HOST: $hostname");
 				if ( not $self->db->find( link => "$hostname%" ) ) {
 					main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
-					use MIME::Lite   ();
 					my $msg = MIME::Lite->new(
 						From    => 'dwimmer@dwimmer.com',
 						To      => 'szabgab@gmail.com',
@@ -137,8 +142,6 @@ sub generate_html {
 
 
 	my $all_entries = $self->db->get_all_entries;
-	use List::Util qw(min);
-	use Template;
 	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
 	my @entries = @$all_entries[0 .. $size-1];
 
@@ -193,8 +196,6 @@ sub generate_html {
 	}
 
 
-	use File::Basename qw(dirname);
-	use Cwd qw(abs_path);
 	my $root = dirname dirname abs_path $0;
 
 	my $t = Template->new({ ABSOLUTE => 1, });
@@ -206,7 +207,6 @@ sub generate_html {
 	foreach my $date (keys %entries_on) {
 		my ($year, $month, $day) = split /-/, $date;
 		my $path = "$dir/archive/$year/$month";
-		use File::Path qw(mkpath);
 		mkpath $path;
 		$t->process("$root/views/feed_index.tt", {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
