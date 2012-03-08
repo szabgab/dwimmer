@@ -28,9 +28,12 @@ sub connect {
 sub add_source {
 	my ($self, $e) = @_;
 
-	$self->dbh->do('INSERT INTO sources (title, url, feed, comment, status) VALUES(?, ?, ?, ?, ?)',
+	my @fields = qw(title url feed comment status twitter);
+	my $fields = join ', ', @fields;
+	my $placeholders = join ', ', (('?') x scalar @fields);
+	$self->dbh->do("INSERT INTO sources ($fields) VALUES($placeholders)",
 		{},
-		@$e{qw{title url feed comment status}});
+		@$e{@fields});
 	return $self->dbh->last_insert_id('', '', '', '');
 }
 
@@ -135,10 +138,22 @@ sub update {
 	my ($self, $id, $field, $value) = @_;
 
 	Carp::croak("Invalid field '$field'")
-		if $field ne 'feed' and $field ne 'comment';
+		if $field !~ m{^(feed|comment|twitter)$};
 
 	my $sql = qq{UPDATE sources SET $field = ? WHERE id=?};
 	$self->dbh->do($sql, undef, $value, $id);
+}
+
+sub set_config {
+	my ($self, $key, $value) = @_;
+	$self->delete_config($key);
+	$self->dbh->do('INSERT INTO config (key, value) VALUES (?, ?)', undef, $key, $value);
+	return;
+}
+sub delete_config {
+	my ($self, $key) = @_;
+	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $key);
+	return;
 }
 
 1;

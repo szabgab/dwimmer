@@ -51,5 +51,6 @@ Usage: $0 --store storage.db
 
        --update ID "feed=http://..."
        --update ID "comment=some text here"
+       --update ID "twitter=twitter_id"
 END_USAGE
 }

@@ -23,8 +23,17 @@ sub list {
 	my ($self, $filter) = @_;
 	my $sources = $self->db->get_sources;
 	foreach my $s (@$sources) {
-		next if $filter and $s->{feed} !~ /$filter/ and $s->{url} !~ /$filter/ and $s->{status} !~ /$filter/;
-		_dump($s);
+		my $show;
+		if ($filter) {
+			foreach my $field (qw(feed url status title)) {
+				$show++ if $s->{$field} =~ /$filter/i;
+			}
+		} else {
+			$show++;
+		}
+		if ($show) {
+			_dump($s);
+		}
 	}
 	return;
 }
@@ -68,8 +77,10 @@ sub add {
 	$data{url}     = prompt('URL');
 	$data{feed}    = prompt('Feed (Atom or RSS)');
 	$data{title}   = prompt('Title');
+	$data{twitter} = prompt('Twitter');
 	$data{status}  = 'enabled';
 	$data{comment} = prompt('Comment');
+	$data{twitter} =~ s/\@//;
 
 	my $id = $self->db->add_source(\%data);
 	_dump($self->db->get_source_by_id($id));
@@ -92,6 +103,7 @@ sub prompt {
 
 	return $input;
 }
+
 
 1;
 
