@@ -1,5 +1,4 @@
-use 5.008005;
-use strict;
+use 5.012000;
 use warnings;
 use inc::Module::Install 1.00;
 

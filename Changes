@@ -5,6 +5,7 @@ Changes to the Dwimmer system. See http://dwimmer.org/
       of another user
     - fix command line adding user
     - add command line listing all the users
+    - set the minimum perl to 5.12
 
 0.26 2012.02.16
 
