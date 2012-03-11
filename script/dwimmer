@@ -77,12 +77,12 @@ given ($cmd) {
 	when ('list_users' ) {
 		print "Users: \n\n";
 		foreach my $u ( sort { $a->{name} cmp $b->{name} } @{ $r->{users} } ) {
-			print "$u->{name}\n";
+			say $u->{name};
 		}
 	}
 	when ('add_user') {
 		if ($r->{success}) {
-			print "Success\n";
+			say 'Success';
 		}
 		given ($r->{error}) {
 			when (undef) {}
@@ -99,7 +99,7 @@ given ($cmd) {
 	}
 	when ('change_password') {
 		if ($r->{success}) {
-			print "Success. Password changed\n";
+			say 'Success. Password changed';
 		} else {
 			die Dumper $r;
 		}
