@@ -19,7 +19,7 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 my $URL = "$url/";
 
-plan( tests => 55 );
+plan( tests => 59 );
 
 my @pages = (
 	{},
@@ -393,6 +393,7 @@ cmp_deeply(
 	'session'
 );
 
+
 #diag(explain($user->get_user(id => 2)));
 is_deeply(
 	$user->get_user( id => 2 ),
@@ -435,6 +436,40 @@ is_deeply(
 	},
 	'user logged in with new password'
 );
+
+
+my $pw3 = 'dgjkl';
+is_deeply(
+	$admin->change_password( new_password => $pw3, admin_password => $users[0]{password}, uid => 2 ),
+	{ success => 1 }, 'password changed'
+);
+
+is_deeply( $user->logout, { success => 1 }, 'logout' );
+cmp_deeply(
+	$user->session,
+	{   logged_in => 0,
+		data      => ignore(),
+		site      => ignore(),
+
+		#	dwimmer_version => $Dwimmer::Client::VERSION,
+	},
+	'session'
+);
+
+is_deeply(
+	$user->login( username => $users[0]{uname}, password => $pw3 ),
+	{   success   => 1,
+		username  => $users[0]{uname},
+		userid    => 2,
+		logged_in => 1,
+	},
+	'user logged in with new password'
+);
+
+
+
+
+
 
 test_rss([
            {
