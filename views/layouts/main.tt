@@ -36,7 +36,7 @@
       <li><a class="manage" href="">Manage</a>
         <div class="submenu submenu_simple">
           <ul>
-            <li><a class="change_password" href="">change password</a></li>
+            <li><a class="change_my_password" href="">change my password</a></li>
             <li><a class="list_users"   href="">list users</a></li>
             <li><a class="add_user"     href="">add user</a></li>
             <li><a class="list_pages"   href="">list pages</a></li>
@@ -83,7 +83,7 @@
 
   <div id="admin-change-password">
     Change password:
-    <form id="change_password_form" action="/_dwimmer/change_password.json" method="POST">
+    <form id="change_my_password_form" action="/_dwimmer/change_my_password.json" method="POST">
     Old password: <input type="password" name="old_password"><br />
     New password: <input type="password" name="new_password"><br />
     <input type="submit" value="Change password"><br />
