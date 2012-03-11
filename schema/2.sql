@@ -6,3 +6,4 @@ CREATE TABLE host (
     main    INTEGER NOT NULL,
     FOREIGN KEY (main) REFERENCES site(id)
 );
+PRAGMA user_version=2;
