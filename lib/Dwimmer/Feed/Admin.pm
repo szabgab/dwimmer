@@ -3,6 +3,8 @@ use Moose;
 
 use 5.008005;
 
+our $VERSION = '0.27';
+
 use Dwimmer::Feed::DB;
 
 use Data::Dumper qw(Dumper);

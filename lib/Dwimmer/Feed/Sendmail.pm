@@ -1,6 +1,8 @@
 package Dwimmer::Feed::Sendmail;
 use Moose;
 
+our $VERSION = '0.27';
+
 use Encode       ();
 use MIME::Lite   ();
 
