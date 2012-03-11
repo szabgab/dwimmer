@@ -148,6 +148,7 @@ sub generate_html {
 	foreach my $e (@entries) {
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
+		$e->{twitter} = $src{ $e->{source_id} }{twitter};
 		$e->{display} = $e->{summary};
 		if (not $e->{display} and $e->{content} and length $e->{content} < $MAX_SIZE) {
 			$e->{display} = $e->{content};

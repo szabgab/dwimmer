@@ -39,14 +39,15 @@ sub add_source {
 
 sub get_all_entries {
 	my ($self) = @_;
+
 	my $sth = $self->dbh->prepare('SELECT * FROM entries ORDER BY issued DESC');
 	$sth->execute;
-	my @result;
+	my @results;
 	while (my $h = $sth->fetchrow_hashref) {
-		push @result, $h;
+		push @results, $h;
 	}
 
-	return \@result;
+	return \@results;
 }
 
 sub find {
@@ -154,6 +155,19 @@ sub delete_config {
 	my ($self, $key) = @_;
 	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $key);
 	return;
+}
+
+sub get_config {
+	my ($self) = @_;
+
+	my $sth = $self->dbh->prepare('SELECT * FROM config ORDER BY key DESC');
+	$sth->execute;
+	my @results;
+	while (my $h = $sth->fetchrow_hashref) {
+		push @results, $h;
+	}
+
+	return \@results;
 }
 
 1;

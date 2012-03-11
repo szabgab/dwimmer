@@ -90,6 +90,7 @@ sub add {
 
 
 sub _dump {
+	local $Data::Dumper::Sortkeys = 1;
 	print Dumper shift;
 	return;
 }
@@ -104,6 +105,12 @@ sub prompt {
 	return $input;
 }
 
+
+sub list_config {
+	my ($self) = @_;
+	my $config = $self->db->get_config;
+	_dump($config);
+}
 
 1;
 

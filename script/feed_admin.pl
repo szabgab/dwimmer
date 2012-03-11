@@ -17,6 +17,10 @@ GetOptions(\%opt,
 	'disable=i',
 	'update=i',
 	'add',
+
+	'listconfig',
+	'config=s',
+	'unconfig=s',
 ) or usage();
 usage() if not $opt{store};
 
@@ -34,6 +38,16 @@ if (exists $opt{list}) {
 	$admin->update($opt{update}, $field, $value);
 } elsif (exists $opt{add}) {
 	$admin->add;
+} elsif ($opt{listconfig}) {
+	$admin->list_config();
+} elsif ($opt{unconfig}) {
+	$admin->db->delete_config( $opt{unconfig} );
+} elsif ($opt{config}) {
+	my $value = shift;
+	usage('') if not defined $value;
+	$admin->db->set_config( $opt{config}, $value);
+} else {
+	usage();
 }
 
 
@@ -43,7 +57,9 @@ sub usage {
 	die <<"END_USAGE";
 $text
 
-Usage: $0 --store storage.db
+Usage: $0
+       --store storage.db
+
 
        --list [filter]
        --enable ID
@@ -52,5 +68,9 @@ Usage: $0 --store storage.db
        --update ID "feed=http://..."
        --update ID "comment=some text here"
        --update ID "twitter=twitter_id"
+
+       --listconfig
+       --config key value
+       --unconfig key
 END_USAGE
 }
