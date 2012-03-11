@@ -33,11 +33,16 @@ pod2usage() if not $cmd or $cmd eq 'help';
 if ($commands{$cmd}) {
 	my %data;
 	my @fields = @{ $commands{$cmd} };
+
+	# TODO check the validity of the parameters too
+	if (@ARGV != @fields) {
+		die "Invalid number of arguments. Needed: @{ $commands{$cmd} }\n";
+	}
 	@data{ @fields } = @ARGV;
-	# TODO check if all the params are available
 
 	if ($cmd eq 'add_user') {
 		$data{verify} = 'verified';
+		$data{pw1} = $data{pw2} = delete $data{password};
 	}
 
 	my $dw = Dwimmer::Client->new( host => $opt{url} );
@@ -52,10 +57,25 @@ if ($commands{$cmd}) {
 	}
 	#print Dumper $login;
 	my $r = $dw->$cmd(%data);
+
 	if ($cmd eq 'list_users' ) {
 		print "Users: \n\n";
 		foreach my $u ( sort { $a->{name} cmp $b->{name} } @{ $r->{users} } ) {
 			print "$u->{name}\n";
+		}
+	} elsif ($cmd eq 'add_user') {
+		if ($r->{success}) {
+			print "Success\n";
+		} elsif ($r->{error}) {
+			if ($r->{error} eq 'username_taken') {
+				die "The username '$data{uname}' is already in use\n";
+			} elsif ($r->{error} eq 'email_used') {
+				die "The email '$data{email}' is already in use\n";
+			} else {
+				die 'Unrecognized error: ' . Dumper $r;
+			}
+		} else {
+			die "No success and not error? " . Dumper $r;
 		}
 	} else {
 		print Dumper $r;
@@ -63,6 +83,8 @@ if ($commands{$cmd}) {
 } else {
 	pod2usage();
 }
+exit;
+
 =head1 NAME
 
 dwimmer - command line client to interact with a Dwimmer server
