@@ -169,6 +169,18 @@ sub get_config {
 
 	return \@results;
 }
+sub get_config_hash {
+	my ($self) = @_;
+
+	my $sth = $self->dbh->prepare('SELECT * FROM config ORDER BY key DESC');
+	$sth->execute;
+	my %config;
+	while (my $h = $sth->fetchrow_hashref) {
+		$config{ $h->{key} } = $h->{value};
+	}
+
+	return \%config;
+}
 
 1;
 

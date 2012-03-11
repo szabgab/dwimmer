@@ -59,7 +59,7 @@ sub _sendmail {
 
 	main::LOG("Send Mail: $subject");
 
-	my $config = $self->db->get_config;
+	my $config = $self->db->get_config_hash;
 	my $msg = MIME::Lite->new(
 		From    => ($config->{from} || 'dwimmer@dwimmer.org'),
 		To      => 'szabgab@gmail.com',
