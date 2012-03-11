@@ -43,7 +43,7 @@ my %GET = map { $_ => $_ } qw(
 my %POST = map { $_ => $_ } qw(
 	add_feed
 	add_user
-	change_password
+	change_my_password
 	create_feed_collector
 	create_list
 	create_site

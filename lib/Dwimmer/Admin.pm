@@ -680,7 +680,7 @@ post '/set_site_config.json' => sub {
 	return to_json { success => 1 };
 };
 
-post '/change_password.json' => sub {
+post '/change_my_password.json' => sub {
 	my %params = _clean_params(qw(new_password old_password));
 	return render_response 'error', { 'no_new_password' => 1 } if not $params{new_password};
 	return render_response 'error', { 'no_old_password' => 1 } if not $params{old_password};

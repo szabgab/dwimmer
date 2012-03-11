@@ -232,7 +232,7 @@ function submit_form(obj, file) {
 }
 
 	$("#add_user_form").submit(function() {              return submit_form(this, 'add_user') });
-	$("#change_password_form").submit(function() {       return submit_form(this, 'change_password') });
+	$("#change_my_password_form").submit(function() {       return submit_form(this, 'change_my_password') });
 	$("#create_site_form").submit(function() {           return submit_form(this, 'create_site') });
 	$("#create_feed_collector_form").submit(function() { return submit_form(this, 'create_feed_collector') });
 	$("#create_list_form").submit(function() {           return submit_form(this, 'create_list') });
@@ -415,7 +415,7 @@ function submit_form(obj, file) {
 		return false;
 	});
 
-        $(".change_password").click(function(){
+        $(".change_my_password").click(function(){
 		manage_bar();
 		$('#admin-change-password').show();
 		return false;

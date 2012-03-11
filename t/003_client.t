@@ -377,7 +377,7 @@ cmp_deeply(
 
 my $pw1 = 'qwerty';
 is_deeply(
-	$user->change_password( new_password => $pw1, old_password => $users[0]{password} ),
+	$user->change_my_password( new_password => $pw1, old_password => $users[0]{password} ),
 	{ success => 1 }, 'password changed'
 );
 
@@ -417,7 +417,7 @@ is_deeply(
 
 my $failed_pw = 'uiop';
 is_deeply(
-	$user->change_password( new_password => $failed_pw, old_password => $pw1 ),
+	$user->change_my_password( new_password => $failed_pw, old_password => $pw1 ),
 	{   dwimmer_version => $Dwimmer::Client::VERSION,
 		error           => 'not_logged_in',
 	},
