@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use v5.8;
 
-use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Collector;
 use Dwimmer::Feed::Sendmail;
 

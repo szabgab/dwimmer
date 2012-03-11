@@ -3,12 +3,20 @@ use Moose;
 
 use 5.008005;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 my $MAX_SIZE = 500;
 my $TRIM_SIZE = 400;
 
-use XML::Feed    ();
+use Dwimmer::Feed::DB;
+
+use Cwd            qw(abs_path);
+use File::Basename qw(dirname);
+use File::Path     qw(mkpath);
+use List::Util     qw(min);
+use MIME::Lite     ();
+use Template;
+use XML::Feed      ();
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
@@ -34,10 +42,13 @@ TRACK
 sub collect {
 	my ($self) = @_;
 
-	my $sources = $self->db->get_sources();
+	my $INDENT = ' ' x 11;
+
+	my $sources = $self->db->get_sources( enabled => 1 );
 	main::LOG("sources loaded: " . @$sources);
 
 	for my $e ( @$sources ) {
+		main::LOG('');
 		next if not $e->{status} or $e->{status} ne 'enabled';
 		if (not $e->{feed}) {
 			main::LOG("ERROR: No feed for $e->{title}");
@@ -48,22 +59,24 @@ sub collect {
 			local $SIG{ALRM} = sub { die 'TIMEOUT' };
 			alarm 10;
 
-			main::LOG("Processing $e->{title}");
+			main::LOG("Processing feed");
+			main::LOG("$INDENT $e->{feed}");
+			main::LOG("$INDENT Title by us  : $e->{title}");
 			$feed = XML::Feed->parse(URI->new($e->{feed}));
 		};
 		my $err = $@;
 		alarm 0;
 		if ($err) {
-			main::LOG("EXCEPTION $err");
+			main::LOG("   EXCEPTION: $err");
 		}
 		if (not $feed) {
-			main::LOG("ERROR: " . XML::Feed->errstr);
+			main::LOG("   ERROR: " . XML::Feed->errstr);
 			next;
 		}
 		if ($feed->title) {
-			main::LOG("Title: " . $feed->title);
+			main::LOG("$INDENT Title by them: " . $feed->title);
 		} else {
-			main::LOG("WARN: no title");
+			main::LOG("   WARN: no title");
 		}
 
 
@@ -75,8 +88,7 @@ sub collect {
 				$hostname =~ s{^(https?://[^/]+).*}{$1};
 				#main::LOG("HOST: $hostname");
 				if ( not $self->db->find( link => "$hostname%" ) ) {
-					main::LOG("ALERT: new hostname ($hostname) in URL: " . $entry->link);
-					use MIME::Lite   ();
+					main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
 					my $msg = MIME::Lite->new(
 						From    => 'dwimmer@dwimmer.com',
 						To      => 'szabgab@gmail.com',
@@ -89,20 +101,20 @@ sub collect {
 					my %current = (
 						source_id => $e->{id},
 						link      => $entry->link,
-						author    => ($entry->{author} || ''),
-						remote_id => ($entry->{id} || ''),
-						issued    => $entry->issued,
+						author    => ($entry->author || ''),
+						remote_id => ($entry->id || ''),
+						issued    => ($entry->issued || $entry->modified),
 						title     => ($entry->title || ''),
 						summary   => ($entry->summary->body || ''),
 						content   => ($entry->content->body || ''),
 						tags    => '', #$entry->tags,
 					);
-					main::LOG("Adding $current{link}");
+					main::LOG("   INFO: Adding $current{link}");
 					$self->db->add(%current);
 				}
 			};
 			if ($@) {
-				main::LOG("EXCEPTION $@");
+				main::LOG("   EXCEPTION: $@");
 			}
 		}
 	}
@@ -125,19 +137,18 @@ sub generate_html {
 	my ($self, $dir) = @_;
 	die if not $dir or not -d $dir;
 
-	my $sources = $self->db->get_sources();
+	my $sources = $self->db->get_sources( enabled => 1 );
 	my %src = map { $_->{id } => $_  } @$sources;
 
 
 	my $all_entries = $self->db->get_all_entries;
-	use List::Util qw(min);
-	use Template;
 	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
 	my @entries = @$all_entries[0 .. $size-1];
 
 	foreach my $e (@entries) {
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
+		$e->{twitter} = $src{ $e->{source_id} }{twitter};
 		$e->{display} = $e->{summary};
 		if (not $e->{display} and $e->{content} and length $e->{content} < $MAX_SIZE) {
 			$e->{display} = $e->{content};
@@ -186,8 +197,6 @@ sub generate_html {
 	}
 
 
-	use File::Basename qw(dirname);
-	use Cwd qw(abs_path);
 	my $root = dirname dirname abs_path $0;
 
 	my $t = Template->new({ ABSOLUTE => 1, });
@@ -199,7 +208,6 @@ sub generate_html {
 	foreach my $date (keys %entries_on) {
 		my ($year, $month, $day) = split /-/, $date;
 		my $path = "$dir/archive/$year/$month";
-		use File::Path qw(mkpath);
 		mkpath $path;
 		$t->process("$root/views/feed_index.tt", {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}

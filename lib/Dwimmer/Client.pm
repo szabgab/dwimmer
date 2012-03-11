@@ -8,7 +8,7 @@ has host => ( is => 'ro', isa => 'Str', required => 1 );
 has mech => ( is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 # get_user parameters can be    id => 1
 
@@ -44,6 +44,7 @@ my %POST = map { $_ => $_ } qw(
 	add_feed
 	add_user
 	change_password
+	change_my_password
 	create_feed_collector
 	create_list
 	create_site
