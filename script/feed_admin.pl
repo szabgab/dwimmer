@@ -60,6 +60,7 @@ $text
 Usage: $0
        --store storage.db
 
+       --add
 
        --list [filter]
        --enable ID
