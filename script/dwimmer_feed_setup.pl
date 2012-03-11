@@ -16,6 +16,7 @@ CREATE TABLE sources (
 	url       VARCHAR(100) UNIQUE NOT NULL,
 	feed      VARCHAR(100) UNIQUE NOT NULL,
 	comment   BLOB,
+	twitter   VARCHAR(30),
 	status    VARCHAR(30)
 );
 
@@ -36,6 +37,10 @@ CREATE TABLE delivery_queue (
 	channel  VARCHAR(30) NOT NULL,
 	entry    INTEGER     NOT NULL,
 	FOREIGN KEY (entry) REFERENCES entries(id)
+);
+CREATE TABLE config (
+	key VARCHAR(100) UNIQUE NOT NULL,
+	value VARCHAR(255)
 )
 SCHEMA
 
@@ -53,4 +58,4 @@ my $sources = from_json scalar read_file $sources_json, binmode => ':utf8';
 for my $e ( @{ $sources->{feeds}{entries} } ) {
 	$db->add_source($e);
 };
-	
+

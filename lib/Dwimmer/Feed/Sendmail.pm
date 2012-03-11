@@ -46,7 +46,7 @@ sub send {
 		$html .= qq{<p><a href="http://twitter.com/home?status=$e->{title} $e->{link}">tweet</a></p>};
 		$html .= qq{</body></html>\n};
 
-		_sendmail("Perl Feed: $e->{title}", { text => $text, html => $html } );
+		$self->_sendmail("Perl Feed: $e->{title}", { text => $text, html => $html } );
 		$self->db->delete_from_queue('mail', $e->{id});
 	}
 
@@ -55,12 +55,13 @@ sub send {
 
 
 sub _sendmail {
-	my ($subject, $content) = @_;
+	my ($self, $subject, $content) = @_;
 
 	main::LOG("Send Mail: $subject");
 
+	my $config = $self->db->get_config_hash;
 	my $msg = MIME::Lite->new(
-		From    => 'dwimmer@dwimmer.com',
+		From    => ($config->{from} || 'dwimmer@dwimmer.org'),
 		To      => 'szabgab@gmail.com',
 		Subject => $subject,
 		Type    => 'multipart/alternative',

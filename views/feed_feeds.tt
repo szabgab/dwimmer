@@ -50,6 +50,9 @@ body {
 [% FOR e IN entries %]
   <div class="entry">
   <div class="title"><a href="[% e.url %]">[% e.title %]</a></div>
+  [% IF e.twitter %]
+     <div class="twitter"><a href="https://twitter.com/#!/[% e.twitter %]">@[% e.twitter %]</a></div>
+  [% END %]
   <div class="latest">Latest: <a href="[% e.latest_entry.link %]">[% e.latest_entry.title %]</a> on [% e.latest_entry.issued %]</div>
   </div>
 [% END %]
