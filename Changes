@@ -1,5 +1,7 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+0.27 2012.03.11
+
     - rename /change_password  to /change_my_password
     - add new /change_password to change the password 
       of another user
