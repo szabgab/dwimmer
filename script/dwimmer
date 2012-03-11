@@ -19,8 +19,9 @@ pod2usage() if not $opt{url} or not $opt{username} or not $opt{password};
 $opt{url} =~ s{/+$}{};
 
 my %commands = (
-	add_user   =>  [qw(uname email password)],
-	list_users =>  [],
+	add_user        =>  [qw(uname email password)],
+	list_users      =>  [],
+	change_password =>  [qw(name password)],
 );
 
 use Dwimmer::Client;
@@ -40,11 +41,6 @@ if ($commands{$cmd}) {
 	}
 	@data{ @fields } = @ARGV;
 
-	if ($cmd eq 'add_user') {
-		$data{verify} = 'verified';
-		$data{pw1} = $data{pw2} = delete $data{password};
-	}
-
 	my $dw = Dwimmer::Client->new( host => $opt{url} );
 	my $login = $dw->login( username => $opt{username}, password => $opt{password} );
 	if ($login->{error}) {
@@ -56,7 +52,17 @@ if ($commands{$cmd}) {
 		}
 	}
 	#print Dumper $login;
+
+	if ($cmd eq 'add_user') {
+		$data{verify} = 'verified';
+		$data{pw1} = $data{pw2} = delete $data{password};
+	} elsif ($cmd eq 'change_password') {
+		$data{new_password} = delete $data{password};
+		$data{admin_password} = $opt{password};
+	}
+
 	my $r = $dw->$cmd(%data);
+
 
 	if ($cmd eq 'list_users' ) {
 		print "Users: \n\n";
@@ -76,6 +82,12 @@ if ($commands{$cmd}) {
 			}
 		} else {
 			die "No success and not error? " . Dumper $r;
+		}
+	} elsif ($cmd eq 'change_password') {
+		if ($r->{success}) {
+			print "Success. Password changed\n";
+		} else {
+			die Dumper $r;
 		}
 	} else {
 		print Dumper $r;
@@ -105,6 +117,7 @@ Commands:
 
    add_user USERNAME EMAIL PASSWORD
    list_users
+   change_password USERNAME PASSWORD 
 
 
 For example if you would like to add a user called 'foo' with a password 'secret'

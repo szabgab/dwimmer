@@ -682,10 +682,10 @@ post '/set_site_config.json' => sub {
 
 
 post '/change_password.json' => sub {
-	my %params = _clean_params(qw(uid new_password admin_password));
-	return render_response 'error', { 'no_uid' => 1 } if not $params{uid};
+	my %params = _clean_params(qw(uid name password admin_password));
+	return render_response 'error', { 'no_uid_or_name' => 1 }  if not $params{uid} and not $params{name};
 	return render_response 'error', { 'no_new_password' => 1 } if not $params{new_password};
-	return render_response 'error', { 'no_old_password' => 1 } if not $params{admin_password};
+	return render_response 'error', { 'no_admin_password' => 1 } if not $params{admin_password};
 
 	my $new_sha1 = sha1_base64( $params{new_password} );
 	my $admin_sha1 = sha1_base64( $params{admin_password} );
@@ -696,7 +696,12 @@ post '/change_password.json' => sub {
 	return render_response 'error', { 'invalid_admin_password' => 1 }
 		if $admin->sha1 ne $admin_sha1;
 
-	my $user = $db->resultset('User')->find( { id => $params{uid} } );
+	my $user;
+	if ($params{uid}) {
+		$user = $db->resultset('User')->find( { id => $params{uid} } );
+	} else {
+		$user = $db->resultset('User')->find( { name => $params{name} } );
+	}
 
 	return render_response 'error', { 'no_user_found' => 1 } if not $user;
 

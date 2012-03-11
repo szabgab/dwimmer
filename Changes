@@ -1,6 +1,8 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
     - rename /change_password  to /change_my_password
+    - add new /change_password to change the password 
+      of another user
     - fix command line adding user
     - add command line listing all the users
 
