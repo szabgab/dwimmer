@@ -682,7 +682,7 @@ post '/set_site_config.json' => sub {
 
 
 post '/change_password.json' => sub {
-	my %params = _clean_params(qw(uid name password admin_password));
+	my %params = _clean_params(qw(uid name new_password admin_password));
 	return render_response 'error', { 'no_uid_or_name' => 1 }  if not $params{uid} and not $params{name};
 	return render_response 'error', { 'no_new_password' => 1 } if not $params{new_password};
 	return render_response 'error', { 'no_admin_password' => 1 } if not $params{admin_password};
