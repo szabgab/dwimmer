@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use strict;
+use 5.012000;
 use warnings;
 
 use Data::Dumper;
@@ -31,70 +31,84 @@ my $cmd = shift;
 
 pod2usage() if not $cmd or $cmd eq 'help';
 
-if ($commands{$cmd}) {
-	my %data;
-	my @fields = @{ $commands{$cmd} };
+pod2usage() if not $commands{$cmd};
 
-	# TODO check the validity of the parameters too
-	if (@ARGV != @fields) {
-		die "Invalid number of arguments. Needed: @{ $commands{$cmd} }\n";
+my %data;
+my @fields = @{ $commands{$cmd} };
+
+# TODO check the validity of the parameters too
+if (@ARGV != @fields) {
+	die "Invalid number of arguments. Needed: @{ $commands{$cmd} }\n";
+}
+@data{ @fields } = @ARGV;
+
+my $dw = Dwimmer::Client->new( host => $opt{url} );
+my $login = $dw->login( username => $opt{username}, password => $opt{password} );
+given ($login->{error}) {
+	when (undef) {}
+	when ('invalid_password') {
+		die "Invalid password\n";
 	}
-	@data{ @fields } = @ARGV;
-
-	my $dw = Dwimmer::Client->new( host => $opt{url} );
-	my $login = $dw->login( username => $opt{username}, password => $opt{password} );
-	if ($login->{error}) {
-		if ($login->{error} eq 'invalid_password') {
-			die "Invalid password\n";
-		} elsif ($login->{error} eq 'not_logged_in') {
-			die "Could not login\n";
-			# maybe some error in the routing? e.g. multiple /-es somewhere?
-		}
+	when ('not_logged_in') {
+		die "Could not login\n";
+		# maybe some error in the routing? e.g. multiple /-es somewhere?
 	}
-	#print Dumper $login;
+	default {
+		die "Unhandled error: " . Dumper $login;
+	}
+}
+#print Dumper $login;
 
-	if ($cmd eq 'add_user') {
+given ($cmd) {
+	when ('add_user') {
 		$data{verify} = 'verified';
 		$data{pw1} = $data{pw2} = delete $data{password};
-	} elsif ($cmd eq 'change_password') {
+	}
+	when ('change_password') {
 		$data{new_password} = delete $data{password};
 		$data{admin_password} = $opt{password};
 	}
+}
 
-	my $r = $dw->$cmd(%data);
+my $r = $dw->$cmd(%data);
 
 
-	if ($cmd eq 'list_users' ) {
+given ($cmd) {
+	when ('list_users' ) {
 		print "Users: \n\n";
 		foreach my $u ( sort { $a->{name} cmp $b->{name} } @{ $r->{users} } ) {
-			print "$u->{name}\n";
+			say $u->{name};
 		}
-	} elsif ($cmd eq 'add_user') {
+	}
+	when ('add_user') {
 		if ($r->{success}) {
-			print "Success\n";
-		} elsif ($r->{error}) {
-			if ($r->{error} eq 'username_taken') {
+			say 'Success';
+		}
+		given ($r->{error}) {
+			when (undef) {}
+			when ('username_taken') {
 				die "The username '$data{uname}' is already in use\n";
-			} elsif ($r->{error} eq 'email_used') {
+			}
+			when ('email_used') {
 				die "The email '$data{email}' is already in use\n";
-			} else {
+			}
+			default {
 				die 'Unrecognized error: ' . Dumper $r;
 			}
-		} else {
-			die "No success and not error? " . Dumper $r;
 		}
-	} elsif ($cmd eq 'change_password') {
+	}
+	when ('change_password') {
 		if ($r->{success}) {
-			print "Success. Password changed\n";
+			say 'Success. Password changed';
 		} else {
 			die Dumper $r;
 		}
-	} else {
+	}
+	default {
 		print Dumper $r;
 	}
-} else {
-	pod2usage();
 }
+
 exit;
 
 =head1 NAME
