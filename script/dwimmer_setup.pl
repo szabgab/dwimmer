@@ -6,7 +6,7 @@ use autodie;
 use Cwd qw(abs_path);
 use DBIx::RunSQL;
 use Email::Valid;
-use File::Basename qw(dirname);
+use File::Basename qw(dirname basename);
 use File::Copy::Recursive;
 use File::Find::Rule;
 use File::Path qw(mkpath);
@@ -119,7 +119,7 @@ if (not $opt{upgrade}) {
 my @upgrade_from;
 
 foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '*.sql' ) ) {
-	next if $sql !~ m{/\d+\.sql$};
+	next if basename($sql) !~ m{^\d+\.sql$};
 	push @upgrade_from, sub {
 	    my $dbfile = shift;
 
