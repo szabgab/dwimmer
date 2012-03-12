@@ -133,6 +133,8 @@ foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '*.sql' ) ) {
 
 upgrades($dbfile);
 
+say 'You can now launch the application and visit the web site';
+
 exit;
 
 sub setup_db {
@@ -151,7 +153,7 @@ sub setup_db {
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
     my $time = time;
     my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)', 
+    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)',
         {},
         'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1, $time);
 
@@ -170,11 +172,7 @@ sub setup_db {
 
     return if $opt{silent};
 
-    print <<"END_MSG";
-Database created.
-
-You can now launch the application and visit the web site
-END_MSG
+    say 'Database created.';
 
     return;
 }
