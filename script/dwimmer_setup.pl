@@ -6,7 +6,7 @@ use autodie;
 use Cwd qw(abs_path);
 use DBIx::RunSQL;
 use Email::Valid;
-use File::Basename qw(dirname);
+use File::Basename qw(dirname basename);
 use File::Copy::Recursive;
 use File::Find::Rule;
 use File::Path qw(mkpath);
@@ -119,7 +119,7 @@ if (not $opt{upgrade}) {
 my @upgrade_from;
 
 foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '*.sql' ) ) {
-	next if $sql !~ m{/\d+\.sql$};
+	next if basename($sql) !~ m{^\d+\.sql$};
 	push @upgrade_from, sub {
 	    my $dbfile = shift;
 
@@ -132,6 +132,8 @@ foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '*.sql' ) ) {
 }
 
 upgrades($dbfile);
+
+say 'You can now launch the application and visit the web site';
 
 exit;
 
@@ -151,7 +153,7 @@ sub setup_db {
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
     my $time = time;
     my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)', 
+    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)',
         {},
         'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1, $time);
 
@@ -170,11 +172,7 @@ sub setup_db {
 
     return if $opt{silent};
 
-    print <<"END_MSG";
-Database created.
-
-You can now launch the application and visit the web site
-END_MSG
+    say 'Database created.';
 
     return;
 }
