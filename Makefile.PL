@@ -56,6 +56,7 @@ foreach my $module ( keys %prereq ) {
 test_requires 'Test::More'           => 0;
 test_requires 'Test::Deep'           => 0;
 test_requires 'Test::WWW::Mechanize' => 0;
+test_requires 'Test::Differences'    => 0;
 
 
 homepage 'http://dwimmer.org/';

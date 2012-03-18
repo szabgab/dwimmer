@@ -427,6 +427,8 @@ post '/create_list.json' => sub {
 
 	my $validate_template = params->{'validate_template'} || '';
 	my $confirm_template  = params->{'confirm_template'}  || '';
+	$validate_template =~ s/\r//g; # is this a work-around for the 010 tests or is this really needed?
+	$confirm_template =~ s/\r//g;
 
 	my $db   = _get_db();
 	my $list = $db->resultset('MailingList')->create(
