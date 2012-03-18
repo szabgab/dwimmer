@@ -6,12 +6,21 @@ use Data::Dumper;
 use Getopt::Long qw(GetOptions);
 use Pod::Usage   qw(pod2usage);
 
+use Dwimmer::Client;
+
+
 my %opt;
 GetOptions(\%opt,
+	'version',
 	'url=s',
 	'username=s',
 	'password=s',
 ) or pod2usage();
+
+if ($opt{version}) {
+	say "Dwimmer Client: v$Dwimmer::Client::VERSION";
+	exit;
+}
 
 $opt{username} ||= 'admin';
 pod2usage() if not $opt{url} or not $opt{username} or not $opt{password};
@@ -23,9 +32,6 @@ my %commands = (
 	list_users      =>  [],
 	change_password =>  [qw(name password)],
 );
-
-use Dwimmer::Client;
-
 
 my $cmd = shift;
 
@@ -120,6 +126,8 @@ dwimmer - command line client to interact with a Dwimmer server
 OPTIONAL PARAMETER:
 
    --username  OF_ADMINISTRATOR    (admin by default)
+
+   --version                  to show the version number of the Dwimmer
 
 REQUIRED PARAMETERS:
 
