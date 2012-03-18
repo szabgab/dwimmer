@@ -29,6 +29,11 @@ GetOptions(\%opt,
     'upgrade',
     'resetpw',
     'username=s',
+
+    'listusers',
+    'showuser',
+
+    'verify=s',
 );
 usage() if not $opt{root};
 
@@ -51,6 +56,60 @@ if ($opt{resetpw}) {
     die "User was not found" if not $user;
     $user->sha1($sha1);
     $user->update;
+
+    exit;
+}
+
+if (defined $opt{verify}) {
+    die if $opt{verify} ne '0' and $opt{verify} ne '1';
+    if (not -e $opt{root}) {
+        die "Root directory ($opt{root}) does NOT exist.";
+    }
+    if (not $opt{username}) {
+        die "Need username to verify";
+    }
+
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( { name => $opt{username} } );
+    die "User was not found" if not $user;
+    $user->verified( $opt{verify} );
+    $user->update;
+
+    exit;
+}
+
+if ($opt{listusers}) {
+    if (not -e $opt{root}) {
+        die "Root directory ($opt{root}) does NOT exist.";
+    }
+
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my @users = $db->resultset('User')->all();
+    die "No user was found" if not @users;
+    foreach my $u (@users) {
+        printf("%4s  '%s'\n", $u->id, $u->name);
+    }
+
+    exit;
+}
+
+if ($opt{showuser}) {
+    if (not -e $opt{root}) {
+        die "Root directory ($opt{root}) does NOT exist.";
+    }
+    if (not $opt{username}) {
+        die "Need username to ";
+    }
+
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( { name => $opt{username} } );
+    die "User was not found" if not $user;
+    foreach my $key (qw(id name email fname lname country state validation_key verified register_ts)) {
+        say "$key " . ($user->$key // '');
+    }
 
     exit;
 }
@@ -220,6 +279,18 @@ To reset password give the following flags:
    --root     PATH/TO/ROOT
    --username USERNAME
    --password PASSWORD
+
+Show details of a user:
+
+   --showuser
+   --root     PATH/TO/ROOT
+   --username USERNAME
+   
+   --listusers
+   --root
+   
+   --verify
+   --root
 
 =cut
 
