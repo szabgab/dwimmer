@@ -62,7 +62,7 @@ homepage 'http://dwimmer.org/';
 bugtracker 'http://github.com/szabgab/dwimmer';
 repository 'http://github.com/szabgab/dwimmer';
 
-install_script 'script/dwimmer_setup.pl';
+install_script 'script/dwimmer_admin.pl';
 install_script 'script/dwimmer_backup.pl';
 install_script 'script/dwimmer';
 

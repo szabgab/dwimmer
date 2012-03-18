@@ -19,7 +19,7 @@ use lib $lib;
 my $temp = tempdir( CLEANUP => 0 );
 my $root = File::Spec->catdir($temp, 'root');
 
-system "$^X -I$lib script/dwimmer_setup.pl --email dev\@dwimmer.org --password dwimmer --root $root";
+system "$^X -I$lib script/dwimmer_admin.pl --setup --email dev\@dwimmer.org --password dwimmer --root $root";
 
 my $dbfile = File::Spec->catfile($root, 'db', 'dwimmer.db');
 

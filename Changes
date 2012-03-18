@@ -1,5 +1,8 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+    - rename dwimmer_setup to dwimmer_admin
+    - lots of additional features to dwimmer_admin
+
 0.27 2012.03.11
 
     - rename /change_password  to /change_my_password

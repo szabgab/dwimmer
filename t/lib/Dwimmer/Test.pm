@@ -41,7 +41,7 @@ sub start {
 
     my $root = File::Spec->catdir( $dir, 'dwimmer' );
     system
-        "$^X -Ilib script/dwimmer_setup.pl --root $root --email $admin_mail --password $password" and die $!;
+        "$^X -Ilib script/dwimmer_admin.pl --setup --root $root --email $admin_mail --password $password" and die $!;
 
     mkdir "$root/polls" or die $!;
     copy("t/files/testing-polls.json", "$root/polls") or die $!;
