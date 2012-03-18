@@ -17,7 +17,7 @@ license 'perl';
 author 'Gabor Szabo <szabgab@dwimmer.org>';
 all_from 'lib/Dwimmer.pm';
 
-requires 'perl' => '5.008005';
+requires 'perl' => '5.012000';
 
 my %prereq = (
 	'autodie'             => 0,
