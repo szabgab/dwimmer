@@ -25,7 +25,7 @@ sub start {
 	my ($cnt) = split /_/, basename $0;
 
     $ENV{DWIMMER_TEST} = 1;
-    $ENV{DWIMMER_PORT} = 3000+$cnt;
+    $ENV{DWIMMER_PORT} = 20_000+$cnt;
     $ENV{DWIMMER_MAIL} = File::Spec->catfile( $dir, 'mail.txt' );
 
     our $admin_mail = 'test@dwimmer.org';
