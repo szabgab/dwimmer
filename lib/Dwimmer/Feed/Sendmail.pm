@@ -23,8 +23,11 @@ sub send {
 	my ($self) = @_;
 
 	my $entries = $self->db->get_queue( 'mail' );
+	my $sources = $self->db->get_sources;
 
 	foreach my $e (@$entries) {
+		my ($source) = grep { $_->{id} eq $e->{source_id} }  @$sources;
+
 		my $text = '';
 		$text .= "Title: $e->{title}\n";
 		$text .= "Link: $e->{link}\n\n";
@@ -39,7 +42,14 @@ sub send {
 		my $html = qq{<html><head><title></title></head><body>\n};
 		$html .= qq{<h1><a href="$e->{link}">$e->{title}</a></h1>\n};
 		$html .= qq{<p>Link: $e->{link}</p>\n};
-		#$html .= qq{<p>Source: $e->{source}</p>\n};
+		#$html .= qq{<p>Source ID: $e->{source_id}</p>\n};
+		$html .= qq{<p>Source Title: <a href="$source->{url}">$source->{title}</a></p>\n};
+		$html .= qq{<p>Source Twitter: };
+		if ($source->{twitter}) {
+			$html .= qq{<a href="https://twitter.com/#!/$source->{twitter}">$source->{twitter}</a></p>\n};
+		} else {
+			$html .= qq{NO twitter</p>\n};
+		}
 		$html .= qq{<p>Tags: $e->{tags}</p>\n};
 		$html .= qq{<p>Author: $e->{author}</p>\n};
 		$html .= qq{<p>Date: $e->{issued}</p>\n};
