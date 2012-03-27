@@ -55,7 +55,8 @@ sub send {
 		$html .= qq{<p>Date: $e->{issued}</p>\n};
 		$html .= qq{<hr><p>Summary:<br>$e->{summary}</p>\n};
 
-		$html .= qq{<p><a href="http://twitter.com/home?status=$e->{title} $e->{link}">tweet</a></p>};
+		my $status = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $e->{link}";
+		$html .= qq{<p><a href="http://twitter.com/home?status=$status">tweet</a></p>};
 		$html .= qq{</body></html>\n};
 
 		$self->_sendmail("Perl Feed: $e->{title}", { text => $text, html => $html } );
