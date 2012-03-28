@@ -48,27 +48,27 @@ my @sources = (
 	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
 	my $data = check_dump($out);
 
-	is_deeply $data, $sources[0], 'dumped correctly';
+	is_deeply $data, [$sources[0]], 'dumped correctly';
 	is $err, '', 'no STDERR';
 }
 {
 	my $infile = save_infile('http://szabgab.com/', 'http://szabgab.com/rss.xml', 'My web site', 'micro blog', '');
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
 	my $data = check_dump($out);
-	is_deeply $data, $sources[1], 'dumped correctly';
+	is_deeply $data, [$sources[1]], 'dumped correctly';
 	is $err, '', 'no STDERR';
 }
 
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list dwim" };
 	my $data = check_dump($out);
-	is_deeply $data, $sources[0], 'listed correctly';
+	is_deeply $data, [$sources[0]], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
 	my $data = check_dump($out);
-	is_deeply $data, $sources[1], 'listed correctly';
+	is_deeply $data, [ @sources[0,1] ], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
 
@@ -76,14 +76,16 @@ my @sources = (
 sub check_dump {
 	my ($out) = @_;
 
-	our $VAR1 = undef;
+	my @parts = split /\$VAR1\s+=\s*/, $out;
+	shift @parts;
 
-	my ($dump) = $out =~ /(\$VAR1.*)/s;
-	#diag $out;
-	#diag $dump;
-	eval $dump;
-	die $@ if $@;
-	return $VAR1;
+	my @data;
+	foreach my $p (@parts) {
+		my $v = eval $p;
+		die $@ if $@;
+		push @data, $v;
+	}
+	return \@data;
 }
 
 sub save_infile {
