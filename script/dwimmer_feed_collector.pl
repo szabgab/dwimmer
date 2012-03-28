@@ -17,6 +17,7 @@ GetOptions(\%opt,
 	'html=s',
 ) or usage();
 usage() if not $opt{store};
+usage() if not $opt{collect} and not $opt{html} and not $opt{sendmail} and not $opt{twitter};
 
 my $t0 = time;
 

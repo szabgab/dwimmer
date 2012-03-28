@@ -87,16 +87,16 @@ sub collect {
 				my $hostname = $entry->link;
 				$hostname =~ s{^(https?://[^/]+).*}{$1};
 				#main::LOG("HOST: $hostname");
-				if ( not $self->db->find( link => "$hostname%" ) ) {
-					main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
-					my $msg = MIME::Lite->new(
-						From    => 'dwimmer@dwimmer.com',
-						To      => 'szabgab@gmail.com',
-						Subject => "Dwimmer: new URL noticed $hostname",
-						Data    => $entry->link,
-					);
-					$msg->send;
-				}
+				#if ( not $self->db->find( link => "$hostname%" ) ) {
+				#	main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
+				#	my $msg = MIME::Lite->new(
+				#		From    => 'dwimmer@dwimmer.com',
+				#		To      => 'szabgab@gmail.com',
+				#		Subject => "Dwimmer: new URL noticed $hostname",
+				#		Data    => $entry->link,
+				#	);
+				#	$msg->send;
+				#}
 				if ( not $self->db->find( link => $entry->link ) ) {
 					my %current = (
 						source_id => $e->{id},

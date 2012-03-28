@@ -5,11 +5,12 @@ use Test::More;
 
 use Capture::Tiny qw(capture);
 use Data::Dumper  qw(Dumper);
+use File::Copy    qw(copy);
 use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
 
-plan tests => 28;
+plan tests => 32;
 
 my $store = "$tempdir/data.db";
 {
@@ -27,7 +28,7 @@ my $store = "$tempdir/data.db";
 my @sources = (
 	{
            'comment' => 'some comment',
-           'feed' => 'http://dwimmer.com/atom.xml',
+           'feed' => "file://$tempdir/atom.xml",
            'id' => 1,
            'status' => 'enabled',
            'title' => 'This is a title',
@@ -36,7 +37,7 @@ my @sources = (
 	},
 	{
            'comment' => '',
-           'feed' => 'http://szabgab.com/rss.xml',
+           'feed' => "file://$tempdir/rss.xml",
            'id' => 2,
            'status' => 'enabled',
            'title' => 'My web site',
@@ -116,7 +117,6 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 
-	
 # config
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig" };
@@ -142,6 +142,38 @@ $disabled->{status} = 'disabled';
 		value => 'foo@bar.com',
 		},
 		]], 'no config';
+	is $err, '', 'no STDERR';
+}
+
+
+# disable for now so we only test the rss
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --disable 1" };
+	copy 't/files/rss.xml', "$tempdir/rss.xml";
+}
+
+
+# running the collector, I'd think it should give some kind of an error message if it cannot find feed
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store" };
+	is $out, '', 'no STDOUT';
+	like $err, qr{Usage: }, 'Usage on STDERR';
+}
+#{
+#	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+#	like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
+#	is $err, '', 'no STDERR';
+#}
+{
+#	open my $atom, '>', "$tempdir/atom.xml" or die;
+#	print $atom 'Garbage';
+#	close $atom;
+#	open my $rss, '>', "$tempdir/rss.xml" or die;
+#	print $rss 'rss Garbage';
+#	close $rss;
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+# TODO better testing the log output? do we need that?
+	like $out, qr{Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
 	is $err, '', 'no STDERR';
 }
 
