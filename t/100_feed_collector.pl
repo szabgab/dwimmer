@@ -9,7 +9,7 @@ use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
 
-plan tests => 22;
+plan tests => 28;
 
 my $store = "$tempdir/data.db";
 {
@@ -113,6 +113,35 @@ $disabled->{status} = 'disabled';
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
 	my $data = check_dump($out);
 	is_deeply $data, [ @sources[0, 1] ], 'listed correctly after enable';
+	is $err, '', 'no STDERR';
+}
+
+	
+# config
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig" };
+	my $data = check_dump($out);
+	is_deeply $data, [[]], 'no config';
+	is $err, '', 'no STDERR';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config from foo\@bar.com" };
+	#diag $out;
+	#my $data = check_dump($out);
+	#is_deeply $data, [[]], 'no config';
+	is $out, '', 'no STDOUT Hmm, not good';
+	is $err, '', 'no STDERR';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig" };
+	my $data = check_dump($out);
+	is_deeply $data, [[{
+		key => 'from',
+		value => 'foo@bar.com',
+		},
+		]], 'no config';
 	is $err, '', 'no STDERR';
 }
 
