@@ -42,7 +42,7 @@ my @sources = (
 
 
 {
-	my $infile = save_infile('http://dwimmer.com/', 'http://dwimmer.com/atom.xml', 'This is a title', 'chirip', 'some comment');
+	my $infile = save_infile(@{$sources[0]}{qw(url feed title twitter comment)});
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
 
 	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
@@ -52,7 +52,7 @@ my @sources = (
 	is $err, '', 'no STDERR';
 }
 {
-	my $infile = save_infile('http://szabgab.com/', 'http://szabgab.com/rss.xml', 'My web site', 'micro blog', '');
+	my $infile = save_infile(@{$sources[1]}{qw(url feed title twitter comment)});
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
 	my $data = check_dump($out);
 	is_deeply $data, [$sources[1]], 'dumped correctly';
