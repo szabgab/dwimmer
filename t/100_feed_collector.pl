@@ -30,11 +30,7 @@ my $first = {
          };
 
 {
-	my @in = ('http://dwimmer.com/', 'http://dwimmer.com/atom.xml', 'This is a title', 'chirip', 'some comment');
-	my $infile = "$tempdir/in";
-	open my $tmp, '>', $infile or die;
-	print $tmp join '', map {"$_\n"} @in;
-	close $tmp;
+	my $infile = save_infile('http://dwimmer.com/', 'http://dwimmer.com/atom.xml', 'This is a title', 'chirip', 'some comment');
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
 
 	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
@@ -61,6 +57,16 @@ sub check_dump {
 	eval $dump;
 	die $@ if $@;
 	return $VAR1;
+}
+
+sub save_infile {
+	my @in = @_;
+
+	my $infile = "$tempdir/in";
+	open my $tmp, '>', $infile or die;
+	print $tmp join '', map {"$_\n"} @in;
+	close $tmp;
+	return $infile;
 }
 
 
