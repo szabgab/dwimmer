@@ -4,11 +4,12 @@ use warnings;
 use Test::More;
 
 use Capture::Tiny qw(capture);
+use Data::Dumper  qw(Dumper);
 use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
 
-plan tests => 14;
+plan tests => 22;
 
 my $store = "$tempdir/data.db";
 {
@@ -81,6 +82,50 @@ my @sources = (
 	my $data = check_dump($out);
 	is_deeply $data, [ @sources[0,1] ], 'listed correctly';
 	is $err, '', 'no STDERR';
+}
+
+# disable
+my $disabled = clone($sources[0]);
+$disabled->{status} = 'disabled';
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --disable 1" };
+	my $data = check_dump($out);
+	is_deeply $data, [ $sources[0], $disabled ], '--disable';
+	is $err, '', 'no STDERR';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
+	my $data = check_dump($out);
+	is_deeply $data, [ $disabled, $sources[1] ], 'listed correctly after disable';
+	is $err, '', 'no STDERR';
+}
+
+# enable
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --enable 1" };
+	my $data = check_dump($out);
+	is_deeply $data, [ $disabled, $sources[0] ], '--enable';
+	is $err, '', 'no STDERR';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
+	my $data = check_dump($out);
+	is_deeply $data, [ @sources[0, 1] ], 'listed correctly after enable';
+	is $err, '', 'no STDERR';
+}
+
+
+exit;
+
+sub clone {
+	my $old = shift;
+	my $dump = Dumper $old;
+	$dump =~ s/\$VAR1\s+=//;
+	my $var = eval $dump;
+	die $@ if $@;
+	return $var;
 }
 
 
