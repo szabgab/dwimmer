@@ -19,7 +19,8 @@ system "$^X script/dwimmer_feed_setup.pl $store";
 	like $err, qr{--store storage.db}, 'needs --storage';
 }
 
-my $first = {
+my @sources = (
+	{
            'comment' => 'some comment',
            'feed' => 'http://dwimmer.com/atom.xml',
            'id' => 1,
@@ -27,9 +28,8 @@ my $first = {
            'title' => 'This is a title',
            'twitter' => 'chirip',
            'url' => 'http://dwimmer.com/'
-         };
-
-my $second = {
+	},
+	{
            'comment' => '',
            'feed' => 'http://szabgab.com/rss.xml',
            'id' => 2,
@@ -37,7 +37,8 @@ my $second = {
            'title' => 'My web site',
            'twitter' => 'micro blog',
            'url' => 'http://szabgab.com/'
-         };
+	},
+);
 
 
 {
@@ -47,27 +48,27 @@ my $second = {
 	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
 	my $data = check_dump($out);
 
-	is_deeply $data, $first, 'dumped correctly';
+	is_deeply $data, $sources[0], 'dumped correctly';
 	is $err, '', 'no STDERR';
 }
 {
 	my $infile = save_infile('http://szabgab.com/', 'http://szabgab.com/rss.xml', 'My web site', 'micro blog', '');
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
 	my $data = check_dump($out);
-	is_deeply $data, $second, 'dumped correctly';
+	is_deeply $data, $sources[1], 'dumped correctly';
 	is $err, '', 'no STDERR';
 }
 
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list dwim" };
 	my $data = check_dump($out);
-	is_deeply $data, $first, 'listed correctly';
+	is_deeply $data, $sources[0], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
 	my $data = check_dump($out);
-	is_deeply $data, $second, 'listed correctly';
+	is_deeply $data, $sources[1], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
 
