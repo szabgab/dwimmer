@@ -44,7 +44,8 @@ CREATE TABLE config (
 )
 SCHEMA
 
-my ($store, $sources_json) = @ARGV;
+my ($store) = @ARGV;
+die "Usage $0 STORE\n" if not $store;
 
 my $db = Dwimmer::Feed::DB->new( store => $store );
 $db->connect;
@@ -52,10 +53,4 @@ $db->connect;
 foreach my $sql (split /;/, $SCHEMA) {
 	$db->dbh->do($sql);
 }
-
-my $sources = from_json scalar read_file $sources_json, binmode => ':utf8';
-
-for my $e ( @{ $sources->{feeds}{entries} } ) {
-	$db->add_source($e);
-};
 
