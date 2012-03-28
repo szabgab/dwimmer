@@ -11,7 +11,7 @@ my $tempdir = tempdir( CLEANUP => 1);
 plan tests => 10;
 
 my $store = "$tempdir/data.db";
-system "$^X script/dwimmer_feed_setup.pl $store";
+system "$^X script/dwimmer_feed_admin.pl --store $store --setup";
 
 
 {
