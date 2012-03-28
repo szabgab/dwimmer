@@ -8,7 +8,7 @@ use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
 
-plan tests => 6;
+plan tests => 10;
 
 my $store = "$tempdir/data.db";
 system "$^X script/dwimmer_feed_setup.pl $store";
@@ -29,6 +29,17 @@ my $first = {
            'url' => 'http://dwimmer.com/'
          };
 
+my $second = {
+           'comment' => '',
+           'feed' => 'http://szabgab.com/rss.xml',
+           'id' => 2,
+           'status' => 'enabled',
+           'title' => 'My web site',
+           'twitter' => 'micro blog',
+           'url' => 'http://szabgab.com/'
+         };
+
+
 {
 	my $infile = save_infile('http://dwimmer.com/', 'http://dwimmer.com/atom.xml', 'This is a title', 'chirip', 'some comment');
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
@@ -40,11 +51,26 @@ my $first = {
 	is $err, '', 'no STDERR';
 }
 {
+	my $infile = save_infile('http://szabgab.com/', 'http://szabgab.com/rss.xml', 'My web site', 'micro blog', '');
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
+	my $data = check_dump($out);
+	is_deeply $data, $second, 'dumped correctly';
+	is $err, '', 'no STDERR';
+}
+
+{
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list dwim" };
 	my $data = check_dump($out);
 	is_deeply $data, $first, 'listed correctly';
 	is $err, '', 'no STDERR';
 }
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
+	my $data = check_dump($out);
+	is_deeply $data, $second, 'listed correctly';
+	is $err, '', 'no STDERR';
+}
+
 
 sub check_dump {
 	my ($out) = @_;
