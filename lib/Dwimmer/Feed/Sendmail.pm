@@ -28,6 +28,33 @@ sub send {
 	foreach my $e (@$entries) {
 		my ($source) = grep { $_->{id} eq $e->{source_id} }  @$sources;
 
+		# fix redirection and remove parts after path
+		# This is temporarily here though it should be probably moved to the collector
+		my $redirector = '';
+		use LWP::UserAgent;
+		my $ua = LWP::UserAgent->new;
+		@{ $ua->requests_redirectable } = ();
+
+		my $url = $e->{link};
+		my $response = $ua->get($url);
+
+
+		my $status = $response->status_line;
+		$redirector .= qq{<p>Status: $status</p>\n};
+		if ( $response->code == 301 ) {
+			$url = $response->header('Location');
+			$redirector .= qq{<p>Redirected to: <a href="$url">$url</a></p>\n};
+		}
+		my $uri = URI->new($url);
+		$uri->fragment(undef);
+		$uri->query(undef);
+
+		$url = $uri->canonical;
+		$redirector .= qq{<p>Canonical URL: $url</p>\n};
+		if ($url ne $e->{link}) {
+			$redirector .= qq{<h1><a href="$url">$e->{title}</a></h1>\n};
+		}
+
 		my $text = '';
 		$text .= "Title: $e->{title}\n";
 		$text .= "Link: $e->{link}\n\n";
@@ -42,6 +69,7 @@ sub send {
 		my $html = qq{<html><head><title></title></head><body>\n};
 		$html .= qq{<h1><a href="$e->{link}">$e->{title}</a></h1>\n};
 		$html .= qq{<p>Link: $e->{link}</p>\n};
+		$html .= qq{<p>Entry ID: $e->{id}</p>\n};
 		#$html .= qq{<p>Source ID: $e->{source_id}</p>\n};
 		$html .= qq{<p>Source Title: <a href="$source->{url}">$source->{title}</a></p>\n};
 		$html .= qq{<p>Source Twitter: };
@@ -53,10 +81,11 @@ sub send {
 		$html .= qq{<p>Tags: $e->{tags}</p>\n};
 		$html .= qq{<p>Author: $e->{author}</p>\n};
 		$html .= qq{<p>Date: $e->{issued}</p>\n};
+		$html .= qq{<hr>Redirector: $redirector\n};
 		$html .= qq{<hr><p>Summary:<br>$e->{summary}</p>\n};
 
-		my $status = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $e->{link}";
-		$html .= qq{<p><a href="http://twitter.com/home?status=$status">tweet</a></p>};
+		my $twitter_status = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
+		$html .= qq{<p><a href="http://twitter.com/home?status=$twitter_status">tweet</a></p>};
 		$html .= qq{</body></html>\n};
 
 		$self->_sendmail("Perl Feed: $e->{title}", { text => $text, html => $html } );
