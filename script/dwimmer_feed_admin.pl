@@ -26,6 +26,11 @@ GetOptions(\%opt,
 ) or usage();
 usage() if not $opt{store};
 
+if ($opt{setup}) {
+	setup($opt{store});
+	exit;
+}
+
 my $admin = Dwimmer::Feed::Admin->new(%opt);
 if (exists $opt{list}) {
 	$admin->list( $opt{list} );
@@ -48,8 +53,6 @@ if (exists $opt{list}) {
 	my $value = shift;
 	usage('') if not defined $value;
 	$admin->db->set_config( $opt{config}, $value);
-} elsif ($opt{setup}) {
-	setup($opt{store});
 } else {
 	usage();
 }
@@ -58,6 +61,8 @@ exit;
 
 sub setup {
 	my ($store) = @_;
+
+die "Database ($store) already exists\n" if -e $store;
 
 my $SCHEMA = <<'SCHEMA';
 CREATE TABLE sources (

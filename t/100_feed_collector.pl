@@ -8,10 +8,14 @@ use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
 
-plan tests => 10;
+plan tests => 14;
 
 my $store = "$tempdir/data.db";
-system "$^X script/dwimmer_feed_admin.pl --store $store --setup";
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
+	is $err, '', 'no STDERR for setup';
+	is $out, '', 'no STDOUT for setup. Really?';
+}
 
 
 {
@@ -58,6 +62,13 @@ my @sources = (
 	is_deeply $data, [$sources[1]], 'dumped correctly';
 	is $err, '', 'no STDERR';
 }
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
+	like $err, qr{Database .+ already exists}, 'cannot destroy database';
+	is $out, '', 'no STDOUT for setup. Really?';
+}
+
 
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list dwim" };
