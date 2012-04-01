@@ -6,6 +6,8 @@ our $VERSION = '0.27';
 use Encode       ();
 use MIME::Lite   ();
 
+use Dwimmer::Feed::Config;
+
 has 'db'      => (is => 'rw', isa => 'Dwimmer::Feed::DB');
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
 
@@ -101,7 +103,7 @@ sub _sendmail {
 
 	main::LOG("Send Mail: $subject");
 
-	my $config = $self->db->get_config_hash;
+	my $config = Dwimmer::Feed::Config->get_config_hash($self->db);
 	my $msg = MIME::Lite->new(
 		From    => ($config->{from} || 'dwimmer@dwimmer.org'),
 		To      => 'szabgab@gmail.com',
