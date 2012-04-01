@@ -64,7 +64,7 @@ exit;
 sub setup {
 	my ($store) = @_;
 
-	die "Database ($store) already exists\n" if -e $store;
+	usage("Database ($store) already exists") if -e $store;
 
 my $SCHEMA = <<'SCHEMA';
 CREATE TABLE sources (
