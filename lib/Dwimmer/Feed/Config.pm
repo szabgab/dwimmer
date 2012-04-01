@@ -19,10 +19,8 @@ sub get_config {
 sub get {
 	my ($self, $db, $field) = @_;
 
-	# TODO later check db as well
-	return $DEFAULT{$field};
-
-	#my $config = $db->get_config;
+	my $config = $db->get_config_hash;
+	return $config->{$field} // $DEFAULT{$field};
 }
 
 
