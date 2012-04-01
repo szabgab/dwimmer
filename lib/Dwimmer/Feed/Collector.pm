@@ -8,8 +8,6 @@ our $VERSION = '0.27';
 my $MAX_SIZE = 500;
 my $TRIM_SIZE = 400;
 
-use Dwimmer::Feed::DB;
-
 use Cwd            qw(abs_path);
 use File::Basename qw(dirname);
 use File::Path     qw(mkpath);
@@ -17,6 +15,10 @@ use List::Util     qw(min);
 use MIME::Lite     ();
 use Template;
 use XML::Feed      ();
+
+use Dwimmer::Feed::DB;
+use Dwimmer::Feed::Config;
+
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
@@ -68,6 +70,7 @@ sub collect {
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
+			next;
 		}
 		if (not $feed) {
 			main::LOG("   ERROR: " . XML::Feed->errstr);
@@ -199,17 +202,19 @@ sub generate_html {
 
 	my $root = dirname dirname abs_path $0;
 
+	my $config = Dwimmer::Feed::Config->get_config_hash($self->db);
 	my $t = Template->new({ ABSOLUTE => 1, });
-	$t->process("$root/views/feed_index.tt", {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
-	$t->process("$root/views/feed_rss.tt",   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
-	$t->process("$root/views/feed_atom.tt",  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
-	$t->process("$root/views/feed_feeds.tt", {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
+	my $index_tt = $config->get($self->db, 'index_tt');
+	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
+	$t->process(\$config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
+	$t->process(\$config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
+	$t->process(\$config->get($self->db, 'feeds_tt'), {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
 
 	foreach my $date (keys %entries_on) {
 		my ($year, $month, $day) = split /-/, $date;
 		my $path = "$dir/archive/$year/$month";
 		mkpath $path;
-		$t->process("$root/views/feed_index.tt", {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
+		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
 
 	return;
