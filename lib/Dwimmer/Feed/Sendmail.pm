@@ -5,6 +5,7 @@ our $VERSION = '0.27';
 
 use Encode       ();
 use MIME::Lite   ();
+use Template;
 
 use Dwimmer::Feed::Config;
 
@@ -90,7 +91,12 @@ sub send {
 		$html .= qq{<p><a href="http://twitter.com/home?status=$twitter_status">tweet</a></p>};
 		$html .= qq{</body></html>\n};
 
-		$self->_sendmail("Perl Feed: $e->{title}", { text => $text, html => $html } );
+		my $config = Dwimmer::Feed::Config->get_config_hash($self->db);
+		my $subject_tt = ($config->{subject_tt} || '[% title %]');
+		my $t = Template->new();
+		$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
+
+		$self->_sendmail($subject, { text => $text, html => $html } );
 		$self->db->delete_from_queue('mail', $e->{id});
 	}
 
