@@ -202,13 +202,12 @@ sub generate_html {
 
 	my $root = dirname dirname abs_path $0;
 
-	my $config = Dwimmer::Feed::Config->get_config_hash($self->db);
 	my $t = Template->new({ ABSOLUTE => 1, });
-	my $index_tt = $config->get($self->db, 'index_tt');
+	my $index_tt = Dwimmer::Feed::Config->get($self->db, 'index_tt');
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
-	$t->process(\$config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
-	$t->process(\$config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
-	$t->process(\$config->get($self->db, 'feeds_tt'), {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, 'feeds_tt'), {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
 
 	foreach my $date (keys %entries_on) {
 		my ($year, $month, $day) = split /-/, $date;
