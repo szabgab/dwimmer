@@ -31,6 +31,8 @@ if ($opt{setup}) {
 	exit;
 }
 
+usage("Database ($opt{store}) does NOT exist") if not -e $opt{store};
+
 my $admin = Dwimmer::Feed::Admin->new(%opt);
 if (exists $opt{list}) {
 	$admin->list( $opt{list} );
@@ -62,7 +64,7 @@ exit;
 sub setup {
 	my ($store) = @_;
 
-die "Database ($store) already exists\n" if -e $store;
+	die "Database ($store) already exists\n" if -e $store;
 
 my $SCHEMA = <<'SCHEMA';
 CREATE TABLE sources (

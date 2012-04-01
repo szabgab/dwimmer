@@ -10,20 +10,27 @@ use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
 
-plan tests => 32;
+plan tests => 34;
 
 my $store = "$tempdir/data.db";
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl" };
+	like $err, qr{--store storage.db}, 'needs --store';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store" };
+	like $err, qr{--store storage.db}, 'needs --store';
+	like $err, qr{does NOT exist}, 'needs --store';
+}
+
+
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
 	is $err, '', 'no STDERR for setup';
 	is $out, '', 'no STDOUT for setup. Really?';
 }
 
-
-{
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl" };
-	like $err, qr{--store storage.db}, 'needs --storage';
-}
 
 my @sources = (
 	{
