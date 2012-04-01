@@ -4,6 +4,7 @@ use Moose;
 our $VERSION = '0.27';
 
 use Encode       ();
+use LWP::UserAgent;
 use MIME::Lite   ();
 use Template;
 
@@ -33,67 +34,37 @@ sub send {
 
 		# fix redirection and remove parts after path
 		# This is temporarily here though it should be probably moved to the collector
-		my $redirector = '';
-		use LWP::UserAgent;
 		my $ua = LWP::UserAgent->new;
+		my $t = Template->new();
+
 		@{ $ua->requests_redirectable } = ();
 
 		my $url = $e->{link};
 		my $response = $ua->get($url);
 
-
 		my $status = $response->status_line;
-		$redirector .= qq{<p>Status: $status</p>\n};
+		my %other;
+		$other{status} = $status;
 		if ( $response->code == 301 ) {
 			$url = $response->header('Location');
-			$redirector .= qq{<p>Redirected to: <a href="$url">$url</a></p>\n};
+			$other{redirected} = 1;
 		}
+
 		my $uri = URI->new($url);
 		$uri->fragment(undef);
 		$uri->query(undef);
 
 		$url = $uri->canonical;
-		$redirector .= qq{<p>Canonical URL: $url</p>\n};
-		if ($url ne $e->{link}) {
-			$redirector .= qq{<h1><a href="$url">$e->{title}</a></h1>\n};
-		}
+		$other{url} = $url;
+		$other{twitter_status} = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
 
-		my $text = '';
-		$text .= "Title: $e->{title}\n";
-		$text .= "Link: $e->{link}\n\n";
-		#$text .= "Source: $e->{source}\n\n";
-		$text .= "Tags: $e->{tags}\n\n";
-		$text .= "Author: $e->{author}\n\n";
-		$text .= "Date: $e->{issued}\n\n";
-		$text .= "Summary:\n$e->{summary}\n\n";
-		#$text .=  Encode::encode('UTF-8', "Content:\n$e->{content}\n\n");
-		#$text .= "-------------------------------\n\n";
+		my $html_tt = Dwimmer::Feed::Config->get($self->db, 'html_tt');
+		$t->process(\$html_tt, {e => $e, source => $source, other => \%other}, \my $html) or die $t->error;
 
-		my $html = qq{<html><head><title></title></head><body>\n};
-		$html .= qq{<h1><a href="$e->{link}">$e->{title}</a></h1>\n};
-		$html .= qq{<p>Link: $e->{link}</p>\n};
-		$html .= qq{<p>Entry ID: $e->{id}</p>\n};
-		#$html .= qq{<p>Source ID: $e->{source_id}</p>\n};
-		$html .= qq{<p>Source Title: <a href="$source->{url}">$source->{title}</a></p>\n};
-		$html .= qq{<p>Source Twitter: };
-		if ($source->{twitter}) {
-			$html .= qq{<a href="https://twitter.com/#!/$source->{twitter}">$source->{twitter}</a></p>\n};
-		} else {
-			$html .= qq{NO twitter</p>\n};
-		}
-		$html .= qq{<p>Tags: $e->{tags}</p>\n};
-		$html .= qq{<p>Author: $e->{author}</p>\n};
-		$html .= qq{<p>Date: $e->{issued}</p>\n};
-		$html .= qq{<hr>Redirector: $redirector\n};
-		$html .= qq{<hr><p>Summary:<br>$e->{summary}</p>\n};
+		my $text_tt = Dwimmer::Feed::Config->get($self->db, 'text_tt');
+		$t->process(\$text_tt, $e, \my $text) or die $t->error;
 
-		my $twitter_status = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
-		$html .= qq{<p><a href="http://twitter.com/home?status=$twitter_status">tweet</a></p>};
-		$html .= qq{</body></html>\n};
-
-		my $config = Dwimmer::Feed::Config->get_config_hash($self->db);
-		my $subject_tt = ($config->{subject_tt} || '[% title %]');
-		my $t = Template->new();
+		my $subject_tt = Dwimmer::Feed::Config->get($self->db, 'subject_tt');
 		$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
 
 		$self->_sendmail($subject, { text => $text, html => $html } );
@@ -109,13 +80,13 @@ sub _sendmail {
 
 	main::LOG("Send Mail: $subject");
 
-	my $config = Dwimmer::Feed::Config->get_config_hash($self->db);
-	if (not $config->{from}) {
+	my $from = Dwimmer::Feed::Config->get($self->db, 'from');
+	if (not $from) {
 		warn "from field is required. Cannot send mail.\n";
 		return;
 	}
 	my $msg = MIME::Lite->new(
-		From    => $config->{from},
+		From    => $from,
 		To      => 'szabgab@gmail.com',
 		Subject => $subject,
 		Type    => 'multipart/alternative',

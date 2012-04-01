@@ -23,6 +23,50 @@ sub get {
 	return $config->{$field} // $DEFAULT{$field};
 }
 
+$DEFAULT{subject_tt} = q{[% title %]};
+
+$DEFAULT{text_tt} = q{
+Title: [% title %]
+Link: [% link %]
+Source: [% source %]
+Tags: [% tags %]
+Author: [% author %]
+
+Date: [% issued %]
+Summary:
+[% summary %]
+----------------------------
+};
+
+$DEFAULT{html_tt} = q{
+<html><head><title></title></head><body>
+<h1><a href="[% other.url %]">[% e.title %]</a></h1>
+<p>Link: [% e.link %]</p>
+<p>Entry ID: [% e.id %]</p>
+<p>Source ID: [% e.source_id %]</p>
+<p>Source Title: <a href="[% source.url %]">[% source.title %]</a></p>
+<p>Source Twitter:
+[% IF source.twitter %]
+   <a href="https://twitter.com/#!/[% source.twitter %]">[% source.twitter %]</a></p>
+[% ELSE %]
+   NO twitter</p>
+[% END %]
+
+<p>Tags: [% e.tags %]</p>
+<p>Author: [% e.author %]</p>
+<p>Date: [% e.issued %]</p>
+<p>HTTP Status: [% other.status %]</p>
+[% IF other.redirected %]
+  <p>Redirected</p>
+[% END %]
+
+<p>Original URL: [% e.link %]</p>
+<hr><p>Summary:<br>[% e.summary %]</p>
+
+<p><a href="http://twitter.com/home?status=[% other.twitter_status %]">tweet</a></p>
+</body></html>
+};
+
 
 $DEFAULT{atom_tt} = q{
 <?xml version="1.0" encoding="utf-8"?>
