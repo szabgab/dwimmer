@@ -104,8 +104,12 @@ sub _sendmail {
 	main::LOG("Send Mail: $subject");
 
 	my $config = Dwimmer::Feed::Config->get_config_hash($self->db);
+	if (not $config->{from}) {
+		warn "from field is required. Cannot send mail.\n";
+		return;
+	}
 	my $msg = MIME::Lite->new(
-		From    => ($config->{from} || 'dwimmer@dwimmer.org'),
+		From    => $config->{from},
 		To      => 'szabgab@gmail.com',
 		Subject => $subject,
 		Type    => 'multipart/alternative',
