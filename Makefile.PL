@@ -67,6 +67,9 @@ install_script 'script/dwimmer_admin.pl';
 install_script 'script/dwimmer_backup.pl';
 install_script 'script/dwimmer';
 
+install_script 'script/dwimmer_feed_admin.pl';
+install_script 'script/dwimmer_feed_collector.pl';
+
 # Copy files to share before installing (but it is not included in the distribution)
 foreach my $module (qw(File::Copy::Recursive File::Spec)) {
 	eval "use $module";
