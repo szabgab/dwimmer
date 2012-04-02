@@ -67,7 +67,8 @@ sub send {
 		my $subject_tt = Dwimmer::Feed::Config->get($self->db, 'subject_tt');
 		$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
 
-		$self->_sendmail($subject, { text => $text, html => $html } );
+		next if not $self->_sendmail($subject, { text => $text, html => $html } );
+
 		$self->db->delete_from_queue('mail', $e->{id});
 	}
 
@@ -110,7 +111,8 @@ sub _sendmail {
 		$msg->attach($att);
 	}
 
-	$msg->send;
+	return if not $msg->send;
+	return 1;
 }
 
 1;
