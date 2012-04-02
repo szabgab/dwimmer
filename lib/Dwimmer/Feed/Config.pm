@@ -41,17 +41,14 @@ Summary:
 $DEFAULT{html_tt} = q{
 <html><head><title></title></head><body>
 <h1><a href="[% other.url %]">[% e.title %]</a></h1>
+<p>[% e.summary %]</p>
+<hr />
+
+<p>Entry</p>
+<p><a href="http://twitter.com/home?status=[% other.twitter_status %]">tweet</a></p>
+<p>Original URL: [% e.link %]</p>
 <p>Link: [% e.link %]</p>
 <p>Entry ID: [% e.id %]</p>
-<p>Source ID: [% e.source_id %]</p>
-<p>Source Title: <a href="[% source.url %]">[% source.title %]</a></p>
-<p>Source Twitter:
-[% IF source.twitter %]
-   <a href="https://twitter.com/#!/[% source.twitter %]">[% source.twitter %]</a></p>
-[% ELSE %]
-   NO twitter</p>
-[% END %]
-
 <p>Tags: [% e.tags %]</p>
 <p>Author: [% e.author %]</p>
 <p>Date: [% e.issued %]</p>
@@ -60,10 +57,17 @@ $DEFAULT{html_tt} = q{
   <p>Redirected</p>
 [% END %]
 
-<p>Original URL: [% e.link %]</p>
-<hr><p>Summary:<br>[% e.summary %]</p>
+<hr />
+<p>Source:</p>
+<p>ID: [% e.source_id %]</p>
+<p>Title: <a href="[% source.url %]">[% source.title %]</a></p>
+<p>Twitter:
+[% IF source.twitter %]
+   <a href="https://twitter.com/#!/[% source.twitter %]">[% source.twitter %]</a></p>
+[% ELSE %]
+   NO twitter</p>
+[% END %]
 
-<p><a href="http://twitter.com/home?status=[% other.twitter_status %]">tweet</a></p>
 </body></html>
 };
 
