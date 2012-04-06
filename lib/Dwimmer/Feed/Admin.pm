@@ -41,16 +41,16 @@ sub list {
 }
 
 sub update {
-	my ($self, $id, $field, $value) = @_;
+	my ($self, %args) = @_;
 
-	my $s = $self->db->get_source_by_id($id);
+	my $s = $self->db->get_source_by_id($args{id});
 	if (not $s) {
-		die "ID '$id' not found\n";
+		die "ID '$args{id}' not found\n";
 	}
 
-	_dump($self->db->get_source_by_id($id));
-	$self->db->update($id, $field, $value);
-	_dump($self->db->get_source_by_id($id));
+	_dump($self->db->get_source_by_id($args{id}));
+	$self->db->update($args{id}, $args{field}, $args{value});
+	_dump($self->db->get_source_by_id($args{id}));
 
 	return;
 }
