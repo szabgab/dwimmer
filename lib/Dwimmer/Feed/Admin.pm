@@ -22,13 +22,13 @@ sub BUILD {
 }
 
 sub list {
-	my ($self, $filter) = @_;
+	my ($self, %args) = @_;
 	my $sources = $self->db->get_sources;
 	foreach my $s (@$sources) {
 		my $show;
-		if ($filter) {
+		if ($args{filter}) {
 			foreach my $field (qw(feed url status title)) {
-				$show++ if $s->{$field} =~ /$filter/i;
+				$show++ if $s->{$field} =~ /$args{filter}/i;
 			}
 		} else {
 			$show++;

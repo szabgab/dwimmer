@@ -35,7 +35,7 @@ usage("Database ($opt{store}) does NOT exist") if not -e $opt{store};
 
 my $admin = Dwimmer::Feed::Admin->new(%opt);
 if (exists $opt{list}) {
-	$admin->list( $opt{list} );
+	$admin->list( filter => ($opt{list} || '') );
 } elsif ( defined $opt{enable} ) {
 	$admin->enable( $opt{enable} );
 } elsif ( defined $opt{disable} ) {
