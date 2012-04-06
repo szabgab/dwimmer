@@ -9,8 +9,9 @@ use File::Copy    qw(copy);
 use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
+my $site_name = 'xyz';
 
-plan tests => 34;
+plan tests => 36;
 
 my $store = "$tempdir/data.db";
 {
@@ -24,13 +25,18 @@ my $store = "$tempdir/data.db";
 	like $err, qr{does NOT exist}, 'needs --store';
 }
 
-
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
 	is $err, '', 'no STDERR for setup';
 	is $out, '', 'no STDOUT for setup. Really?';
 }
 
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --addsite $site_name" };
+	is $err, '', 'no STDERR for setup';
+	is $out, '', 'no STDOUT for setup. Really?';
+}
 
 my @sources = (
 	{
@@ -40,7 +46,8 @@ my @sources = (
            'status' => 'enabled',
            'title' => 'This is a title',
            'twitter' => 'chirip',
-           'url' => 'http://dwimmer.com/'
+           'url' => 'http://dwimmer.com/',
+           'site_id' => 1,
 	},
 	{
            'comment' => '',
@@ -49,26 +56,28 @@ my @sources = (
            'status' => 'enabled',
            'title' => 'My web site',
            'twitter' => 'micro blog',
-           'url' => 'http://szabgab.com/'
+           'url' => 'http://szabgab.com/',
+           'site_id' => 1,
 	},
 );
 
 
 {
 	my $infile = save_infile(@{$sources[0]}{qw(url feed title twitter comment)});
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site_name < $infile" };
 
 	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
 	my $data = check_dump($out);
 
-	is_deeply $data, [$sources[0]], 'dumped correctly';
+	is_deeply $data, [$sources[0]], 'dumped correctly after adding feed';
 	is $err, '', 'no STDERR';
 }
+
 {
 	my $infile = save_infile(@{$sources[1]}{qw(url feed title twitter comment)});
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add < $infile" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site_name < $infile" };
 	my $data = check_dump($out);
-	is_deeply $data, [$sources[1]], 'dumped correctly';
+	is_deeply $data, [$sources[1]], 'dumped correctly after adding second feed';
 	is $err, '', 'no STDERR';
 }
 
@@ -85,6 +94,7 @@ my @sources = (
 	is_deeply $data, [$sources[0]], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
+
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
 	my $data = check_dump($out);
@@ -133,7 +143,7 @@ $disabled->{status} = 'disabled';
 }
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config from foo\@bar.com" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config from foo\@bar.com --site $site_name" };
 	#diag $out;
 	#my $data = check_dump($out);
 	#is_deeply $data, [[]], 'no config';
@@ -147,18 +157,17 @@ $disabled->{status} = 'disabled';
 	is_deeply $data, [[{
 		key => 'from',
 		value => 'foo@bar.com',
+		site_id => 1,
 		},
 		]], 'no config';
 	is $err, '', 'no STDERR';
 }
-
 
 # disable for now so we only test the rss
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --disable 1" };
 	copy 't/files/rss.xml', "$tempdir/rss.xml";
 }
-
 
 # running the collector, I'd think it should give some kind of an error message if it cannot find feed
 {

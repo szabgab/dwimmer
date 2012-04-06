@@ -30,7 +30,7 @@ sub connect {
 sub add_source {
 	my ($self, $e) = @_;
 
-	my @fields = qw(title url feed comment status twitter);
+	my @fields = qw(title url feed comment status twitter site_id);
 	my $fields = join ', ', @fields;
 	my $placeholders = join ', ', (('?') x scalar @fields);
 	$self->dbh->do("INSERT INTO sources ($fields) VALUES($placeholders)",
@@ -145,8 +145,10 @@ sub update {
 
 sub set_config {
 	my ($self, %args) = @_;
-	$self->delete_config( key => $args{key});
-	$self->dbh->do('INSERT INTO config (key, value) VALUES (?, ?)', undef, $args{key}, $args{value});
+	$self->delete_config( key => $args{key} );
+	$self->dbh->do('INSERT INTO config (key, value, site_id) VALUES (?, ?, ?)',
+		undef,
+		$args{key}, $args{value}, $args{site_id});
 	return;
 }
 
@@ -179,6 +181,18 @@ sub get_config_hash {
 	}
 
 	return \%config;
+}
+
+sub addsite {
+	my ($self, %args) = @_;
+
+	return $self->dbh->do(q{INSERT INTO sites (name) VALUES (?)}, {}, $args{name});
+}
+sub get_site_id {
+	my ($self, $name) = @_;
+
+	my $ref = $self->dbh->selectrow_hashref('SELECT id FROM sites WHERE name = ?', {}, $name);
+	return $ref->{id};
 }
 
 1;
