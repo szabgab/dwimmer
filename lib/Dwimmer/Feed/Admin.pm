@@ -42,23 +42,23 @@ sub list {
 
 sub enable {
 	my ($self, $id) = @_;
-	return $self->able($id, 1);
+	return $self->able($id, 'enabled');
 }
 sub disable {
 	my ($self, $id) = @_;
-	return $self->able($id, 0);
+	return $self->able($id, 'disabled');
 }
 
 
 sub able {
-	my ($self, $id, $able) = @_;
+	my ($self, $id, $value) = @_;
 
 	my $s = $self->db->get_source_by_id($id);
 	if (not $s) {
 		die "ID '$id' not found\n";
 	}
 	_dump($s);
-	$self->db->able($id, $able);
+	$self->db->update($id, 'status', $value);
 	_dump($self->db->get_source_by_id($id));
 
 	return;
