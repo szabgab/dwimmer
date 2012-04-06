@@ -22,13 +22,13 @@ sub BUILD {
 }
 
 sub list {
-	my ($self, $filter) = @_;
+	my ($self, %args) = @_;
 	my $sources = $self->db->get_sources;
 	foreach my $s (@$sources) {
 		my $show;
-		if ($filter) {
+		if ($args{filter}) {
 			foreach my $field (qw(feed url status title)) {
-				$show++ if $s->{$field} =~ /$filter/i;
+				$show++ if $s->{$field} =~ /$args{filter}/i;
 			}
 		} else {
 			$show++;
@@ -40,35 +40,17 @@ sub list {
 	return;
 }
 
-sub enable {
-	my ($self, $id) = @_;
-	return $self->able($id, 1);
-}
-sub disable {
-	my ($self, $id) = @_;
-	return $self->able($id, 0);
-}
-
-
-sub able {
-	my ($self, $id, $able) = @_;
-
-	my $s = $self->db->get_source_by_id($id);
-	if (not $s) {
-		die "ID '$id' not found\n";
-	}
-	_dump($s);
-	$self->db->able($id, $able);
-	_dump($self->db->get_source_by_id($id));
-
-	return;
-}
-
 sub update {
-	my ($self, $id, $field, $value) = @_;
-	_dump($self->db->get_source_by_id($id));
-	$self->db->update($id, $field, $value);
-	_dump($self->db->get_source_by_id($id));
+	my ($self, %args) = @_;
+
+	my $s = $self->db->get_source_by_id($args{id});
+	if (not $s) {
+		die "ID '$args{id}' not found\n";
+	}
+
+	_dump($self->db->get_source_by_id($args{id}));
+	$self->db->update($args{id}, $args{field}, $args{value});
+	_dump($self->db->get_source_by_id($args{id}));
 
 	return;
 }

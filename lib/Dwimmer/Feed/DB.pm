@@ -131,31 +131,28 @@ sub get_source_by_id {
 }
 
 
-sub able {
-	my ($self, $id, $able) = @_;
-	$able = $able ? 'enabled' : 'disabled';
-	my $sql = qq{UPDATE sources SET status = "$able" WHERE id=?};
-	$self->dbh->do($sql, undef, $id);
-}
 sub update {
 	my ($self, $id, $field, $value) = @_;
 
 	Carp::croak("Invalid field '$field'")
-		if $field !~ m{^(feed|comment|twitter)$};
+		if $field !~ m{^(feed|comment|twitter|status)$};
+	Carp::croak("Invalid value for status '$value'")
+		if $field eq 'status' and $value !~ m{^(enabled|disabled)$};
 
 	my $sql = qq{UPDATE sources SET $field = ? WHERE id=?};
 	$self->dbh->do($sql, undef, $value, $id);
 }
 
 sub set_config {
-	my ($self, $key, $value) = @_;
-	$self->delete_config($key);
-	$self->dbh->do('INSERT INTO config (key, value) VALUES (?, ?)', undef, $key, $value);
+	my ($self, %args) = @_;
+	$self->delete_config( key => $args{key});
+	$self->dbh->do('INSERT INTO config (key, value) VALUES (?, ?)', undef, $args{key}, $args{value});
 	return;
 }
+
 sub delete_config {
-	my ($self, $key) = @_;
-	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $key);
+	my ($self, %args) = @_;
+	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $args{key});
 	return;
 }
 
