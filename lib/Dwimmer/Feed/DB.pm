@@ -144,14 +144,15 @@ sub update {
 }
 
 sub set_config {
-	my ($self, $key, $value) = @_;
-	$self->delete_config($key);
-	$self->dbh->do('INSERT INTO config (key, value) VALUES (?, ?)', undef, $key, $value);
+	my ($self, %args) = @_;
+	$self->delete_config( key => $args{key});
+	$self->dbh->do('INSERT INTO config (key, value) VALUES (?, ?)', undef, $args{key}, $args{value});
 	return;
 }
+
 sub delete_config {
-	my ($self, $key) = @_;
-	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $key);
+	my ($self, %args) = @_;
+	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $args{key});
 	return;
 }
 

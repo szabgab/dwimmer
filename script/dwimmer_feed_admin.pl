@@ -37,24 +37,24 @@ my $admin = Dwimmer::Feed::Admin->new(%opt);
 if (exists $opt{list}) {
 	$admin->list( filter => ($opt{list} || '') );
 } elsif ( defined $opt{enable} ) {
-	$admin->update( id => $opt{enable},  field => 'status', value =>'enabled');
+	$admin->update( id => $opt{enable},  field => 'status', value =>'enabled' );
 } elsif ( defined $opt{disable} ) {
-	$admin->update( id => $opt{disable}, field => 'status', value => 'disabled');
+	$admin->update( id => $opt{disable}, field => 'status', value => 'disabled' );
 } elsif ( defined $opt{update} ) {
 	my $str = shift;
 	usage('Need update value') if not $str;
 	my ($field, $value) = split /=/, $str;
-	$admin->update( id => $opt{update}, field => $field, value => $value);
+	$admin->update( id => $opt{update}, field => $field, value => $value );
 } elsif (exists $opt{add}) {
-	$admin->add;
+	$admin->add();
 } elsif ($opt{listconfig}) {
 	$admin->list_config();
 } elsif ($opt{unconfig}) {
-	$admin->db->delete_config( $opt{unconfig} );
+	$admin->db->delete_config( key => $opt{unconfig} );
 } elsif ($opt{config}) {
 	my $value = shift;
 	usage('') if not defined $value;
-	$admin->db->set_config( $opt{config}, $value);
+	$admin->db->set_config( key => $opt{config}, value => $value);
 } else {
 	usage();
 }
