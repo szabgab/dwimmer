@@ -37,9 +37,9 @@ my $admin = Dwimmer::Feed::Admin->new(%opt);
 if (exists $opt{list}) {
 	$admin->list( filter => ($opt{list} || '') );
 } elsif ( defined $opt{enable} ) {
-	$admin->enable( $opt{enable} );
+	$admin->update($opt{enable}, 'status', 'enabled');
 } elsif ( defined $opt{disable} ) {
-	$admin->disable( $opt{disable} );
+	$admin->update($opt{disable}, 'status', 'disabled');
 } elsif ( defined $opt{update} ) {
 	my $str = shift;
 	usage('Need update value') if not $str;

@@ -40,15 +40,6 @@ sub list {
 	return;
 }
 
-sub enable {
-	my ($self, $id) = @_;
-	return $self->update($id, 'status', 'enabled');
-}
-sub disable {
-	my ($self, $id) = @_;
-	return $self->update($id, 'status', 'disabled');
-}
-
 sub update {
 	my ($self, $id, $field, $value) = @_;
 
