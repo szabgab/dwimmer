@@ -16,8 +16,9 @@ GetOptions(\%opt,
 	'sendmail',
 	'html=s',
 ) or usage();
-usage() if not $opt{store};
-usage() if not $opt{collect} and not $opt{html} and not $opt{sendmail} and not $opt{twitter};
+usage('Missing --store') if not $opt{store};
+usage('At least one of --collect --html --sendmail is needed')
+	if not $opt{collect} and not $opt{html} and not $opt{sendmail}; # and not $opt{twitter};
 
 my $t0 = time;
 
@@ -36,7 +37,7 @@ if ($opt{sendmail}) {
 	$mail->send;
 }
 
-if ($opt{tweet}) {
+if ($opt{twitter}) {
 	# TODO: tweet
 }
 
@@ -50,7 +51,12 @@ sub LOG {
 }
 
 sub usage {
-	die "Usage: $0 --store storage.db  [--collect --sendmail --html DIR]\n";
+	my $txt = shift;
+	if ($txt) {
+		print STDERR "**** $txt\n\n";
+	}
+	print STDERR "Usage: $0 --store storage.db  [--collect --sendmail --html DIR]\n";
+	exit 1;
 }
 
 

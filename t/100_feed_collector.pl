@@ -174,6 +174,7 @@ $disabled->{status} = 'disabled';
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store" };
 	is $out, '', 'no STDOUT';
 	like $err, qr{Usage: }, 'Usage on STDERR';
+	#diag $err;
 }
 #{
 #	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
