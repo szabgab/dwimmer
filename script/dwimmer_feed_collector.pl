@@ -25,7 +25,7 @@ my $t0 = time;
 my $collector = Dwimmer::Feed::Collector->new(%opt);
 
 if ($opt{collect}) {
-	$collector->collect();
+	$collector->collect_all();
 }
 
 if ($opt{html}) {

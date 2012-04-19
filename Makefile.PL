@@ -23,6 +23,7 @@ my %prereq = (
 	'autodie'             => 0,
 	'Dancer'              => 1.3060,
 	'Data::Dumper'        => 0,
+	'DateTime'            => 0,
 	'DBIx::Class'         => 0,
 	'DBIx::Class::Schema' => 0,
 	'DBIx::RunSQL'        => 0,

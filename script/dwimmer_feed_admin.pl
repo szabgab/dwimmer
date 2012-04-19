@@ -188,5 +188,7 @@ Actions:
        --unconfig key
 
        --listqueue CHANNEL    (e.g. mail)
+
+       --listentries         Show all the entries
 END_USAGE
 }

@@ -6,13 +6,14 @@ use Test::Deep;
 
 use Capture::Tiny qw(capture);
 use Data::Dumper  qw(Dumper);
+use DateTime;
 use File::Copy    qw(copy);
 use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
 my $site_name = 'xyz';
 
-plan tests => 43;
+plan tests => 43+7;
 
 my $store = "$tempdir/data.db";
 {
@@ -178,11 +179,13 @@ $disabled->{status} = 'disabled';
 	#diag $err;
 }
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
-	#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
-	like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
-	unlike $out, qr{ERROR}, 'STDOUT has elapsed time';
-	is $err, '', 'no STDERR';
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
+		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
+		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
+		is $err, '', 'no STDERR';
+	}
 	{
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listqueue mail" };
 		is $err, '';
@@ -205,6 +208,80 @@ $disabled->{status} = 'disabled';
 		       'tags' => '',
 		       'title' => 'First title'
 		     }]];
+	}
+}
+
+{
+	open my $fh, '<', 't/files/rss2.xml' or die;
+	my $content = do { local $/ = undef; <$fh> };
+	my $dt = DateTime->now;;
+	$content =~ s/DATE/$dt/;
+	open my $out, '>', "$tempdir/rss.xml" or die;
+	print $out $content;
+	close $fh;
+	close $out;
+
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
+		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
+		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
+		is $err, '', 'no STDERR';
+	}
+
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listqueue mail" };
+		is $err, '';
+		my $data = check_dump($out);
+		cmp_deeply $data, [[
+			{
+				'remote_id' => undef,
+				'link' => 'http://szabgab.com/second.html',
+				'entry' => 2,
+				'source_id' => 2,
+				'site_id' => 1,
+				'content' => re('^\s*Placeholder for some texts\s*'),
+				'channel' => 'mail',
+				'author' => 'Foo',
+				'tags' => '',
+				'summary' => '',
+				'issued' => re('^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$'),
+				'id' => 2,
+				'title' => 'Second title'
+			}
+		]];
+	}
+
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listentries" };
+		is $err, '';
+		my $data = check_dump($out);
+#diag explain $data;
+		cmp_deeply $data, [[
+			{
+				'author' => 'Foo',
+				'content' => re('^\s*Placeholder for some texts\s*$'),
+				'id' => 2,
+				'issued' => re('^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$'),
+				'link' => 'http://szabgab.com/second.html',
+				'remote_id' => undef,
+				'source_id' => 2,
+				'summary' => '',
+				'tags' => '',
+				'title' => 'Second title'
+			},
+			{
+				'author' => 'Gabor Szabo',
+				'content' => re('^\s*Description\s*$'),
+				'id' => 1,
+				'issued' => '2012-03-28 10:57:35',
+				'link' => 'http://szabgab.com/first.html',
+				'remote_id' => undef,
+				'source_id' => 2,
+				'summary' => '',
+				'tags' => '',
+				'title' => 'First title'
+			}]];
 	}
 }
 

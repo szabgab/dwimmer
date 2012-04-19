@@ -79,7 +79,8 @@ sub add {
 	# only deliver new things
 	my $NOT_TOO_OLD = 60*60*24;
 	if ($issued->epoch > time - $NOT_TOO_OLD) {
-		$self->dbh->do(q{INSERT INTO delivery_queue (channel, entry) VALUES ('mail', ?)}, {}, $id);
+		$self->dbh->do(q{INSERT INTO delivery_queue (channel, entry, site_id) VALUES ('mail', ?, ?)},
+			{}, $id, $args{site_id});
 	}
 
 	return;
@@ -109,11 +110,13 @@ sub get_sources {
 	my ( $self, %opt ) = @_;
 
 	my $sql = 'SELECT * FROM sources';
-	if ($opt{enabled}) {
-		$sql .= ' WHERE status="enabled"';
+	my @fields = sort keys %opt;
+	if (%opt) {
+		$sql .= ' WHERE ';
+		$sql .= join ' AND ', map { "$_=?" } @fields;
 	}
 	my $sth = $self->dbh->prepare($sql);
-	$sth->execute;
+	$sth->execute(@opt{@fields});
 	my @r;
 	while (my $h = $sth->fetchrow_hashref) {
 		push @r, $h;
@@ -193,6 +196,20 @@ sub get_site_id {
 
 	my $ref = $self->dbh->selectrow_hashref('SELECT id FROM sites WHERE name = ?', {}, $name);
 	return $ref->{id};
+}
+
+sub get_sites {
+	my ($self) = @_;
+
+	my $sql = 'SELECT * FROM sites';
+	my $sth = $self->dbh->prepare($sql);
+	$sth->execute;
+	my @r;
+	while (my $h = $sth->fetchrow_hashref) {
+		push @r, $h;
+	}
+
+	return \@r;
 }
 
 1;

@@ -41,12 +41,23 @@ my $TRACK = <<'TRACK';
 
 TRACK
 
-sub collect {
+sub collect_all {
 	my ($self) = @_;
+
+	my $sites = $self->db->get_sites;
+	foreach my $site (@$sites) {
+		$self->collect($site->{id});
+	}
+
+	return;
+}
+
+sub collect {
+	my ($self, $site_id) = @_;
 
 	my $INDENT = ' ' x 11;
 
-	my $sources = $self->db->get_sources( enabled => 1 );
+	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	main::LOG("sources loaded: " . @$sources);
 
 	for my $e ( @$sources ) {
@@ -111,6 +122,7 @@ sub collect {
 						summary   => ($entry->summary->body || ''),
 						content   => ($entry->content->body || ''),
 						tags    => '', #$entry->tags,
+						site_id   => $site_id,
 					);
 					main::LOG("   INFO: Adding $current{link}");
 					$self->db->add(%current);
@@ -140,7 +152,7 @@ sub generate_html {
 	my ($self, $dir) = @_;
 	die if not $dir or not -d $dir;
 
-	my $sources = $self->db->get_sources( enabled => 1 );
+	my $sources = $self->db->get_sources( status => 'enabled' );
 	my %src = map { $_->{id } => $_  } @$sources;
 
 
