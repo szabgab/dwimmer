@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Deep;
 
 use Capture::Tiny qw(capture);
 use Data::Dumper  qw(Dumper);
@@ -11,7 +12,7 @@ use File::Temp    qw(tempdir);
 my $tempdir = tempdir( CLEANUP => 1);
 my $site_name = 'xyz';
 
-plan tests => 41;
+plan tests => 43;
 
 my $store = "$tempdir/data.db";
 {
@@ -182,11 +183,29 @@ $disabled->{status} = 'disabled';
 	like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
 	unlike $out, qr{ERROR}, 'STDOUT has elapsed time';
 	is $err, '', 'no STDERR';
-	#diag $out;
-	my ($out2, $err2) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listqueue mail" };
-	is $err2, '';
-	my $data = check_dump($out2);
-	is_deeply $data, [[]];
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listqueue mail" };
+		is $err, '';
+		my $data = check_dump($out);
+		is_deeply $data, [[]];
+	}
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listentries" };
+		is $err, '';
+		my $data = check_dump($out);
+		cmp_deeply $data, [[{
+		       'author' => 'Gabor Szabo',
+		       'content' => re('^\s*Description\s*$'),
+		       'id' => 1,
+		       'issued' => '2012-03-28 10:57:35',
+		       'link' => 'http://szabgab.com/first.html',
+		       'remote_id' => undef,
+		       'source_id' => 2,
+		       'summary' => '',
+		       'tags' => '',
+		       'title' => 'First title'
+		     }]];
+	}
 }
 
 {

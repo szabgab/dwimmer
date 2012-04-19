@@ -29,6 +29,7 @@ GetOptions(\%opt,
 	'unconfig=s',
 
 	'listqueue=s',
+	'listentries',
 ) or usage();
 usage() if not $opt{store};
 
@@ -79,6 +80,9 @@ if (exists $opt{list}) {
 	$admin->db->set_config( key => $opt{config}, value => $value, site_id => $site_id );
 } elsif ($opt{listqueue}) {
 	my $entries = $admin->db->get_queue( $opt{listqueue} );
+	print Dumper $entries;
+} elsif ($opt{listentries}) {
+	my $entries = $admin->db->get_all_entries;
 	print Dumper $entries;
 } else {
 	usage();
