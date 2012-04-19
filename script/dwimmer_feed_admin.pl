@@ -27,6 +27,8 @@ GetOptions(\%opt,
 	'listconfig',
 	'config=s',
 	'unconfig=s',
+
+	'listqueue=s',
 ) or usage();
 usage() if not $opt{store};
 
@@ -75,6 +77,9 @@ if (exists $opt{list}) {
 	my $site_id = $admin->db->get_site_id( $opt{site} );
 	die("Could not find site '$opt{site}'") if not $site_id;
 	$admin->db->set_config( key => $opt{config}, value => $value, site_id => $site_id );
+} elsif ($opt{listqueue}) {
+	my $entries = $admin->db->get_queue( $opt{listqueue} );
+	print Dumper $entries;
 } else {
 	usage();
 }
@@ -177,5 +182,7 @@ Actions:
        --listconfig
        --config key value
        --unconfig key
+
+       --listqueue CHANNEL    (e.g. mail)
 END_USAGE
 }

@@ -11,7 +11,7 @@ use File::Temp    qw(tempdir);
 my $tempdir = tempdir( CLEANUP => 1);
 my $site_name = 'xyz';
 
-plan tests => 36;
+plan tests => 41;
 
 my $store = "$tempdir/data.db";
 {
@@ -176,11 +176,19 @@ $disabled->{status} = 'disabled';
 	like $err, qr{Usage: }, 'Usage on STDERR';
 	#diag $err;
 }
-#{
-#	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
-#	like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
-#	is $err, '', 'no STDERR';
-#}
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+	#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
+	like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
+	unlike $out, qr{ERROR}, 'STDOUT has elapsed time';
+	is $err, '', 'no STDERR';
+	#diag $out;
+	my ($out2, $err2) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listqueue mail" };
+	is $err2, '';
+	my $data = check_dump($out2);
+	is_deeply $data, [[]];
+}
+
 {
 #	open my $atom, '>', "$tempdir/atom.xml" or die;
 #	print $atom 'Garbage';
