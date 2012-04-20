@@ -26,6 +26,7 @@ my %prereq = (
 	'DateTime'            => 0,
 	'DBIx::Class'         => 0,
 	'DBIx::Class::Schema' => 0,
+	'DBIx::Class::Schema::Loader' => 0, # only needed for developers using script/dbic.pl
 	'DBIx::RunSQL'        => 0,
 	'Email::Valid'        => 0,
 	'Encode'              => 0,
