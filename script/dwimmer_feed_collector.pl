@@ -14,7 +14,7 @@ GetOptions(\%opt,
 
 	'collect',
 	'sendmail',
-	'html=s',
+	'html',
 ) or usage();
 usage('Missing --store') if not $opt{store};
 usage('At least one of --collect --html --sendmail is needed')
@@ -29,7 +29,7 @@ if ($opt{collect}) {
 }
 
 if ($opt{html}) {
-	$collector->generate_html( $opt{html} );
+	$collector->generate_html_all();
 }
 
 if ($opt{sendmail}) {

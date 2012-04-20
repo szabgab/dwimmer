@@ -148,7 +148,10 @@ sub update {
 
 sub set_config {
 	my ($self, %args) = @_;
-	$self->delete_config( key => $args{key} );
+	foreach my $field (qw(key value site_id)) {
+		die "Missing $field" if not defined $args{$field};
+	}
+	$self->delete_config( %args );
 	$self->dbh->do('INSERT INTO config (key, value, site_id) VALUES (?, ?, ?)',
 		undef,
 		$args{key}, $args{value}, $args{site_id});
@@ -157,15 +160,23 @@ sub set_config {
 
 sub delete_config {
 	my ($self, %args) = @_;
-	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $args{key});
+	foreach my $field (qw(key site_id)) {
+		die "Missing $field" if not defined $args{$field};
+	}
+	$self->dbh->do('DELETE FROM config WHERE key=? AND site_id=?', undef, $args{key}, $args{site_id});
 	return;
 }
 
 sub get_config {
-	my ($self) = @_;
+	my ($self, %args) = @_;
 
-	my $sth = $self->dbh->prepare('SELECT * FROM config ORDER BY key DESC');
-	$sth->execute;
+	my $sql = 'SELECT * FROM config ';
+	if (defined $args{site_id}) {
+		$sql .= 'WHERE site_id=?';
+	}
+	$sql .= ' ORDER BY key DESC';
+	my $sth = $self->dbh->prepare($sql);
+	defined $args{site_id} ? $sth->execute($args{site_id}) : $sth->execute();;
 	my @results;
 	while (my $h = $sth->fetchrow_hashref) {
 		push @results, $h;
@@ -174,10 +185,16 @@ sub get_config {
 	return \@results;
 }
 sub get_config_hash {
-	my ($self) = @_;
+	my ($self, %args) = @_;
 
-	my $sth = $self->dbh->prepare('SELECT * FROM config ORDER BY key DESC');
-	$sth->execute;
+	my $sql = 'SELECT * FROM config ';
+	if (defined $args{site_id}) {
+		$sql .= 'WHERE site_id=?';
+	}
+	$sql .= ' ORDER BY key DESC';
+
+	my $sth = $self->dbh->prepare($sql);
+	defined $args{site_id} ? $sth->execute($args{site_id}) : $sth->execute();
 	my %config;
 	while (my $h = $sth->fetchrow_hashref) {
 		$config{ $h->{key} } = $h->{value};
@@ -191,6 +208,7 @@ sub addsite {
 
 	return $self->dbh->do(q{INSERT INTO sites (name) VALUES (?)}, {}, $args{name});
 }
+
 sub get_site_id {
 	my ($self, $name) = @_;
 

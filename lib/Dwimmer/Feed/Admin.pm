@@ -111,9 +111,11 @@ sub prompt {
 
 
 sub list_config {
-	my ($self) = @_;
+	my ($self, $site) = @_;
 
 	use Dwimmer::Feed::Config;
+#	if ($site) {
+#	}
 	my $config = Dwimmer::Feed::Config->get_config($self->db);
 	_dump($config);
 }

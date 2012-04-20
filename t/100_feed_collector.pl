@@ -11,9 +11,11 @@ use File::Copy    qw(copy);
 use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
+my $html_dir = "$tempdir/html";
+mkdir $html_dir or die;
 my $site_name = 'xyz';
 
-plan tests => 43+7;
+plan tests => 43+7+11;
 
 my $store = "$tempdir/data.db";
 {
@@ -146,6 +148,54 @@ $disabled->{status} = 'disabled';
 
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config from foo\@bar.com --site $site_name" };
+	is $out, '', 'no STDOUT Hmm, not good';
+	is $err, '', 'no STDERR';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config another option --site $site_name" };
+	is $out, '', 'no STDOUT Hmm, not good';
+	is $err, '', 'no STDERR';
+}
+
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site_name" };
+	my $data = check_dump($out);
+	is_deeply $data, [[{
+		key => 'from',
+		value => 'foo@bar.com',
+		site_id => 1,
+		},
+		{
+			key => 'another',
+			value => 'option',
+			site_id => 1,
+		},
+		]], 'config' or diag $out;
+	is $err, '', 'no STDERR';
+}
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --unconfig another --site $site_name" };
+	is $out, '', 'no STDOUT Hmm, not good';
+	is $err, '', 'no STDERR';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site_name" };
+	my $data = check_dump($out);
+	is_deeply $data, [[{
+		key => 'from',
+		value => 'foo@bar.com',
+		site_id => 1,
+		},
+		]], 'config';
+	is $err, '', 'no STDERR';
+}
+
+
+{
+	my ($out, $err) = capture { system qq{$^X script/dwimmer_feed_admin.pl --store $store --config html_dir "$html_dir" --site $site_name} };
 	#diag $out;
 	#my $data = check_dump($out);
 	#is_deeply $data, [[]], 'no config';
@@ -153,17 +203,6 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 
-{
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig" };
-	my $data = check_dump($out);
-	is_deeply $data, [[{
-		key => 'from',
-		value => 'foo@bar.com',
-		site_id => 1,
-		},
-		]], 'no config';
-	is $err, '', 'no STDERR';
-}
 
 # disable for now so we only test the rss
 {
@@ -209,7 +248,16 @@ $disabled->{status} = 'disabled';
 		       'title' => 'First title'
 		     }]];
 	}
+
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --html" };
+		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
+		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
+		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
+		is $err, '', 'no STDERR';
+	}
 }
+
 
 {
 	open my $fh, '<', 't/files/rss2.xml' or die;
@@ -256,7 +304,6 @@ $disabled->{status} = 'disabled';
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listentries" };
 		is $err, '';
 		my $data = check_dump($out);
-#diag explain $data;
 		cmp_deeply $data, [[
 			{
 				'author' => 'Foo',
@@ -300,6 +347,7 @@ $disabled->{status} = 'disabled';
 
 
 exit;
+############################################################################
 
 sub clone {
 	my $old = shift;

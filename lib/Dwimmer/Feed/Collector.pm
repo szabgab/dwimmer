@@ -148,11 +148,26 @@ my $ADMIN_EMAIL = 'szabgab@gmail.com';
 # should be in its own class?
 # plan: N item on front page or last N days?
 # every day gets its own page in archice/YYYY/MM/DD
-sub generate_html {
-	my ($self, $dir) = @_;
-	die if not $dir or not -d $dir;
+sub generate_html_all {
+	my ($self) = @_;
 
-	my $sources = $self->db->get_sources( status => 'enabled' );
+	my $sites = $self->db->get_sites;
+	foreach my $site (@$sites) {
+		$self->generate_html($site->{id});
+	}
+
+	return;
+}
+
+sub generate_html {
+	my ($self, $site_id) = @_;
+	die if not defined $site_id;
+
+	my $dir = Dwimmer::Feed::Config->get($self->db, 'html_dir');
+	die 'Missing directory name' if not $dir;
+	die "Not a directory '$dir'" if not -d $dir;
+
+	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	my %src = map { $_->{id } => $_  } @$sources;
 
 

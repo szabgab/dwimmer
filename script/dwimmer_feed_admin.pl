@@ -66,10 +66,11 @@ if (exists $opt{list}) {
 	usage('--site SITE  required for this operation') if not $opt{site};
 	$admin->add( site => $opt{site} );
 } elsif ($opt{listconfig}) {
-	$admin->list_config();
+	$admin->list_config($opt{site});
 } elsif ($opt{unconfig}) {
 	usage('--site SITE  required for this operation') if not $opt{site};
-	$admin->db->delete_config( key => $opt{unconfig}, site => $opt{site}  );
+	my $site_id = $admin->db->get_site_id($opt{site});
+	$admin->db->delete_config( key => $opt{unconfig}, site_id => $site_id );
 } elsif ($opt{config}) {
 	usage('--site SITE  required for this operation') if not $opt{site};
 	my $value = shift;
