@@ -146,9 +146,8 @@ sub generate_html {
 
 	my $all_entries = $self->db->get_all_entries;
 	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
-	my @entries = @$all_entries[0 .. $size-1];
 
-	foreach my $e (@entries) {
+	foreach my $e (@$all_entries) {
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
 		$e->{twitter} = $src{ $e->{source_id} }{twitter};
@@ -163,6 +162,10 @@ sub generate_html {
 #			$e->{display} = substr $e->{display}, 0, $TRIM_SIZE;
 #		}
 	}
+
+
+	my @entries = @$all_entries[0 .. $size-1];
+
 
 	my %site = (
 		url             => $URL,
