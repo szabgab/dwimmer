@@ -132,7 +132,8 @@ $DEFAULT{rss_tt} = q{
 </channel></rss>
 };
 
-$DEFAULT{index_tt} = q{
+
+$DEFAULT{header_tt} = q {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
@@ -171,7 +172,9 @@ body {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border: 1px solid #000;
+}
 
+.postentry {
   min-height: 220px;
   height:auto !important;
   min-height: 220px;
@@ -223,8 +226,20 @@ body {
    text-decoration: none;
 }
 </style>
+};
 
+$DEFAULT{footer_tt} = q{
+<div>
+<div>
+Last updated: [% last_update %]
+</div>
+</div>
+[% track %]
+</body>
+</html>
+};
 
+$DEFAULT{index_tt} = q{
   <h1>Perlsphere</h1>
   <div id="header_text">
   The Perl firehose! The Web's biggest collection of Perl blogs.
@@ -233,7 +248,7 @@ body {
   </div>
 
 [% FOR e IN entries %]
-  <div class="entry">
+  <div class="entry postentry">
 
     <div class="social_link">
         <a href="http://twitter.com/share" class="twitter-share-button"
@@ -269,65 +284,10 @@ body {
     </div>
   </div>
 [% END %]
-
-<div>
-<div>
-Last updated: [% last_update %]
-</div>
-</div>
-[% track %]
-</body>
-</html>
 };
 
 
 $DEFAULT{feeds_tt} = q{
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
-<head>
-<title>Perlsphere - the Perl blog aggregator</title>
- <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-</head>
-<body>
-<style>
-html {
-  margin: 0;
-  padding: 0;
-}
-body {
-  margin: 0;
-  padding: 0;
-  /* text-align: center;*/
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 16px;
-
-}
-#header_text {
-}
-
-.entry {
-  background-color: #DDD;
-  padding: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border: 1px solid #000;
-
-}
-.title {
-  font-size: 24px;
-  font-weight: bold;
-}
-.title a {
-   text-decoration: none;
-}
-</style>
-
-
   <h1>Perlsphere feeds</h1>
   <a href="/">home</a>
 
@@ -342,11 +302,7 @@ body {
 [% END %]
 
 </div>
-[% track %]
-</body>
-</html>
 };
-
 
 
 1;
