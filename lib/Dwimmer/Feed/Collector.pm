@@ -210,7 +210,7 @@ sub generate_html {
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
 	$t->process(\Dwimmer::Feed::Config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
 	$t->process(\Dwimmer::Feed::Config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'feeds_tt'), {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, 'feeds_tt'), {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
 
 	foreach my $date (keys %entries_on) {
 		my ($year, $month, $day) = split /-/, $date;
