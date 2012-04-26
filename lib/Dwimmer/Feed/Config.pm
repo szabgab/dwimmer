@@ -136,9 +136,9 @@ $DEFAULT{header_tt} = q {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
-<title>Perlsphere - the Perl blog aggregator</title>
- <link href="/rss.xml" rel="alternate" type="application/rss+xml" title ="Perlsphere RSS Feed" />
- <link href="/atom.xml" rel="alternate" type="application/atom+xml" title ="Perlspehere ATOM Feed" />
+<title>[% title %]</title>
+ <link href="/rss.xml" rel="alternate" type="application/rss+xml" title ="[% name %] RSS Feed" />
+ <link href="/atom.xml" rel="alternate" type="application/atom+xml" title ="[% name %] ATOM Feed" />
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
  <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
@@ -245,11 +245,9 @@ Last updated: [% last_update %]
 };
 
 $DEFAULT{index_tt} = q{
-  <h1>Perlsphere</h1>
+  <h1>[% title %]</h1>
   <div id="header_text">
-  The Perl firehose! The Web's biggest collection of Perl blogs.
-  If you'd like your Perl blog or tech blog's Perl category to appear here, send mail to szabgab@gmail.com
-  (Please have several posts already). <a href="/feeds.html">feeds</a>.
+  Admin: [% admin_name %] [% admin_email %] <a href="/feeds.html">feeds</a>.
   </div>
 
 [% FOR e IN entries %]
@@ -291,9 +289,8 @@ $DEFAULT{index_tt} = q{
 [% END %]
 };
 
-
 $DEFAULT{feeds_tt} = q{
-  <h1>Perlsphere feeds</h1>
+  <h1>[% name %]feeds</h1>
   <a href="/">home</a>
 
 [% FOR e IN entries %]

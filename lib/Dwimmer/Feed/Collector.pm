@@ -115,22 +115,21 @@ sub collect {
 	}
 }
 
-
-my $FRONT_PAGE_SIZE = 15;
-# my $FEED_SIZE = 20;
-my $TITLE = "Perlsphere";
-my $URL   = "http://feed.szabgab.com/";
-my $DESCRIPTION = 'The largest source of Perl related news';
-my $ADMIN_NAME  = 'Gabor Szabo';
-my $ADMIN_EMAIL = 'szabgab@gmail.com';
-
-
 # should be in its own class?
 # plan: N item on front page or last N days?
 # every day gets its own page in archice/YYYY/MM/DD
 sub generate_html {
 	my ($self, $dir) = @_;
 	die if not $dir or not -d $dir;
+
+	my $TITLE = Dwimmer::Feed::Config->get($self->db, 'title');
+	my $URL   = Dwimmer::Feed::Config->get($self->db, 'url');
+	my $DESCRIPTION = Dwimmer::Feed::Config->get($self->db, 'description');
+	my $ADMIN_NAME  = Dwimmer::Feed::Config->get($self->db, 'admin_name');
+	my $ADMIN_EMAIL = Dwimmer::Feed::Config->get($self->db, 'admin_email');
+
+	my $FRONT_PAGE_SIZE = 15;
+#	my $FEED_SIZE = 20;
 
 	my $sources = $self->db->get_sources( enabled => 1 );
 	my %src = map { $_->{id } => $_  } @$sources;
