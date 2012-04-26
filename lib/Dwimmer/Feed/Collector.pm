@@ -33,14 +33,6 @@ sub BUILD {
 	return;
 }
 
-my $TRACK = <<'TRACK';
-
-<script src="//static.getclicky.com/js" type="text/javascript"></script>
-<script type="text/javascript">try{ clicky.init(66514197); }catch(e){}</script>
-<noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/66514197ns.gif" /></p></noscript>
-
-TRACK
-
 sub collect_all {
 	my ($self) = @_;
 
@@ -135,16 +127,6 @@ sub collect {
 	}
 }
 
-
-my $FRONT_PAGE_SIZE = 15;
-# my $FEED_SIZE = 20;
-my $TITLE = "Perlsphere";
-my $URL   = "http://feed.szabgab.com/";
-my $DESCRIPTION = 'The largest source of Perl related news';
-my $ADMIN_NAME  = 'Gabor Szabo';
-my $ADMIN_EMAIL = 'szabgab@gmail.com';
-
-
 # should be in its own class?
 # plan: N item on front page or last N days?
 # every day gets its own page in archice/YYYY/MM/DD
@@ -173,9 +155,8 @@ sub generate_html {
 
 	my $all_entries = $self->db->get_all_entries;
 	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
-	my @entries = @$all_entries[0 .. $size-1];
 
-	foreach my $e (@entries) {
+	foreach my $e (@$all_entries) {
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
 		$e->{twitter} = $src{ $e->{source_id} }{twitter};
@@ -191,6 +172,12 @@ sub generate_html {
 #		}
 	}
 
+
+	my @entries = @$all_entries[0 .. $size-1];
+
+	my $clicky_enabled = Dwimmer::Feed::Config->get($self->db, 'clicky_enabled');
+	my $clicky_code    = Dwimmer::Feed::Config->get($self->db, 'clicky_code');
+
 	my %site = (
 		url             => $URL,
 		title           => $TITLE,
@@ -201,8 +188,7 @@ sub generate_html {
 		id              => $URL,
 		dwimmer_version => $VERSION,
 		last_update     => scalar localtime,
-		track           => $TRACK,
-
+		clicky          => ($clicky_enabled and $clicky_code ? $clicky_code : ''),
 	);
 
 	$site{last_build_date} = localtime;
@@ -230,11 +216,14 @@ sub generate_html {
 	my $root = dirname dirname abs_path $0;
 
 	my $t = Template->new({ ABSOLUTE => 1, });
-	my $index_tt = Dwimmer::Feed::Config->get($self->db, 'index_tt');
+
+	my $header_tt = Dwimmer::Feed::Config->get($self->db, 'header_tt');
+	my $footer_tt = Dwimmer::Feed::Config->get($self->db, 'footer_tt');
+	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, 'index_tt') . $footer_tt;
+	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, 'feeds_tt') . $footer_tt;
+
+	$t->process(\$feeds_tt, {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'feeds_tt'), {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
 
 	foreach my $date (keys %entries_on) {
 		my ($year, $month, $day) = split /-/, $date;
@@ -242,6 +231,9 @@ sub generate_html {
 		mkpath $path;
 		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
+
+	$t->process(\Dwimmer::Feed::Config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
 
 	return;
 }
