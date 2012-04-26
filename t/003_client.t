@@ -1,4 +1,4 @@
-re(use strict;
+use strict;
 use warnings;
 
 use t::lib::Dwimmer::Test qw(start $admin_mail @users);
