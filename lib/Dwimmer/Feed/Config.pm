@@ -132,7 +132,6 @@ $DEFAULT{rss_tt} = q{
 </channel></rss>
 };
 
-
 $DEFAULT{header_tt} = q {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
@@ -228,13 +227,19 @@ body {
 </style>
 };
 
-$DEFAULT{footer_tt} = q{
+$DEFAULT{footer_tt} = qq{
 <div>
 <div>
 Last updated: [% last_update %]
 </div>
 </div>
-[% track %]
+
+[% IF clicky %]
+  <script src="//static.getclicky.com/js" type="text/javascript"></script>
+  <script type="text/javascript">try{ clicky.init([% clicky %]); }catch(e){}</script>
+  <noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/[% clicky %]ns.gif" /></p></noscript>
+[% END %]
+
 </body>
 </html>
 };
