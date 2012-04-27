@@ -111,7 +111,7 @@ CREATE TABLE sources (
 	twitter   VARCHAR(30),
 	status    VARCHAR(30),
 	site_id   INTEGER NOT NULL,
-	FOREIGN KEY (site_id) REFERENCES sources(id)
+	FOREIGN KEY (site_id) REFERENCES sites(id)
 );
 
 CREATE TABLE entries (
@@ -131,14 +131,14 @@ CREATE TABLE delivery_queue (
 	channel  VARCHAR(30) NOT NULL,
 	entry    INTEGER     NOT NULL,
 	site_id   INTEGER NOT NULL,
-	FOREIGN KEY (site_id) REFERENCES sources(id),
+	FOREIGN KEY (site_id) REFERENCES sites(id),
 	FOREIGN KEY (entry) REFERENCES entries(id)
 );
 CREATE TABLE config (
 	key VARCHAR(100) UNIQUE NOT NULL,
 	value VARCHAR(255),
 	site_id   INTEGER NOT NULL,
-	FOREIGN KEY (site_id) REFERENCES sources(id)
+	FOREIGN KEY (site_id) REFERENCES sites(id)
 )
 SCHEMA
 
