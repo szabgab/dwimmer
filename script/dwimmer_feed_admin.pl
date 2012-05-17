@@ -105,19 +105,21 @@ CREATE TABLE sites (
 CREATE TABLE sources (
 	id        INTEGER PRIMARY KEY,
 	title     VARCHAR(100),
-	url       VARCHAR(100) UNIQUE NOT NULL,
-	feed      VARCHAR(100) UNIQUE NOT NULL,
+	url       VARCHAR(100) NOT NULL,
+	feed      VARCHAR(100) NOT NULL,
 	comment   BLOB,
 	twitter   VARCHAR(30),
 	status    VARCHAR(30),
 	site_id   INTEGER NOT NULL,
+	CONSTRAINT url_site UNIQUE (url, site_id),
+	CONSTRAINT feed_site UNIQUE (feed, site_id),
 	FOREIGN KEY (site_id) REFERENCES sites(id)
 );
 
 CREATE TABLE entries (
 	id        INTEGER PRIMARY KEY,
 	source_id INTEGER NOT NULL,
-	link      VARCHAR(100) UNIQUE NOT NULL,
+	link      VARCHAR(100) NOT NULL,
 	remote_id VARCHAR(100),
 	author    VARCHAR(100),
 	issued    VARCHAR(100),
@@ -135,9 +137,10 @@ CREATE TABLE delivery_queue (
 	FOREIGN KEY (entry) REFERENCES entries(id)
 );
 CREATE TABLE config (
-	key VARCHAR(100) UNIQUE NOT NULL,
+	key VARCHAR(100) NOT NULL,
 	value VARCHAR(255),
 	site_id   INTEGER NOT NULL,
+	CONSTRAINT key_site UNIQUE (key, site_id),
 	FOREIGN KEY (site_id) REFERENCES sites(id)
 )
 SCHEMA

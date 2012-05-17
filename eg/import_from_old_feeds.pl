@@ -23,7 +23,7 @@ sub usage {
 }
 
 sub main {
-	my ($new,  $old, $name) = @_;
+	my ($new,  $old, $name, $all) = @_;
 
 	usage() if not $new or not -e $new;
 	usage() if not $old or not -e $old;
@@ -33,15 +33,28 @@ sub main {
 		FetchHashKeyName => 'NAME_lc',
 		RaiseError       => 1,
 		PrintError       => 0,
+		AutoCommit       => 1,
 	});
+
+	if (not $all) {
+		shift @{ $TABLES{sources} }; # remove id
+	}
 
 	my $db = Dwimmer::Feed::DB->new( store => $new );
 	$db->connect;
 	$db->addsite( name => $name );
 	my $site_id = $db->get_site_id($name);
 	die if not $site_id;
+	$db->dbh->begin_work;
 
 	foreach my $table ('config', 'sources', 'entries', 'delivery_queue') {
+		if (not $all) {
+			next if $table eq 'entries';
+			next if $table eq 'delivery_queue';
+		}
+
+		print "\n";
+		say $table;
 		my $select_sql = _get_select_sql($table);
 		my $insert_sql = _get_insert_sql($table);
 
@@ -51,9 +64,17 @@ sub main {
 			if ($table ne 'entries') {
 				push @row, $site_id;
 			}
-			$db->dbh->do($insert_sql, undef, @row);
+			#say "@row";
+			eval {
+				$db->dbh->do($insert_sql, undef, @row);
+			};
+			if ($@) {
+				say "died on: @row";
+				die $@;
+			}
 		}
 	}
+	$db->dbh->commit;
 }
 
 sub _get_select_sql {
