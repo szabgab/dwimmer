@@ -1,0 +1,5 @@
+
+*) perl -Ilib script/dwimmer_feed_admin.pl --store all.db --setup
+*) perl -Ilib eg/import_from_old_feeds.pl  all.db  perl.db Perl
+
+*) perl -Ilib dwimmer_feed_collector.pl --store all.db --sendmail --collect;
