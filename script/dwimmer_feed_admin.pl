@@ -18,7 +18,7 @@ GetOptions(\%opt,
 
 	'addsite=s',
 
-	'list:s',
+	'listsource:s',
 	'enable=i',
 	'disable=i',
 	'update=i',
@@ -49,8 +49,8 @@ if ($opt{addsite}) {
 
 $opt{site} ||= '';
 
-if (exists $opt{list}) {
-	$admin->list( filter => ($opt{list} || ''), site => $opt{site} );
+if (exists $opt{listsource}) {
+	$admin->list_source( filter => ($opt{listsource} || ''), site => $opt{site} );
 } elsif ( defined $opt{enable} ) {
 #	usage('--site SITE  required for this operation') if not $opt{site};
 	$admin->update( id => $opt{enable},  field => 'status', value =>'enabled' );
@@ -163,11 +163,11 @@ $text
 Usage: $0
 
 Required:
-       --store storage.db
+       --store storage.db              (link to the SQLite database holding everyting)
 
 Optional:
        --site [SITE|ID]
-                    (optional for --list and --listconfig, --config, --unconfig)
+                    (optional for --listsource and --listconfig, --config, --unconfig)
                     (required for --add)
                     (irrelevant to --setup, --addsite and --update --endable --disable)
 
@@ -178,8 +178,8 @@ Actions:
        --addsite SITE        (one word, not only digits!)
 
 
-       --add                 (add a new feed, will prompt questions)
-       --list [filter]       (list the filter is optional
+       --add                    (add a new feed, will prompt questions)
+       --listsource [filter]    (list sources.   the filter is optional)
        --enable ID
        --disable ID
 

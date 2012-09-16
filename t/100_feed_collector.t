@@ -77,10 +77,11 @@ my $store = "$tempdir/data.db";
 	is $out, '', 'no STDOUT for setup. Really?';
 }
 
+# TODO list sites
 
 {
 	my $infile = save_infile(@{$sources[0]}{qw(url feed title twitter comment)});
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site < $infile" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --site $site --add < $infile" };
 
 	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
 	my $data = check_dump($out);
@@ -91,7 +92,7 @@ my $store = "$tempdir/data.db";
 
 {
 	my $infile = save_infile(@{$sources[1]}{qw(url feed title twitter comment)});
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site < $infile" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --site $site --add < $infile" };
 	my $data = check_dump($out);
 	is_deeply $data, [$sources[1]], 'dumped correctly after adding second feed';
 	is $err, '', 'no STDERR';
@@ -102,6 +103,9 @@ my $store = "$tempdir/data.db";
 	is $err, '', 'no STDERR for setup';
 	is $out, '', 'no STDOUT for setup. Really?';
 }
+
+# list sources
+# TODO list sites
 
 
 {
@@ -124,14 +128,14 @@ my $store = "$tempdir/data.db";
 
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list beer" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource beer" };
 	my $data = check_dump($out);
 	is_deeply $data, [$sources[0]], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource" };
 	my $data = check_dump($out);
 	is_deeply $data, [ @sources[0,1], $sources2[0] ], 'listed correctly';
 	is $err, '', 'no STDERR';
@@ -148,7 +152,7 @@ $disabled->{status} = 'disabled';
 }
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource" };
 	my $data = check_dump($out);
 	is_deeply $data, [ $disabled, $sources[1], $sources2[0] ], 'listed correctly after disable';
 	is $err, '', 'no STDERR';
@@ -163,7 +167,7 @@ $disabled->{status} = 'disabled';
 }
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource" };
 	my $data = check_dump($out);
 	is_deeply $data, [ @sources[0, 1], $sources2[0] ], 'listed correctly after enable';
 	is $err, '', 'no STDERR';
@@ -267,7 +271,6 @@ $disabled->{status} = 'disabled';
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listentries" };
 		is $err, '';
 		my $data = check_dump($out);
-#diag Dumper $data;
 		cmp_deeply $data, [[
              {
                'author' => 'szabgab',
@@ -350,7 +353,6 @@ $disabled->{status} = 'disabled';
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listentries" };
 		is $err, '';
 		my $data = check_dump($out);
-#diag Dumper $data;
 		cmp_deeply $data, [[
 			{
 				'author' => 'Foo',

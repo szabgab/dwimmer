@@ -22,7 +22,7 @@ sub BUILD {
 	return;
 }
 
-sub list {
+sub list_source {
 	my ($self, %args) = @_;
 	my $sources = $self->db->get_sources;
 	foreach my $s (@$sources) {
