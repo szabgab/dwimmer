@@ -51,7 +51,7 @@ my @sources2 = (
 );
 
 
-plan tests => 67;
+plan tests => 69;
 
 my $store = "$tempdir/data.db";
 {
@@ -77,7 +77,6 @@ my $store = "$tempdir/data.db";
 	is $out, '', 'no STDOUT for setup. Really?';
 }
 
-# TODO list sites
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsite" };
 	is $err, '', 'no STDERR for setup';
@@ -116,8 +115,22 @@ my $store = "$tempdir/data.db";
 	is $out, '', 'no STDOUT for setup. Really?';
 }
 
-# list sources
-# TODO list sites
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsite" };
+	is $err, '', 'no STDERR for setup';
+	my $data = check_dump($out);
+	is_deeply $data, [[
+           {
+             'id' => 1,
+             'name' => 'drinks'
+           },
+           {
+             'id' => 2,
+             'name' => 'food'
+           }
+         ]], 'listing sites';
+}
+
 
 
 {
