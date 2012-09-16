@@ -51,7 +51,7 @@ my @sources2 = (
 );
 
 
-plan tests => 65;
+plan tests => 67;
 
 my $store = "$tempdir/data.db";
 {
@@ -78,6 +78,18 @@ my $store = "$tempdir/data.db";
 }
 
 # TODO list sites
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsite" };
+	is $err, '', 'no STDERR for setup';
+	my $data = check_dump($out);
+	is_deeply $data, [[
+           {
+             'id' => 1,
+             'name' => 'drinks'
+           }
+         ]], 'listing sites';
+}
+
 
 {
 	my $infile = save_infile(@{$sources[0]}{qw(url feed title twitter comment)});

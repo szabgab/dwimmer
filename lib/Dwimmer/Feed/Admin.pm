@@ -109,6 +109,15 @@ sub prompt {
 	return $input;
 }
 
+sub list_sites {
+	my ($self) = @_;
+
+	my $sites =$self->db->get_sites;
+	_dump($sites);
+
+	return;
+}
+
 
 sub list_config {
 	my ($self, $site) = @_;

@@ -17,6 +17,7 @@ GetOptions(\%opt,
 	'site=s',
 
 	'addsite=s',
+	'listsite',
 
 	'listsource:s',
 	'enable=i',
@@ -44,6 +45,10 @@ my $admin = Dwimmer::Feed::Admin->new(%opt);
 
 if ($opt{addsite}) {
 	$admin->db->addsite( name => $opt{addsite} );
+	exit;
+}
+if ($opt{listsite}) {
+	$admin->list_sites();
 	exit;
 }
 
@@ -176,6 +181,7 @@ Actions:
        --setup               (creating the empty database)
 
        --addsite SITE        (one word, not only digits!)
+       --listsite            (listing all the sites in the database)
 
 
        --add                    (add a new feed, will prompt questions)
