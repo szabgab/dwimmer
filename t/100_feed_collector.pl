@@ -15,18 +15,17 @@ my $html_dir = "$tempdir/html";
 mkdir $html_dir or die;
 my $site_name = 'xyz';
 
-plan tests => 43+7+11;
+plan tests => 60;
 
 my $store = "$tempdir/data.db";
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl" };
-	like $err, qr{--store storage.db}, 'needs --store';
+	like $err, qr{--store storage.db}, 'dwimmer_feed_admin.pl requires the --store option';
 }
 
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store" };
-	like $err, qr{--store storage.db}, 'needs --store';
-	like $err, qr{does NOT exist}, 'needs --store';
+	like $err, qr{does NOT exist}, 'first dwimmer_feed_admin.pl needs to be called with --setup';
 }
 
 {

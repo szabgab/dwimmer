@@ -21,9 +21,11 @@ exit;
 sub usage {
 	die "Usage: $0 NEW_DB   OLD_DB   NAME_OF_FEED\n";
 }
-
 sub main {
 	my ($new,  $old, $name, $all) = @_;
+
+	#  [1]     The last 1 is need to import the entries as well
+	$all = 1;
 
 	usage() if not $new or not -e $new;
 	usage() if not $old or not -e $old;
@@ -53,8 +55,8 @@ sub main {
 			next if $table eq 'delivery_queue';
 		}
 
-		print "\n";
-		say $table;
+		#print "\n";
+		#say $table;
 		my $select_sql = _get_select_sql($table);
 		my $insert_sql = _get_insert_sql($table);
 
@@ -81,7 +83,7 @@ sub _get_select_sql {
 	my $table = shift;
 
 	my $sql = 'SELECT ' . join(', ', @{ $TABLES{$table} }) . " FROM $table";
-	say $sql;
+	#say $sql;
 
 	return $sql;
 }
@@ -95,7 +97,7 @@ sub _get_insert_sql {
 	}
 	my $sql = "INSERT INTO $table (" . join(', ', @cols) . ') VALUES (';
 	$sql .=  join(',', split //, '?' x @cols) . ')';
-	say $sql;
+	#say $sql;
 
 	return $sql;
 }
