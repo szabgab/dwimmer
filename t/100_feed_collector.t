@@ -13,34 +13,7 @@ use File::Temp    qw(tempdir);
 my $tempdir = tempdir( CLEANUP => 1);
 my $html_dir = "$tempdir/html";
 mkdir $html_dir or die;
-my $site_name = 'xyz';
-
-plan tests => 60;
-
-my $store = "$tempdir/data.db";
-{
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl" };
-	like $err, qr{--store storage.db}, 'dwimmer_feed_admin.pl requires the --store option';
-}
-
-{
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store" };
-	like $err, qr{does NOT exist}, 'first dwimmer_feed_admin.pl needs to be called with --setup';
-}
-
-{
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
-	is $err, '', 'no STDERR for setup';
-	is $out, '', 'no STDOUT for setup. Really?';
-}
-
-
-{
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --addsite $site_name" };
-	is $err, '', 'no STDERR for setup';
-	is $out, '', 'no STDOUT for setup. Really?';
-}
-
+my $site = 'xyz';
 my @sources = (
 	{
            'comment' => 'some comment',
@@ -65,9 +38,36 @@ my @sources = (
 );
 
 
+plan tests => 60;
+
+my $store = "$tempdir/data.db";
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl" };
+	like $err, qr{--store storage.db}, 'dwimmer_feed_admin.pl requires the --store option';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store" };
+	like $err, qr{does NOT exist}, 'first dwimmer_feed_admin.pl needs to be called with --setup';
+}
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
+	is $err, '', 'no STDERR for setup';
+	is $out, '', 'no STDOUT for setup. Really?';
+}
+
+
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --addsite $site" };
+	is $err, '', 'no STDERR for setup';
+	is $out, '', 'no STDOUT for setup. Really?';
+}
+
+
 {
 	my $infile = save_infile(@{$sources[0]}{qw(url feed title twitter comment)});
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site_name < $infile" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site < $infile" };
 
 	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
 	my $data = check_dump($out);
@@ -78,7 +78,7 @@ my @sources = (
 
 {
 	my $infile = save_infile(@{$sources[1]}{qw(url feed title twitter comment)});
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site_name < $infile" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site < $infile" };
 	my $data = check_dump($out);
 	is_deeply $data, [$sources[1]], 'dumped correctly after adding second feed';
 	is $err, '', 'no STDERR';
@@ -146,20 +146,20 @@ $disabled->{status} = 'disabled';
 }
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config from foo\@bar.com --site $site_name" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config from foo\@bar.com --site $site" };
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config another option --site $site_name" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config another option --site $site" };
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
 
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site_name" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site" };
 	my $data = check_dump($out);
 	is_deeply $data, [[{
 		key => 'from',
@@ -175,13 +175,13 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --unconfig another --site $site_name" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --unconfig another --site $site" };
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site_name" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site" };
 	my $data = check_dump($out);
 	is_deeply $data, [[{
 		key => 'from',
@@ -194,7 +194,7 @@ $disabled->{status} = 'disabled';
 
 
 {
-	my ($out, $err) = capture { system qq{$^X script/dwimmer_feed_admin.pl --store $store --config html_dir "$html_dir" --site $site_name} };
+	my ($out, $err) = capture { system qq{$^X script/dwimmer_feed_admin.pl --store $store --config html_dir "$html_dir" --site $site} };
 	#diag $out;
 	#my $data = check_dump($out);
 	#is_deeply $data, [[]], 'no config';
