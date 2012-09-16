@@ -13,7 +13,8 @@ use File::Temp    qw(tempdir);
 my $tempdir = tempdir( CLEANUP => 1);
 my $html_dir = "$tempdir/html";
 mkdir $html_dir or die;
-my $site = 'xyz';
+my $site = 'drinks';
+my $site2 = 'food';
 my @sources = (
 	{
            'comment' => 'some comment',
@@ -36,9 +37,21 @@ my @sources = (
            'site_id' => 1,
 	},
 );
+my @sources2 = (
+	{
+           'comment' => 'Food store',
+           'feed' => "file://$tempdir/burger.xml",
+           'id' => 3,
+           'status' => 'enabled',
+           'title' => 'This is a title of the Brugers',
+           'twitter' => 'burger_land',
+           'url' => 'http://burger.com/',
+           'site_id' => 2,
+	},
+);
 
 
-plan tests => 60;
+plan tests => 65;
 
 my $store = "$tempdir/data.db";
 {
@@ -85,6 +98,25 @@ my $store = "$tempdir/data.db";
 }
 
 {
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --addsite $site2" };
+	is $err, '', 'no STDERR for setup';
+	is $out, '', 'no STDOUT for setup. Really?';
+}
+
+
+{
+	my $infile = save_infile(@{$sources2[0]}{qw(url feed title twitter comment)});
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site2 < $infile" };
+
+	like $out, qr{URL.*Feed.*Title.*Twitter.*Comment}s, 'prompts';
+	my $data = check_dump($out);
+
+	is_deeply $data, [$sources2[0]], 'dumped correctly after adding feed';
+	is $err, '', 'no STDERR';
+}
+
+
+{
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
 	like $err, qr{Database .+ already exists}, 'cannot destroy database';
 	is $out, '', 'no STDOUT for setup. Really?';
@@ -101,7 +133,7 @@ my $store = "$tempdir/data.db";
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
 	my $data = check_dump($out);
-	is_deeply $data, [ @sources[0,1] ], 'listed correctly';
+	is_deeply $data, [ @sources[0,1], $sources2[0] ], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
 
@@ -118,7 +150,7 @@ $disabled->{status} = 'disabled';
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
 	my $data = check_dump($out);
-	is_deeply $data, [ $disabled, $sources[1] ], 'listed correctly after disable';
+	is_deeply $data, [ $disabled, $sources[1], $sources2[0] ], 'listed correctly after disable';
 	is $err, '', 'no STDERR';
 }
 
@@ -133,7 +165,7 @@ $disabled->{status} = 'disabled';
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list" };
 	my $data = check_dump($out);
-	is_deeply $data, [ @sources[0, 1] ], 'listed correctly after enable';
+	is_deeply $data, [ @sources[0, 1], $sources2[0] ], 'listed correctly after enable';
 	is $err, '', 'no STDERR';
 }
 
@@ -207,6 +239,7 @@ $disabled->{status} = 'disabled';
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --disable 1" };
 	copy 't/files/rss.xml', "$tempdir/rss.xml";
+	copy 't/files/burger.xml', "$tempdir/burger.xml";
 }
 
 # running the collector, I'd think it should give some kind of an error message if it cannot find feed
@@ -234,7 +267,21 @@ $disabled->{status} = 'disabled';
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listentries" };
 		is $err, '';
 		my $data = check_dump($out);
-		cmp_deeply $data, [[{
+#diag Dumper $data;
+		cmp_deeply $data, [[
+             {
+               'author' => 'szabgab',
+               'link' => 'http://perl6maven.com/parsing-command-line-arguments-perl6',
+               'remote_id' => undef,
+               'source_id' => 3,
+               'content' => '',
+               'tags' => '',
+               'summary' => re('Perl 6 application'),
+               'issued' => '2012-09-14 10:52:03',
+               'id' => 2,
+               'title' => 'Parsing command line arguments in Perl 6'
+             },
+			{
 		       'author' => 'Gabor Szabo',
 		       'content' => re('^\s*Description\s*$'),
 		       'id' => 1,
@@ -284,7 +331,7 @@ $disabled->{status} = 'disabled';
 			{
 				'remote_id' => undef,
 				'link' => 'http://szabgab.com/second.html',
-				'entry' => 2,
+				'entry' => 3,
 				'source_id' => 2,
 				'site_id' => 1,
 				'content' => re('^\s*Placeholder for some texts\s*'),
@@ -293,7 +340,7 @@ $disabled->{status} = 'disabled';
 				'tags' => '',
 				'summary' => '',
 				'issued' => re('^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$'),
-				'id' => 2,
+				'id' => 3,
 				'title' => 'Second title'
 			}
 		]];
@@ -303,11 +350,12 @@ $disabled->{status} = 'disabled';
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listentries" };
 		is $err, '';
 		my $data = check_dump($out);
+#diag Dumper $data;
 		cmp_deeply $data, [[
 			{
 				'author' => 'Foo',
 				'content' => re('^\s*Placeholder for some texts\s*$'),
-				'id' => 2,
+				'id' => 3,
 				'issued' => re('^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$'),
 				'link' => 'http://szabgab.com/second.html',
 				'remote_id' => undef,
@@ -316,6 +364,18 @@ $disabled->{status} = 'disabled';
 				'tags' => '',
 				'title' => 'Second title'
 			},
+             {
+               'author' => 'szabgab',
+               'link' => 'http://perl6maven.com/parsing-command-line-arguments-perl6',
+               'remote_id' => undef,
+               'source_id' => 3,
+               'content' => '',
+               'tags' => '',
+               'summary' => re('Perl 6 application'),
+               'issued' => '2012-09-14 10:52:03',
+               'id' => 2,
+               'title' => 'Parsing command line arguments in Perl 6'
+             },
 			{
 				'author' => 'Gabor Szabo',
 				'content' => re('^\s*Description\s*$'),
@@ -327,7 +387,8 @@ $disabled->{status} = 'disabled';
 				'summary' => '',
 				'tags' => '',
 				'title' => 'First title'
-			}]];
+			}
+	]];
 	}
 }
 
