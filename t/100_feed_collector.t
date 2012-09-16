@@ -51,7 +51,7 @@ my @sources2 = (
 );
 
 
-plan tests => 69;
+plan tests => 73;
 
 my $store = "$tempdir/data.db";
 {
@@ -71,12 +71,14 @@ my $store = "$tempdir/data.db";
 }
 
 
+# adding a site
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --addsite $site" };
 	is $err, '', 'no STDERR for setup';
 	is $out, '', 'no STDOUT for setup. Really?';
 }
 
+# and checking if it was added
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsite" };
 	is $err, '', 'no STDERR for setup';
@@ -90,6 +92,7 @@ my $store = "$tempdir/data.db";
 }
 
 
+# adding two sources (feeds)
 {
 	my $infile = save_infile(@{$sources[0]}{qw(url feed title twitter comment)});
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --site $site --add < $infile" };
@@ -109,6 +112,7 @@ my $store = "$tempdir/data.db";
 	is $err, '', 'no STDERR';
 }
 
+# adding a 2nd site
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --addsite $site2" };
 	is $err, '', 'no STDERR for setup';
@@ -131,8 +135,7 @@ my $store = "$tempdir/data.db";
          ]], 'listing sites';
 }
 
-
-
+# add feed
 {
 	my $infile = save_infile(@{$sources2[0]}{qw(url feed title twitter comment)});
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --add --site $site2 < $infile" };
@@ -145,6 +148,7 @@ my $store = "$tempdir/data.db";
 }
 
 
+# make sure we cannot reset the database by mistake
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --setup" };
 	like $err, qr{Database .+ already exists}, 'cannot destroy database';
@@ -152,6 +156,7 @@ my $store = "$tempdir/data.db";
 }
 
 
+# list sources
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource beer" };
 	my $data = check_dump($out);
@@ -165,6 +170,24 @@ my $store = "$tempdir/data.db";
 	is_deeply $data, [ @sources[0,1], $sources2[0] ], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
+
+# list source of a specific site
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site $site" };
+	my $data = check_dump($out);
+	is_deeply $data, [ @sources[0,1]], 'listed correctly';
+	is $err, '', 'no STDERR';
+}
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site $site2" };
+	my $data = check_dump($out);
+	is_deeply $data, [ $sources2[0] ], 'listed correctly';
+	is $err, '', 'no STDERR';
+}
+
+
+
+
 
 # disable
 my $disabled = clone($sources[0]);

@@ -25,8 +25,14 @@ sub BUILD {
 sub list_source {
 	my ($self, %args) = @_;
 	my $sources = $self->db->get_sources;
+
+	my $site_id = $args{site} ? $self->db->get_site_id($args{site}) : undef;
+
 	foreach my $s (@$sources) {
 		my $show;
+		if (defined $site_id) {
+			next if $s->{site_id} != $site_id;
+		}
 		if ($args{filter}) {
 			foreach my $field (qw(feed url status title)) {
 				$show++ if $s->{$field} =~ /$args{filter}/i;
