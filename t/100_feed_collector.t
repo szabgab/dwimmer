@@ -49,7 +49,7 @@ my @sources = (
            'status' => 'enabled',
            'title' => 'This is a title',
            'twitter' => 'chirip',
-           'url' => 'http://dwimmer.com/',
+           'url' => 'http://beer.com/',
            'site_id' => 1,
 	},
 	{
@@ -59,7 +59,7 @@ my @sources = (
            'status' => 'enabled',
            'title' => 'My web site',
            'twitter' => 'micro blog',
-           'url' => 'http://szabgab.com/',
+           'url' => 'http://vodka.com/',
            'site_id' => 1,
 	},
 );
@@ -92,7 +92,7 @@ my @sources = (
 
 
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list dwim" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --list beer" };
 	my $data = check_dump($out);
 	is_deeply $data, [$sources[0]], 'listed correctly';
 	is $err, '', 'no STDERR';

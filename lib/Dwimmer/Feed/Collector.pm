@@ -19,6 +19,13 @@ use XML::Feed      ();
 use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Config;
 
+my $URL = '';
+my $TITLE = '';
+my $DESCRIPTION = '';
+my $ADMIN_NAME = '';
+my $ADMIN_EMAIL = '';
+my $FRONT_PAGE_SIZE = 20;
+
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
