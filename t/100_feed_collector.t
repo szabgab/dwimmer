@@ -51,7 +51,7 @@ my @sources2 = (
 );
 
 
-plan tests => 73;
+plan tests => 75;
 
 my $store = "$tempdir/data.db";
 {
@@ -189,7 +189,7 @@ my $store = "$tempdir/data.db";
 
 
 
-# disable
+# disable source based on id
 my $disabled = clone($sources[0]);
 $disabled->{status} = 'disabled';
 {
@@ -199,6 +199,7 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 
+# check list of sources after disable
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource" };
 	my $data = check_dump($out);
@@ -206,14 +207,14 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 
-# enable
+# enable source
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --enable 1" };
 	my $data = check_dump($out);
 	is_deeply $data, [ $disabled, $sources[0] ], '--enable';
 	is $err, '', 'no STDERR';
 }
-
+# check list of sources after enable
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource" };
 	my $data = check_dump($out);
@@ -221,7 +222,7 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 
-# config
+# list configuration options
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig" };
 	my $data = check_dump($out);
@@ -229,19 +230,24 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 
+# set configuration option without --site fails
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config name Foo" };
+	is $out, '', 'no STDOUT Hmm, not good';
+	like $err, qr{--site SITE  required for this operation}, ' --site required for --config';
+}
+# set configuration with --site works
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config from foo\@bar.com --site $site" };
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
-
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --config another option --site $site" };
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
-
-
+# listing config of a site
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site" };
 	my $data = check_dump($out);
@@ -263,7 +269,6 @@ $disabled->{status} = 'disabled';
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
-
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site" };
 	my $data = check_dump($out);
@@ -275,26 +280,21 @@ $disabled->{status} = 'disabled';
 		]], 'config';
 	is $err, '', 'no STDERR';
 }
-
-
 {
 	my ($out, $err) = capture { system qq{$^X script/dwimmer_feed_admin.pl --store $store --config html_dir "$html_dir" --site $site} };
-	#diag $out;
-	#my $data = check_dump($out);
-	#is_deeply $data, [[]], 'no config';
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
 
 
-# disable for now so we only test the rss
+# disable feeds for now so we only test the rss
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --disable 1" };
 	copy 't/files/rss.xml', "$tempdir/rss.xml";
 	copy 't/files/burger.xml', "$tempdir/burger.xml";
 }
 
-# running the collector, I'd think it should give some kind of an error message if it cannot find feed
+# running the collector, I think it should give some kind of an error message if it cannot find feed
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store" };
 	is $out, '', 'no STDOUT';

@@ -124,7 +124,7 @@ sub collect {
 						site_id   => $site_id,
 					);
 					main::LOG("   INFO: Adding $current{link}");
-					$self->db->add(%current);
+					$self->db->add_entry(%current);
 				}
 			};
 			if ($@) {

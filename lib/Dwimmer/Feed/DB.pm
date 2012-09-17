@@ -60,7 +60,7 @@ sub find {
 	return $ref;
 }
 
-sub add {
+sub add_entry {
 	my ($self, %args) = @_;
 
 	my @fields = grep {defined $args{$_}} qw(id source_id link author issued title summary content tags);
