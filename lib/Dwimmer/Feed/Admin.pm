@@ -5,6 +5,7 @@ use 5.008005;
 
 our $VERSION = '0.27';
 
+use Carp ();
 use Dwimmer::Feed::DB;
 
 use Data::Dumper qw(Dumper);
@@ -21,11 +22,17 @@ sub BUILD {
 	return;
 }
 
-sub list {
+sub list_source {
 	my ($self, %args) = @_;
 	my $sources = $self->db->get_sources;
+
+	my $site_id = $args{site} ? $self->db->get_site_id($args{site}) : undef;
+
 	foreach my $s (@$sources) {
 		my $show;
+		if (defined $site_id) {
+			next if $s->{site_id} != $site_id;
+		}
 		if ($args{filter}) {
 			foreach my $field (qw(feed url status title)) {
 				$show++ if $s->{$field} =~ /$args{filter}/i;
@@ -55,8 +62,23 @@ sub update {
 	return;
 }
 
+sub get_site_id {
+	my ($self, %args) = @_;
+
+	Carp::croak('No site provides')
+		if not defined $args{site};
+	if ($args{site} =~ /^\d+$/) {
+		# TODO check if exists in the database
+		return $args{site};
+	}
+
+	return $self->db->get_site_id($args{site});
+}
+
 sub add {
-	my ($self) = @_;
+	my ($self, %args) = @_;
+
+
 	my %data;
 	$data{url}     = prompt('URL');
 	$data{feed}    = prompt('Feed (Atom or RSS)');
@@ -65,6 +87,10 @@ sub add {
 	$data{status}  = 'enabled';
 	$data{comment} = prompt('Comment');
 	$data{twitter} =~ s/\@//;
+	$data{site_id} = $self->get_site_id( site => $args{site} );
+
+	Carp::Croak("Could not find site $args{site}")
+		if not $data{site_id};
 
 	my $id = $self->db->add_source(\%data);
 	_dump($self->db->get_source_by_id($id));
@@ -89,14 +115,26 @@ sub prompt {
 	return $input;
 }
 
-
-sub list_config {
+sub list_sites {
 	my ($self) = @_;
 
+	my $sites =$self->db->get_sites;
+	_dump($sites);
+
+	return;
+}
+
+
+sub list_config {
+	my ($self, $site) = @_;
+
 	use Dwimmer::Feed::Config;
-	my $config = Dwimmer::Feed::Config->get_config($self->db);
+	die "site is required now" if not $site;
+	my $site_id = $self->db->get_site_id($site);
+	my $config = Dwimmer::Feed::Config->get_config($self->db, $site_id);
 	_dump($config);
 }
+
 
 1;
 

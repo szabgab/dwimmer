@@ -30,7 +30,7 @@ sub connect {
 sub add_source {
 	my ($self, $e) = @_;
 
-	my @fields = qw(title url feed comment status twitter);
+	my @fields = qw(title url feed comment status twitter site_id);
 	my $fields = join ', ', @fields;
 	my $placeholders = join ', ', (('?') x scalar @fields);
 	$self->dbh->do("INSERT INTO sources ($fields) VALUES($placeholders)",
@@ -60,10 +60,10 @@ sub find {
 	return $ref;
 }
 
-sub add {
+sub add_entry {
 	my ($self, %args) = @_;
 
-	my @fields = grep {defined $args{$_}} qw(id source_id link author issued title summary content tags);
+	my @fields = grep {defined $args{$_}} qw(id source_id link author issued title summary content tags site_id);
 	my $f = join ',', @fields;
 	my $p = join ',', (('?') x scalar @fields);
 
@@ -79,7 +79,8 @@ sub add {
 	# only deliver new things
 	my $NOT_TOO_OLD = 60*60*24;
 	if ($issued->epoch > time - $NOT_TOO_OLD) {
-		$self->dbh->do(q{INSERT INTO delivery_queue (channel, entry) VALUES ('mail', ?)}, {}, $id);
+		$self->dbh->do(q{INSERT INTO delivery_queue (channel, entry, site_id) VALUES ('mail', ?, ?)},
+			{}, $id, $args{site_id});
 	}
 
 	return;
@@ -109,11 +110,13 @@ sub get_sources {
 	my ( $self, %opt ) = @_;
 
 	my $sql = 'SELECT * FROM sources';
-	if ($opt{enabled}) {
-		$sql .= ' WHERE status="enabled"';
+	my @fields = sort keys %opt;
+	if (%opt) {
+		$sql .= ' WHERE ';
+		$sql .= join ' AND ', map { "$_=?" } @fields;
 	}
 	my $sth = $self->dbh->prepare($sql);
-	$sth->execute;
+	$sth->execute(@opt{@fields});
 	my @r;
 	while (my $h = $sth->fetchrow_hashref) {
 		push @r, $h;
@@ -145,22 +148,35 @@ sub update {
 
 sub set_config {
 	my ($self, %args) = @_;
-	$self->delete_config( key => $args{key});
-	$self->dbh->do('INSERT INTO config (key, value) VALUES (?, ?)', undef, $args{key}, $args{value});
+	foreach my $field (qw(key value site_id)) {
+		die "Missing $field" if not defined $args{$field};
+	}
+	$self->delete_config( %args );
+	$self->dbh->do('INSERT INTO config (key, value, site_id) VALUES (?, ?, ?)',
+		undef,
+		$args{key}, $args{value}, $args{site_id});
 	return;
 }
 
 sub delete_config {
 	my ($self, %args) = @_;
-	$self->dbh->do('DELETE FROM config WHERE key=?', undef, $args{key});
+	foreach my $field (qw(key site_id)) {
+		die "Missing $field" if not defined $args{$field};
+	}
+	$self->dbh->do('DELETE FROM config WHERE key=? AND site_id=?', undef, $args{key}, $args{site_id});
 	return;
 }
 
 sub get_config {
-	my ($self) = @_;
+	my ($self, %args) = @_;
 
-	my $sth = $self->dbh->prepare('SELECT * FROM config ORDER BY key DESC');
-	$sth->execute;
+	my $sql = 'SELECT * FROM config ';
+	if (defined $args{site_id}) {
+		$sql .= 'WHERE site_id=?';
+	}
+	$sql .= ' ORDER BY key DESC';
+	my $sth = $self->dbh->prepare($sql);
+	defined $args{site_id} ? $sth->execute($args{site_id}) : $sth->execute();;
 	my @results;
 	while (my $h = $sth->fetchrow_hashref) {
 		push @results, $h;
@@ -169,16 +185,49 @@ sub get_config {
 	return \@results;
 }
 sub get_config_hash {
-	my ($self) = @_;
+	my ($self, %args) = @_;
 
-	my $sth = $self->dbh->prepare('SELECT * FROM config ORDER BY key DESC');
-	$sth->execute;
+	my $sql = 'SELECT * FROM config ';
+	if (defined $args{site_id}) {
+		$sql .= 'WHERE site_id=?';
+	}
+	$sql .= ' ORDER BY key DESC';
+
+	my $sth = $self->dbh->prepare($sql);
+	defined $args{site_id} ? $sth->execute($args{site_id}) : $sth->execute();
 	my %config;
 	while (my $h = $sth->fetchrow_hashref) {
 		$config{ $h->{key} } = $h->{value};
 	}
 
 	return \%config;
+}
+
+sub addsite {
+	my ($self, %args) = @_;
+
+	return $self->dbh->do(q{INSERT INTO sites (name) VALUES (?)}, {}, $args{name});
+}
+
+sub get_site_id {
+	my ($self, $name) = @_;
+
+	my $ref = $self->dbh->selectrow_hashref('SELECT id FROM sites WHERE name = ?', {}, $name);
+	return $ref->{id};
+}
+
+sub get_sites {
+	my ($self) = @_;
+
+	my $sql = 'SELECT * FROM sites';
+	my $sth = $self->dbh->prepare($sql);
+	$sth->execute;
+	my @r;
+	while (my $h = $sth->fetchrow_hashref) {
+		push @r, $h;
+	}
+
+	return \@r;
 }
 
 1;

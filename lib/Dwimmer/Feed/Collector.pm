@@ -19,6 +19,13 @@ use XML::Feed      ();
 use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Config;
 
+my $URL = '';
+my $TITLE = '';
+my $DESCRIPTION = '';
+my $ADMIN_NAME = '';
+my $ADMIN_EMAIL = '';
+my $FRONT_PAGE_SIZE = 20;
+
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
@@ -33,12 +40,23 @@ sub BUILD {
 	return;
 }
 
-sub collect {
+sub collect_all {
 	my ($self) = @_;
+
+	my $sites = $self->db->get_sites;
+	foreach my $site (@$sites) {
+		$self->collect($site->{id});
+	}
+
+	return;
+}
+
+sub collect {
+	my ($self, $site_id) = @_;
 
 	my $INDENT = ' ' x 11;
 
-	my $sources = $self->db->get_sources( enabled => 1 );
+	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	main::LOG("sources loaded: " . @$sources);
 
 	for my $e ( @$sources ) {
@@ -103,9 +121,10 @@ sub collect {
 						summary   => ($entry->summary->body || ''),
 						content   => ($entry->content->body || ''),
 						tags    => '', #$entry->tags,
+						site_id   => $site_id,
 					);
 					main::LOG("   INFO: Adding $current{link}");
-					$self->db->add(%current);
+					$self->db->add_entry(%current);
 				}
 			};
 			if ($@) {
@@ -118,20 +137,26 @@ sub collect {
 # should be in its own class?
 # plan: N item on front page or last N days?
 # every day gets its own page in archice/YYYY/MM/DD
+sub generate_html_all {
+	my ($self) = @_;
+
+	my $sites = $self->db->get_sites;
+	foreach my $site (@$sites) {
+		$self->generate_html($site->{id});
+	}
+
+	return;
+}
+
 sub generate_html {
-	my ($self, $dir) = @_;
-	die if not $dir or not -d $dir;
+	my ($self, $site_id) = @_;
+	die if not defined $site_id;
 
-	my $TITLE = Dwimmer::Feed::Config->get($self->db, 'title');
-	my $URL   = Dwimmer::Feed::Config->get($self->db, 'url');
-	my $DESCRIPTION = Dwimmer::Feed::Config->get($self->db, 'description');
-	my $ADMIN_NAME  = Dwimmer::Feed::Config->get($self->db, 'admin_name');
-	my $ADMIN_EMAIL = Dwimmer::Feed::Config->get($self->db, 'admin_email');
+	my $dir = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_dir');
+	die 'Missing directory name' if not $dir;
+	die "Not a directory '$dir'" if not -d $dir;
 
-	my $FRONT_PAGE_SIZE = 15;
-#	my $FEED_SIZE = 20;
-
-	my $sources = $self->db->get_sources( enabled => 1 );
+	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	my %src = map { $_->{id } => $_  } @$sources;
 
 
@@ -157,8 +182,8 @@ sub generate_html {
 
 	my @entries = @$all_entries[0 .. $size-1];
 
-	my $clicky_enabled = Dwimmer::Feed::Config->get($self->db, 'clicky_enabled');
-	my $clicky_code    = Dwimmer::Feed::Config->get($self->db, 'clicky_code');
+	my $clicky_enabled = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_enabled');
+	my $clicky_code    = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_code');
 
 	my %site = (
 		url             => $URL,
@@ -199,10 +224,10 @@ sub generate_html {
 
 	my $t = Template->new({ ABSOLUTE => 1, });
 
-	my $header_tt = Dwimmer::Feed::Config->get($self->db, 'header_tt');
-	my $footer_tt = Dwimmer::Feed::Config->get($self->db, 'footer_tt');
-	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, 'index_tt') . $footer_tt;
-	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, 'feeds_tt') . $footer_tt;
+	my $header_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'header_tt');
+	my $footer_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'footer_tt');
+	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'index_tt') . $footer_tt;
+	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'feeds_tt') . $footer_tt;
 
 	$t->process(\$feeds_tt, {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
@@ -214,8 +239,8 @@ sub generate_html {
 		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
 
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
 
 	return;
 }
