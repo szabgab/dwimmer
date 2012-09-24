@@ -19,36 +19,36 @@ my $site = 'drinks';
 my $site2 = 'food';
 my @sources = (
 	{
-           'comment' => 'some comment',
-           'feed' => "file://$tempdir/atom.xml",
-           'id' => 1,
-           'status' => 'enabled',
-           'title' => 'This is a title',
-           'twitter' => 'chirip',
-           'url' => 'http://beer.com/',
-           'site_id' => 1,
+		'comment' => 'some comment',
+		'feed' => "file://$tempdir/atom.xml",
+		'id' => 1,
+		'status' => 'enabled',
+		'title' => 'This is a title',
+		'twitter' => 'chirip',
+		'url' => 'http://beer.com/',
+		'site_id' => 1,
 	},
 	{
-           'comment' => '',
-           'feed' => "file://$tempdir/rss.xml",
-           'id' => 2,
-           'status' => 'enabled',
-           'title' => 'My web site',
-           'twitter' => 'micro blog',
-           'url' => 'http://vodka.com/',
-           'site_id' => 1,
+		'comment' => '',
+		'feed' => "file://$tempdir/rss.xml",
+		'id' => 2,
+		'status' => 'enabled',
+		'title' => 'My web site',
+		'twitter' => 'micro blog',
+		'url' => 'http://vodka.com/',
+		'site_id' => 1,
 	},
 );
 my @sources2 = (
 	{
-           'comment' => 'Food store',
-           'feed' => "file://$tempdir/burger.xml",
-           'id' => 3,
-           'status' => 'enabled',
-           'title' => 'This is a title of the Brugers',
-           'twitter' => 'burger_land',
-           'url' => 'http://burger.com/',
-           'site_id' => 2,
+		'comment' => 'Food store',
+		'feed' => "file://$tempdir/burger.xml",
+		'id' => 3,
+		'status' => 'enabled',
+		'title' => 'This is a title of the Brugers',
+		'twitter' => 'burger_land',
+		'url' => 'http://burger.com/',
+		'site_id' => 2,
 	},
 );
 
@@ -86,11 +86,11 @@ my $store = "$tempdir/data.db";
 	is $err, '', 'no STDERR for setup';
 	my $data = check_dump($out);
 	is_deeply $data, [[
-           {
-             'id' => 1,
-             'name' => 'drinks'
-           }
-         ]], 'listing sites';
+		{
+			'id' => 1,
+			'name' => 'drinks'
+		}
+	]], 'listing sites';
 }
 
 
@@ -126,15 +126,15 @@ my $store = "$tempdir/data.db";
 	is $err, '', 'no STDERR for setup';
 	my $data = check_dump($out);
 	is_deeply $data, [[
-           {
-             'id' => 1,
-             'name' => 'drinks'
-           },
-           {
-             'id' => 2,
-             'name' => 'food'
-           }
-         ]], 'listing sites';
+		{
+			'id' => 1,
+			'name' => 'drinks'
+		},
+		{
+			'id' => 2,
+			'name' => 'food'
+		}
+	]], 'listing sites';
 }
 
 # add feed
@@ -330,30 +330,33 @@ $disabled->{status} = 'disabled';
 		is $err, '';
 		my $data = check_dump($out);
 		cmp_deeply $data, [[
-             {
-               'author' => 'szabgab',
-               'link' => 'http://perl6maven.com/parsing-command-line-arguments-perl6',
-               'remote_id' => undef,
-               'source_id' => 3,
-               'content' => '',
-               'tags' => '',
-               'summary' => re('Perl 6 application'),
-               'issued' => '2012-09-14 10:52:03',
-               'id' => 2,
-               'title' => 'Parsing command line arguments in Perl 6'
-             },
 			{
-		       'author' => 'Gabor Szabo',
-		       'content' => re('^\s*Description\s*$'),
-		       'id' => 1,
-		       'issued' => '2012-03-28 10:57:35',
-		       'link' => 'http://szabgab.com/first.html',
-		       'remote_id' => undef,
-		       'source_id' => 2,
-		       'summary' => '',
-		       'tags' => '',
-		       'title' => 'First title'
-		     }]];
+				'id' => 2,
+				'source_id' => 3,
+				'site_id' => 2,
+				'author' => 'szabgab',
+				'link' => 'http://perl6maven.com/parsing-command-line-arguments-perl6',
+				'remote_id' => undef,
+				'content' => '',
+				'tags' => '',
+				'summary' => re('Perl 6 application'),
+				'issued' => '2012-09-14 10:52:03',
+				'title' => 'Parsing command line arguments in Perl 6'
+			},
+			{
+				'id' => 1,
+				'source_id' => 2,
+				'site_id' => 1,
+				'author' => 'Gabor Szabo',
+				'content' => re('^\s*Description\s*$'),
+				'issued' => '2012-03-28 10:57:35',
+				'link' => 'http://szabgab.com/first.html',
+				'remote_id' => undef,
+				'summary' => '',
+				'tags' => '',
+				'title' => 'First title'
+			},
+		]];
 	}
 
 	{
@@ -426,37 +429,40 @@ $disabled->{status} = 'disabled';
 		my $data = check_dump($out);
 		cmp_deeply $data, [[
 			{
+				'id' => 3,
+				'source_id' => 2,
+				'site_id' => 1,
 				'author' => 'Foo',
 				'content' => re('^\s*Placeholder for some texts\s*$'),
-				'id' => 3,
 				'issued' => re('^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$'),
 				'link' => 'http://szabgab.com/second.html',
 				'remote_id' => undef,
-				'source_id' => 2,
 				'summary' => '',
 				'tags' => '',
 				'title' => 'Second title'
 			},
-             {
-               'author' => 'szabgab',
-               'link' => 'http://perl6maven.com/parsing-command-line-arguments-perl6',
-               'remote_id' => undef,
-               'source_id' => 3,
-               'content' => '',
-               'tags' => '',
-               'summary' => re('Perl 6 application'),
-               'issued' => '2012-09-14 10:52:03',
-               'id' => 2,
-               'title' => 'Parsing command line arguments in Perl 6'
-             },
 			{
+				'id' => 2,
+				'source_id' => 3,
+				'site_id' => 2,
+				'author' => 'szabgab',
+				'link' => 'http://perl6maven.com/parsing-command-line-arguments-perl6',
+				'remote_id' => undef,
+				'content' => '',
+				'tags' => '',
+				'summary' => re('Perl 6 application'),
+				'issued' => '2012-09-14 10:52:03',
+				'title' => 'Parsing command line arguments in Perl 6'
+			},
+			{
+				'id' => 1,
+				'source_id' => 2,
+				'site_id' => 1,
 				'author' => 'Gabor Szabo',
 				'content' => re('^\s*Description\s*$'),
-				'id' => 1,
 				'issued' => '2012-03-28 10:57:35',
 				'link' => 'http://szabgab.com/first.html',
 				'remote_id' => undef,
-				'source_id' => 2,
 				'summary' => '',
 				'tags' => '',
 				'title' => 'First title'

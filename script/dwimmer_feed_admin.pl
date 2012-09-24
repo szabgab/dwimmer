@@ -125,6 +125,7 @@ CREATE TABLE entries (
 	id        INTEGER PRIMARY KEY,
 	source_id INTEGER NOT NULL,
 	link      VARCHAR(100) NOT NULL,
+	site_id   INTEGER NOT NULL,
 	remote_id VARCHAR(100),
 	author    VARCHAR(100),
 	issued    VARCHAR(100),
@@ -132,7 +133,8 @@ CREATE TABLE entries (
 	summary   BLOB,
 	content   BLOB,
 	tags      VARCHAR(100),
-	FOREIGN KEY (source_id) REFERENCES sources(id)
+	FOREIGN KEY (source_id) REFERENCES sources(id),
+	FOREIGN KEY (site_id) REFERENCES sites(id)
 );
 CREATE TABLE delivery_queue (
 	channel  VARCHAR(30) NOT NULL,
