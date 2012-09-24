@@ -63,9 +63,9 @@ sub main {
 		my $sth = $old_dbh->prepare($select_sql);
 		$sth->execute;
 		while (my @row = $sth->fetchrow_array) {
-			if ($table ne 'entries') {
+			#if ($table ne 'entries') {
 				push @row, $site_id;
-			}
+			#}
 			#say "@row";
 			eval {
 				$db->dbh->do($insert_sql, undef, @row);
@@ -92,9 +92,9 @@ sub _get_insert_sql {
 	my $table = shift;
 
 	my @cols = @{ $TABLES{$table} };
-	if ($table ne 'entries') {
+	#if ($table ne 'entries') {
 		push @cols, 'site_id';
-	}
+	#}
 	my $sql = "INSERT INTO $table (" . join(', ', @cols) . ') VALUES (';
 	$sql .=  join(',', split //, '?' x @cols) . ')';
 	#say $sql;
