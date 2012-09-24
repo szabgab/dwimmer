@@ -152,7 +152,7 @@ sub generate_html {
 	my ($self, $site_id) = @_;
 	die if not defined $site_id;
 
-	my $dir = Dwimmer::Feed::Config->get($self->db, 'html_dir');
+	my $dir = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_dir');
 	die 'Missing directory name' if not $dir;
 	die "Not a directory '$dir'" if not -d $dir;
 
@@ -182,8 +182,8 @@ sub generate_html {
 
 	my @entries = @$all_entries[0 .. $size-1];
 
-	my $clicky_enabled = Dwimmer::Feed::Config->get($self->db, 'clicky_enabled');
-	my $clicky_code    = Dwimmer::Feed::Config->get($self->db, 'clicky_code');
+	my $clicky_enabled = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_enabled');
+	my $clicky_code    = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_code');
 
 	my %site = (
 		url             => $URL,
@@ -224,10 +224,10 @@ sub generate_html {
 
 	my $t = Template->new({ ABSOLUTE => 1, });
 
-	my $header_tt = Dwimmer::Feed::Config->get($self->db, 'header_tt');
-	my $footer_tt = Dwimmer::Feed::Config->get($self->db, 'footer_tt');
-	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, 'index_tt') . $footer_tt;
-	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, 'feeds_tt') . $footer_tt;
+	my $header_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'header_tt');
+	my $footer_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'footer_tt');
+	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'index_tt') . $footer_tt;
+	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'feeds_tt') . $footer_tt;
 
 	$t->process(\$feeds_tt, {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
@@ -239,8 +239,8 @@ sub generate_html {
 		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
 
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
-	$t->process(\Dwimmer::Feed::Config->get($self->db, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
 
 	return;
 }

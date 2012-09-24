@@ -11,8 +11,10 @@ use File::Copy    qw(copy);
 use File::Temp    qw(tempdir);
 
 my $tempdir = tempdir( CLEANUP => 1);
-my $html_dir = "$tempdir/html";
-mkdir $html_dir or die;
+my $html_dir1 = "$tempdir/html1";
+my $html_dir2 = "$tempdir/html2";
+mkdir $html_dir1 or die;
+mkdir $html_dir2 or die;
 my $site = 'drinks';
 my $site2 = 'food';
 my @sources = (
@@ -51,7 +53,7 @@ my @sources2 = (
 );
 
 
-plan tests => 75;
+plan tests => 81;
 
 my $store = "$tempdir/data.db";
 {
@@ -224,7 +226,7 @@ $disabled->{status} = 'disabled';
 
 # list configuration options
 {
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig" };
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site" };
 	my $data = check_dump($out);
 	is_deeply $data, [[]], 'no config';
 	is $err, '', 'no STDERR';
@@ -251,16 +253,24 @@ $disabled->{status} = 'disabled';
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site" };
 	my $data = check_dump($out);
-	is_deeply $data, [[{
-		key => 'from',
-		value => 'foo@bar.com',
-		site_id => 1,
+	is_deeply $data, [[
+		{
+			key => 'from',
+			value => 'foo@bar.com',
+			site_id => 1,
 		},
 		{
 			key => 'another',
 			value => 'option',
 			site_id => 1,
 		},
+		]], 'config' or diag $out;
+	is $err, '', 'no STDERR';
+}
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listconfig --site $site2" };
+	my $data = check_dump($out);
+	is_deeply $data, [[
 		]], 'config' or diag $out;
 	is $err, '', 'no STDERR';
 }
@@ -281,7 +291,7 @@ $disabled->{status} = 'disabled';
 	is $err, '', 'no STDERR';
 }
 {
-	my ($out, $err) = capture { system qq{$^X script/dwimmer_feed_admin.pl --store $store --config html_dir "$html_dir" --site $site} };
+	my ($out, $err) = capture { system qq{$^X script/dwimmer_feed_admin.pl --store $store --config html_dir "$html_dir1" --site $site} };
 	is $out, '', 'no STDOUT Hmm, not good';
 	is $err, '', 'no STDERR';
 }
@@ -344,6 +354,19 @@ $disabled->{status} = 'disabled';
 		       'tags' => '',
 		       'title' => 'First title'
 		     }]];
+	}
+
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --html" };
+		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
+		is $out, '', 'STDOUT is empty';
+		like $err, qr{Missing directory name at}, 'html directory is not defined for one of the sites';
+	}
+
+	{
+		my ($out, $err) = capture { system qq{$^X script/dwimmer_feed_admin.pl --store $store --config html_dir "$html_dir2" --site $site2} };
+		is $out, '', 'no STDOUT Hmm, not good';
+		is $err, '', 'no STDERR';
 	}
 
 	{

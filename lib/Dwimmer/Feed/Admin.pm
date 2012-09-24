@@ -129,9 +129,9 @@ sub list_config {
 	my ($self, $site) = @_;
 
 	use Dwimmer::Feed::Config;
-#	if ($site) {
-#	}
-	my $config = Dwimmer::Feed::Config->get_config($self->db);
+	die "site is required now" if not $site;
+	my $site_id = $self->db->get_site_id($site);
+	my $config = Dwimmer::Feed::Config->get_config($self->db, $site_id);
 	_dump($config);
 }
 

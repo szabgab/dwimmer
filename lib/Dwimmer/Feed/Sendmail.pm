@@ -58,7 +58,9 @@ sub send {
 		$other{url} = $url;
 		$other{twitter_status} = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
 
-		my $html_tt = Dwimmer::Feed::Config->get($self->db, 'html_tt');
+		my $site_id;
+		die "need site_id";
+		my $html_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_tt');
 		$t->process(\$html_tt, {e => $e, source => $source, other => \%other}, \my $html) or die $t->error;
 
 		my $text_tt = Dwimmer::Feed::Config->get($self->db, 'text_tt');

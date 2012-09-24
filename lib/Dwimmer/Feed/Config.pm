@@ -5,21 +5,24 @@ use warnings;
 my %DEFAULT;
 
 sub get_config_hash {
-	my ($self, $db) = @_;
+	my ($self, $db, $site_id) = @_;
+	die 'Need 3 args for get_config_hash' if @_ != 3;
 
-	return $db->get_config_hash;
+	return $db->get_config_hash(site_id => $site_id);
 }
 
 sub get_config {
-	my ($self, $db) = @_;
+	my ($self, $db, $site_id) = @_;
+	die 'Need 3 args for get_config' if @_ != 3;
 
-	my $config = $db->get_config;
+	my $config = $db->get_config(site_id => $site_id);
 }
 
 sub get {
-	my ($self, $db, $field) = @_;
+	my ($self, $db, $site_id, $field) = @_;
+	die 'Need 4 args for get' if @_ != 4;
 
-	my $config = $db->get_config_hash;
+	my $config = $db->get_config_hash(site_id => $site_id);
 	return $config->{$field} // $DEFAULT{$field};
 }
 
