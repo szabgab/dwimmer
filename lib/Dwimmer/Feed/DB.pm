@@ -216,6 +216,13 @@ sub get_site_id {
 	return $ref->{id};
 }
 
+sub get_site_by_id {
+	my ($self, $id) = @_;
+
+	my $ref = $self->dbh->selectrow_hashref('SELECT * FROM sites WHERE id = ?', {}, $id);
+	return $ref;
+}
+
 sub get_sites {
 	my ($self) = @_;
 

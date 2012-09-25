@@ -65,7 +65,7 @@ my @sources2 = (
 );
 
 
-plan tests => 87;
+plan tests => 89;
 
 my $store = "$tempdir/data.db";
 {
@@ -212,16 +212,18 @@ my $store = "$tempdir/data.db";
 	is $err, '', 'no STDERR';
 }
 
-# list source of invalid name
+# list sources of invalid name
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site Other" };
-	#my $data = check_dump($out);
-	#is_deeply $data, [ $sources2[0] ], 'listed correctly';
 	is $out, '', 'no STDOUT';
-	like $err, qr{Could not find site 'Other'}, 'exception when invalid site name give';
+	like $err, qr{Could not find site 'Other'}, 'exception when invalid site name given';
 }
-
-
+# list source of invalid id
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 3" };
+	is $out, '', 'no STDOUT';
+	like $err, qr{Invalid site id '3'}, 'exception when invalid site id given';
+}
 
 
 
