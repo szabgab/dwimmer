@@ -65,7 +65,7 @@ my @sources2 = (
 );
 
 
-plan tests => 89;
+plan tests => 93;
 
 my $store = "$tempdir/data.db";
 {
@@ -393,6 +393,20 @@ $disabled->{status} = 'disabled';
 				'title' => 'First title'
 			},
 		]];
+	}
+	my $disabled = clone($sources[0]);
+	$disabled->{status} = 'disabled';
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
+		my $data = check_dump($out);
+		is_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+		my $data = check_dump($out);
+		is_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
 	}
 
 	{
