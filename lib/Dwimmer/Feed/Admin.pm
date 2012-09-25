@@ -26,7 +26,22 @@ sub list_source {
 	my ($self, %args) = @_;
 	my $sources = $self->db->get_sources;
 
-	my $site_id = $args{site} ? $self->db->get_site_id($args{site}) : undef;
+	#my $site_id = $args{site} ? $self->db->get_site_id($args{site}) : undef;
+	my $site_id;
+	if (defined $args{site} and $args{site} ne '') {
+		if ($args{site} =~ /^\d+$/) {
+			my $site = $self->db->get_site_by_id($args{site});
+			die "Invalid site id '$args{site}'\n" if not $site;
+			#die Dumper $site;
+			# check if id is correct
+			$site_id = $args{site};
+		} else {
+			$site_id = $self->db->get_site_id($args{site});
+			if (not defined $site_id) {
+				die "Could not find site '$args{site}'\n";
+			}
+		}
+	}
 
 	foreach my $s (@$sources) {
 		my $show;

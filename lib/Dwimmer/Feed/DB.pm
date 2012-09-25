@@ -133,6 +133,14 @@ sub get_source_by_id {
 	return $s;
 }
 
+sub update_last_fetch {
+	my ($self, $source_id, $status, $error) = @_;
+	my $sql = qq{UPDATE sources SET last_fetch_time=?, last_fetch_status=?, last_fetch_error=? WHERE id=?};
+	$self->dbh->do($sql, undef, time(), $status, $error, $source_id);
+
+	return;
+}
+
 
 sub update {
 	my ($self, $id, $field, $value) = @_;
@@ -214,6 +222,13 @@ sub get_site_id {
 
 	my $ref = $self->dbh->selectrow_hashref('SELECT id FROM sites WHERE name = ?', {}, $name);
 	return $ref->{id};
+}
+
+sub get_site_by_id {
+	my ($self, $id) = @_;
+
+	my $ref = $self->dbh->selectrow_hashref('SELECT * FROM sites WHERE id = ?', {}, $id);
+	return $ref;
 }
 
 sub get_sites {

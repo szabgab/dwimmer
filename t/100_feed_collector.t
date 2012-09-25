@@ -19,41 +19,50 @@ my $site = 'drinks';
 my $site2 = 'food';
 my @sources = (
 	{
+		'site_id' => 1,
+		'id' => 1,
 		'comment' => 'some comment',
 		'feed' => "file://$tempdir/atom.xml",
-		'id' => 1,
 		'status' => 'enabled',
 		'title' => 'This is a title',
 		'twitter' => 'chirip',
 		'url' => 'http://beer.com/',
-		'site_id' => 1,
+		'last_fetch_time'    => undef,
+		'last_fetch_status'  => undef,
+		'last_fetch_error'   => undef,
 	},
 	{
+		'site_id' => 1,
+		'id' => 2,
 		'comment' => '',
 		'feed' => "file://$tempdir/rss.xml",
-		'id' => 2,
 		'status' => 'enabled',
 		'title' => 'My web site',
 		'twitter' => 'micro blog',
 		'url' => 'http://vodka.com/',
-		'site_id' => 1,
+		'last_fetch_time'    => undef,
+		'last_fetch_status'  => undef,
+		'last_fetch_error'   => undef,
 	},
 );
 my @sources2 = (
 	{
+		'site_id' => 2,
+		'id' => 3,
 		'comment' => 'Food store',
 		'feed' => "file://$tempdir/burger.xml",
-		'id' => 3,
 		'status' => 'enabled',
 		'title' => 'This is a title of the Brugers',
 		'twitter' => 'burger_land',
 		'url' => 'http://burger.com/',
-		'site_id' => 2,
+		'last_fetch_time'    => undef,
+		'last_fetch_status'  => undef,
+		'last_fetch_error'   => undef,
 	},
 );
 
 
-plan tests => 81;
+plan tests => 101;
 
 my $store = "$tempdir/data.db";
 {
@@ -158,14 +167,15 @@ my $store = "$tempdir/data.db";
 }
 
 
-# list sources
+# list sources filtered to 'beer'
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource beer" };
 	my $data = check_dump($out);
-	is_deeply $data, [$sources[0]], 'listed correctly';
+	is_deeply $data, [$sources[0]], 'listed correctly' or diag $out;
 	is $err, '', 'no STDERR';
 }
 
+# list sources, unfiltered
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource" };
 	my $data = check_dump($out);
@@ -173,9 +183,15 @@ my $store = "$tempdir/data.db";
 	is $err, '', 'no STDERR';
 }
 
-# list source of a specific site
+# list sources of a specific site based on name or id
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site $site" };
+	my $data = check_dump($out);
+	is_deeply $data, [ @sources[0,1]], 'listed correctly';
+	is $err, '', 'no STDERR';
+}
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
 	my $data = check_dump($out);
 	is_deeply $data, [ @sources[0,1]], 'listed correctly';
 	is $err, '', 'no STDERR';
@@ -186,8 +202,25 @@ my $store = "$tempdir/data.db";
 	is_deeply $data, [ $sources2[0] ], 'listed correctly';
 	is $err, '', 'no STDERR';
 }
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+	my $data = check_dump($out);
+	is_deeply $data, [ $sources2[0] ], 'listed correctly';
+	is $err, '', 'no STDERR';
+}
 
-
+# list sources of invalid name
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site Other" };
+	is $out, '', 'no STDOUT';
+	like $err, qr{Could not find site 'Other'}, 'exception when invalid site name given';
+}
+# list source of invalid id
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 3" };
+	is $out, '', 'no STDOUT';
+	like $err, qr{Invalid site id '3'}, 'exception when invalid site id given';
+}
 
 
 
@@ -358,6 +391,26 @@ $disabled->{status} = 'disabled';
 			},
 		]];
 	}
+	my $disabled = clone($sources[0]);
+	$disabled->{status} = 'disabled';
+	$sources[1]{last_fetch_error}  = '';
+	$sources[1]{last_fetch_status} = 'success';
+	$sources[1]{last_fetch_time}   = re('\d{10}');
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+	$sources2[0]{last_fetch_error}  = '';
+	$sources2[0]{last_fetch_status} = 'success';
+	$sources2[0]{last_fetch_time}   = re('\d{10}');
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
 
 	{
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --html" };
@@ -394,7 +447,6 @@ $disabled->{status} = 'disabled';
 
 	{
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
-		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
 		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
 		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
 		is $err, '', 'no STDERR';
@@ -469,19 +521,54 @@ $disabled->{status} = 'disabled';
 			}
 	]];
 	}
+
+	# list sources mostly to check the last_fetch fields
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+
+
 }
 
 {
-#	open my $atom, '>', "$tempdir/atom.xml" or die;
-#	print $atom 'Garbage';
-#	close $atom;
-#	open my $rss, '>', "$tempdir/rss.xml" or die;
-#	print $rss 'rss Garbage';
-#	close $rss;
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
-# TODO better testing the log output? do we need that?
-	like $out, qr{Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
-	is $err, '', 'no STDERR';
+	# creat an invalid feed to see how we handle errors
+	{
+		#open my $atom, '>', "$tempdir/atom.xml" or die;
+		#print $atom '<Garbage>in file';
+		#close $atom;
+		open my $rss, '>', "$tempdir/rss.xml" or die;
+		print $rss '<rss> Garbage';
+		close $rss;
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+		like $out, qr{Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
+		is $err, '', 'no STDERR';
+	}
+	# list sources mostly to check the last_fetch fields
+
+	$sources[1]{last_fetch_error}  = re('Malformed RSS');
+	$sources[1]{last_fetch_status} = 'fail_fetch';
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+
 }
 
 
