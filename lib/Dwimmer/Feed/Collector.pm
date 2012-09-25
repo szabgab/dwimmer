@@ -82,12 +82,16 @@ sub collect {
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
-			$self->db->update_last_fetch($e->{id}, 'fail', $err);
+			if ($err =~ /TIMEOUT/) {
+				$self->db->update_last_fetch($e->{id}, 'fail_timeout', $err);
+			} else {
+				$self->db->update_last_fetch($e->{id}, 'fail_fetch', $err);
+			}
 			next;
 		}
 		if (not $feed) {
 			main::LOG("   ERROR: " . XML::Feed->errstr);
-			$self->db->update_last_fetch($e->{id}, 'fail', XML::Feed->errstr);
+			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', XML::Feed->errstr);
 			next;
 		}
 		if ($feed->title) {

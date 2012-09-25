@@ -62,7 +62,7 @@ my @sources2 = (
 );
 
 
-plan tests => 97;
+plan tests => 101;
 
 my $store = "$tempdir/data.db";
 {
@@ -540,16 +540,35 @@ $disabled->{status} = 'disabled';
 }
 
 {
-#	open my $atom, '>', "$tempdir/atom.xml" or die;
-#	print $atom 'Garbage';
-#	close $atom;
-#	open my $rss, '>', "$tempdir/rss.xml" or die;
-#	print $rss 'rss Garbage';
-#	close $rss;
-	my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
-# TODO better testing the log output? do we need that?
-	like $out, qr{Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
-	is $err, '', 'no STDERR';
+	# creat an invalid feed to see how we handle errors
+	{
+		#open my $atom, '>', "$tempdir/atom.xml" or die;
+		#print $atom '<Garbage>in file';
+		#close $atom;
+		open my $rss, '>', "$tempdir/rss.xml" or die;
+		print $rss '<rss> Garbage';
+		close $rss;
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+		like $out, qr{Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
+		is $err, '', 'no STDERR';
+	}
+	# list sources mostly to check the last_fetch fields
+
+	$sources[1]{last_fetch_error}  = re('Malformed RSS');
+	$sources[1]{last_fetch_status} = 'fail_fetch';
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+
 }
 
 
