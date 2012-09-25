@@ -29,8 +29,7 @@ my @sources = (
 		'url' => 'http://beer.com/',
 		'last_fetch_time'    => undef,
 		'last_fetch_status'  => undef,
-		'last_fetch_content' => undef,
-		'last_fetch_erro'    => undef,
+		'last_fetch_error'   => undef,
 	},
 	{
 		'site_id' => 1,
@@ -43,8 +42,7 @@ my @sources = (
 		'url' => 'http://vodka.com/',
 		'last_fetch_time'    => undef,
 		'last_fetch_status'  => undef,
-		'last_fetch_content' => undef,
-		'last_fetch_erro'    => undef,
+		'last_fetch_error'   => undef,
 	},
 );
 my @sources2 = (
@@ -59,8 +57,7 @@ my @sources2 = (
 		'url' => 'http://burger.com/',
 		'last_fetch_time'    => undef,
 		'last_fetch_status'  => undef,
-		'last_fetch_content' => undef,
-		'last_fetch_erro'    => undef,
+		'last_fetch_error'   => undef,
 	},
 );
 
@@ -396,16 +393,22 @@ $disabled->{status} = 'disabled';
 	}
 	my $disabled = clone($sources[0]);
 	$disabled->{status} = 'disabled';
+	$sources[1]{last_fetch_error}  = '';
+	$sources[1]{last_fetch_status} = 'success';
+	$sources[1]{last_fetch_time}   = re('\d{10}');
 	{
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
 		my $data = check_dump($out);
-		is_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
+		cmp_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
 		is $err, '', 'no STDERR';
 	}
+	$sources2[0]{last_fetch_error}  = '';
+	$sources2[0]{last_fetch_status} = 'success';
+	$sources2[0]{last_fetch_time}   = re('\d{10}');
 	{
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
 		my $data = check_dump($out);
-		is_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
+		cmp_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
 		is $err, '', 'no STDERR';
 	}
 

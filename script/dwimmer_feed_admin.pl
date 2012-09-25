@@ -118,8 +118,7 @@ CREATE TABLE sources (
 	site_id   INTEGER NOT NULL,
 	last_fetch_time VARCHAR(10),
 	last_fetch_status VARCHAR(10),
-	last_fetch_content BLOB,
-	last_fetch_erro BLOB,
+	last_fetch_error BLOB,
 	CONSTRAINT url_site UNIQUE (url, site_id),
 	CONSTRAINT feed_site UNIQUE (feed, site_id),
 	FOREIGN KEY (site_id) REFERENCES sites(id)

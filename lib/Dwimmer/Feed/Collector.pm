@@ -9,6 +9,7 @@ my $MAX_SIZE = 500;
 my $TRIM_SIZE = 400;
 
 use Cwd            qw(abs_path);
+use Data::Dumper   qw(Dumper);
 use File::Basename qw(dirname);
 use File::Path     qw(mkpath);
 use List::Util     qw(min);
@@ -72,6 +73,7 @@ sub collect {
 			alarm 10;
 
 			main::LOG("Processing feed");
+			#main::LOG(Dumper $e);
 			main::LOG("$INDENT $e->{feed}");
 			main::LOG("$INDENT Title by us  : $e->{title}");
 			$feed = XML::Feed->parse(URI->new($e->{feed}));
@@ -80,10 +82,12 @@ sub collect {
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
+			$self->db->update_last_fetch($e->{id}, 'fail', $err);
 			next;
 		}
 		if (not $feed) {
 			main::LOG("   ERROR: " . XML::Feed->errstr);
+			$self->db->update_last_fetch($e->{id}, 'fail', XML::Feed->errstr);
 			next;
 		}
 		if ($feed->title) {
@@ -131,7 +135,10 @@ sub collect {
 				main::LOG("   EXCEPTION: $@");
 			}
 		}
+		$self->db->update_last_fetch($e->{id}, 'success', '');
 	}
+
+	return;
 }
 
 # should be in its own class?
