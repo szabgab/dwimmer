@@ -62,7 +62,7 @@ my @sources2 = (
 );
 
 
-plan tests => 93;
+plan tests => 97;
 
 my $store = "$tempdir/data.db";
 {
@@ -447,7 +447,6 @@ $disabled->{status} = 'disabled';
 
 	{
 		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
-		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
 		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
 		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
 		is $err, '', 'no STDERR';
@@ -522,6 +521,22 @@ $disabled->{status} = 'disabled';
 			}
 	]];
 	}
+
+	# list sources mostly to check the last_fetch fields
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $disabled, $sources[1] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+	{
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+		my $data = check_dump($out);
+		cmp_deeply $data, [ $sources2[0] ], 'listed correctly' or diag $out;
+		is $err, '', 'no STDERR';
+	}
+
+
 }
 
 {
