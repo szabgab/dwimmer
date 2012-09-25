@@ -65,7 +65,7 @@ my @sources2 = (
 );
 
 
-plan tests => 81;
+plan tests => 87;
 
 my $store = "$tempdir/data.db";
 {
@@ -170,14 +170,15 @@ my $store = "$tempdir/data.db";
 }
 
 
-# list sources
+# list sources filtered to 'beer'
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource beer" };
 	my $data = check_dump($out);
-	is_deeply $data, [$sources[0]], 'listed correctly';
+	is_deeply $data, [$sources[0]], 'listed correctly' or diag $out;
 	is $err, '', 'no STDERR';
 }
 
+# list sources, unfiltered
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource" };
 	my $data = check_dump($out);
@@ -185,9 +186,15 @@ my $store = "$tempdir/data.db";
 	is $err, '', 'no STDERR';
 }
 
-# list source of a specific site
+# list sources of a specific site based on name or id
 {
 	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site $site" };
+	my $data = check_dump($out);
+	is_deeply $data, [ @sources[0,1]], 'listed correctly';
+	is $err, '', 'no STDERR';
+}
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 1" };
 	my $data = check_dump($out);
 	is_deeply $data, [ @sources[0,1]], 'listed correctly';
 	is $err, '', 'no STDERR';
@@ -197,6 +204,21 @@ my $store = "$tempdir/data.db";
 	my $data = check_dump($out);
 	is_deeply $data, [ $sources2[0] ], 'listed correctly';
 	is $err, '', 'no STDERR';
+}
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site 2" };
+	my $data = check_dump($out);
+	is_deeply $data, [ $sources2[0] ], 'listed correctly';
+	is $err, '', 'no STDERR';
+}
+
+# list source of invalid name
+{
+	my ($out, $err) = capture { system "$^X script/dwimmer_feed_admin.pl --store $store --listsource --site Other" };
+	#my $data = check_dump($out);
+	#is_deeply $data, [ $sources2[0] ], 'listed correctly';
+	is $out, '', 'no STDOUT';
+	like $err, qr{Could not find site 'Other'}, 'exception when invalid site name give';
 }
 
 
