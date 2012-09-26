@@ -8,7 +8,7 @@ has host => ( is => 'ro', isa => 'Str', required => 1 );
 has mech => ( is => 'rw', isa => 'WWW::Mechanize', default => sub { WWW::Mechanize->new } );
 
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 # get_user parameters can be    id => 1
 

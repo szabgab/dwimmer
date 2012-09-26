@@ -1,7 +1,7 @@
 package Dwimmer::Feed::Sendmail;
 use Moose;
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 use Encode       ();
 use LWP::UserAgent;

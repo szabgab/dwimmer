@@ -6,7 +6,7 @@ use Data::Dumper qw(Dumper);
 use DateTime;
 use DBI;
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 has 'store' => (is => 'ro', isa => 'Str', required => 1);
 has 'dbh'   => (is => 'rw', isa => 'DBI::db');
