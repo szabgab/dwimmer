@@ -1,5 +1,8 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+0.29 2012.09.26
+    - fix sendmail
+
 0.28 2012.09.26
     - in the feed collector allow multiple sites to be in one database
 

@@ -1,7 +1,7 @@
 package Dwimmer::Feed::Sendmail;
 use Moose;
 
-our $VERSION = '0.28';
+our $VERSION = '0.29';
 
 use Encode       ();
 use LWP::UserAgent;
@@ -58,18 +58,20 @@ sub send {
 		$other{url} = $url;
 		$other{twitter_status} = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
 
-		my $site_id;
-		die "need site_id";
+		my $site_id = $e->{site_id};
+		die "need site_id" if not defined $site_id;
 		my $html_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_tt');
 		$t->process(\$html_tt, {e => $e, source => $source, other => \%other}, \my $html) or die $t->error;
 
-		my $text_tt = Dwimmer::Feed::Config->get($self->db, 'text_tt');
+		my $text_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'text_tt');
 		$t->process(\$text_tt, $e, \my $text) or die $t->error;
 
-		my $subject_tt = Dwimmer::Feed::Config->get($self->db, 'subject_tt');
+		my $subject_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'subject_tt');
 		$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
 
-		next if not $self->_sendmail($subject, { text => $text, html => $html } );
+		my $from = Dwimmer::Feed::Config->get($self->db, $site_id, 'from');
+
+		next if not $self->_sendmail($from, $subject, { text => $text, html => $html } );
 
 		$self->db->delete_from_queue('mail', $e->{id});
 	}
@@ -79,11 +81,10 @@ sub send {
 
 
 sub _sendmail {
-	my ($self, $subject, $content) = @_;
+	my ($self, $from, $subject, $content) = @_;
 
 	main::LOG("Send Mail: $subject");
 
-	my $from = Dwimmer::Feed::Config->get($self->db, 'from');
 	if (not $from) {
 		warn "from field is required. Cannot send mail.\n";
 		return;
