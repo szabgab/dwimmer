@@ -17,8 +17,9 @@ plan( skip_all => 'Unsupported OS' ) if not $run;
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 
-plan( tests => 26 );
+plan( tests => 30 );
 
+require Test::Differences;
 
 use Dwimmer::Client;
 
@@ -60,6 +61,7 @@ END_VALIDATE
 my $confirm_template = <<'END_CONFIRM';
 END_CONFIRM
 
+die if $validate_template =~ /\r/;
 is_deeply_full(
 	$admin->create_list(
 		title                    => $list_title,
@@ -153,6 +155,8 @@ is_deeply_full(
 );
 
 _check_confirm_mail('t1');
+
+
 is_deeply(
 	$admin->list_members( listid => 1 ),
 	{   'members' => [
@@ -273,6 +277,7 @@ is_deeply(
 $web_user->get_ok($t2_link);
 $web_user->content_like(qr/Thanks for subscribing. We will be in touch/);
 _check_confirm_mail('t2');
+
 is_deeply(
 	$admin->list_members( listid => 1 ),
 	{   'members' => [
@@ -311,10 +316,12 @@ sub _check_validate_mail {
 		( $link, $found_code ) = ( $1, $2 );
 	}
 
+	my $data = delete $VAR1->{Data};
+	Test::Differences::eq_or_diff($data, $validate_template, 'validate e-mail data');
 	is_deeply_full(
 		$VAR1,
 		bless(
-			{   'Data'    => $validate_template,
+			{
 				'From'    => $from_address,
 				'Subject' => "$list_title registration - email validation",
 				'To'      => $email . '@dwimmer.org',
@@ -336,10 +343,12 @@ sub _check_confirm_mail {
 	local $Test::Builder::Level = $Test::Builder::Level + 1;
 	my $confirm_mail = read_file( $ENV{DWIMMER_MAIL} );
 	eval $confirm_mail;
+	my $data = delete $VAR1->{Data};
+	Test::Differences::eq_or_diff($data, $confirm_template, 'confirm e-mail data');
 	is_deeply_full(
 		$VAR1,
 		bless(
-			{   'Data'    => $confirm_template,
+			{
 				'From'    => $from_address,
 				'Subject' => "$list_title - Thank you for subscribing",
 				'To'      => $email . '@dwimmer.org',

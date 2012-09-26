@@ -6,15 +6,15 @@ use autodie;
 use Cwd qw(abs_path);
 use DBIx::RunSQL;
 use Email::Valid;
-use File::Basename qw(dirname);
+use File::Basename qw(dirname basename);
 use File::Copy::Recursive;
 use File::Find::Rule;
 use File::Path qw(mkpath);
 use File::Spec;
 use File::ShareDir;
 use Getopt::Long qw(GetOptions);
-use String::Random;
 use Pod::Usage  qw(pod2usage);
+use String::Random;
 
 use Dwimmer::Tools qw(sha1_base64 save_page _get_db);
 
@@ -26,17 +26,36 @@ GetOptions(\%opt,
     'dbonly',
     'silent',
     'share=s',
+
+    'setup',
     'upgrade',
-    'resetpw',
+
     'username=s',
+
+    'resetpw',
+    'listusers',
+    'showuser',
+    'verify=s',
 );
 usage() if not $opt{root};
 
+if ($opt{setup}) {
+    if (-e $opt{root} and not $opt{dbonly}) {
+        die "Root directory ($opt{root}) already exists"
+    }
 
-if ($opt{resetpw}) {
+    usage() if not $opt{email};
+    die 'Invalid e-mail' if not Email::Valid->address($opt{email});
+    usage() if not $opt{password};
+    die 'Password needs to be at least 6 characters' if length $opt{password} < 6;
+} else {
     if (not -e $opt{root}) {
         die "Root directory ($opt{root}) does NOT exist.";
     }
+}
+
+
+if ($opt{resetpw}) {
     if (not $opt{password}) {
         die "Need password to set it";
     }
@@ -55,25 +74,64 @@ if ($opt{resetpw}) {
     exit;
 }
 
-if (-e $opt{root} and not $opt{dbonly} and not $opt{upgrade}) {
-    die "Root directory ($opt{root}) already exists"
+if (defined $opt{verify}) {
+    die if $opt{verify} ne '0' and $opt{verify} ne '1';
+    if (not -e $opt{root}) {
+        die "Root directory ($opt{root}) does NOT exist.";
+    }
+    if (not $opt{username}) {
+        die "Need username to verify";
+    }
+
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( { name => $opt{username} } );
+    die "User was not found" if not $user;
+    $user->verified( $opt{verify} );
+    $user->update;
+
+    exit;
 }
 
-if ($opt{upgrade} and not -e $opt{root}) {
-    die "Root directory ($opt{root}) does NOT exist."
+if ($opt{listusers}) {
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my @users = $db->resultset('User')->all();
+    die "No user was found" if not @users;
+    foreach my $u (@users) {
+        printf("%4s  '%s'\n", $u->id, $u->name);
+    }
+
+    exit;
 }
 
-if (not $opt{upgrade}) {
-    usage() if not $opt{email};
-    die 'Invalid e-mail' if not Email::Valid->address($opt{email});
-    usage() if not $opt{password};
-    die 'Password needs to be 6 characters' if length $opt{password} < 6;
+if ($opt{showuser}) {
+    if (not $opt{username}) {
+        die "Need username to ";
+    }
+
+    $ENV{DWIMMER_ROOT} = $opt{root};
+    my $db = _get_db();
+    my $user = $db->resultset('User')->find( { name => $opt{username} } );
+    die "User was not found" if not $user;
+    foreach my $key (qw(id name email fname lname country state validation_key verified register_ts)) {
+        say "$key " . ($user->$key // '');
+    }
+
+    exit;
 }
 
-my $dist_dir;
+
+if (not $opt{upgrade} and not $opt{setup}) {
+    usage();
+}
+
+
+
 
 # When we are in the development environment (have .git) set this to the root directory
 # When we are in the installation environment (have Makefile.PL) set this to the share/ subdirectory
+my $dist_dir;
 if (-e File::Spec->catdir(dirname(dirname abs_path($0)) , '.git') ) {
     $dist_dir = dirname(dirname abs_path($0))
 } elsif (-e File::Spec->catdir(dirname(dirname abs_path($0)) , 'Makefile.PL') ) {
@@ -119,7 +177,7 @@ if (not $opt{upgrade}) {
 my @upgrade_from;
 
 foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '*.sql' ) ) {
-	next if $sql !~ m{/\d+\.sql$};
+	next if basename($sql) !~ m{^\d+\.sql$};
 	push @upgrade_from, sub {
 	    my $dbfile = shift;
 
@@ -133,7 +191,10 @@ foreach my $sql ( glob File::Spec->catfile($dist_dir, 'schema', '*.sql' ) ) {
 
 upgrades($dbfile);
 
+say 'You can now launch the application and visit the web site';
+
 exit;
+##################################################################
 
 sub setup_db {
     my $dbfile = shift;
@@ -151,7 +212,7 @@ sub setup_db {
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbfile");
     my $time = time;
     my $validation_key = String::Random->new->randregex('[a-zA-Z0-9]{10}') . $time . String::Random->new->randregex('[a-zA-Z0-9]{10}');
-    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)', 
+    $dbh->do('INSERT INTO user (name, sha1, email, validation_key, verified, register_ts) VALUES(?, ?, ?, ?, ?, ?)',
         {},
         'admin', sha1_base64($opt{password}), $opt{email}, $validation_key, 1, $time);
 
@@ -170,11 +231,7 @@ sub setup_db {
 
     return if $opt{silent};
 
-    print <<"END_MSG";
-Database created.
-
-You can now launch the application and visit the web site
-END_MSG
+    say 'Database created.';
 
     return;
 }
@@ -197,31 +254,51 @@ sub usage {
 
 =head1 SYNOPSIS
 
+=head2 Required parameter:
 
-To setup a new instance:
+   --root    PATH/TO/ROOT    path to the root of the installation
 
+=head2 To setup a new instance:
+
+   --setup
    --email email        of administrator
    --password PASSWORD  of administrator
-   --root ROOT          path to the root of the installation
 
 Optional parameters:
 
    --dbonly             Create only the database (for development)
    --silent             no success report (for testing)
 
-
-To upgrade run:
+=head2 To upgrade run:
 
    --upgrade
-   --root    PATH/TO/ROOT
 
 
-To reset password give the following flags:
+=head2 Admin tools:
+
+=over 4
+
+=item * List users:
+
+   --listusers
+
+=item * Show details of a user:
+
+   --showuser
+   --username USERNAME    
+   
+=item * Set or remove verified bit of a user:
+
+   --verify [0|1]
+   --username USERNAME
+
+=item * Set the password of a specific user:
 
    --resetpw
-   --root     PATH/TO/ROOT
    --username USERNAME
    --password PASSWORD
+
+=back
 
 =cut
 

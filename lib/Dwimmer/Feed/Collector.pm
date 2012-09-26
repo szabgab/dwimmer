@@ -3,20 +3,30 @@ use Moose;
 
 use 5.008005;
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 my $MAX_SIZE = 500;
 my $TRIM_SIZE = 400;
 
-use Dwimmer::Feed::DB;
-
 use Cwd            qw(abs_path);
+use Data::Dumper   qw(Dumper);
 use File::Basename qw(dirname);
 use File::Path     qw(mkpath);
 use List::Util     qw(min);
 use MIME::Lite     ();
 use Template;
 use XML::Feed      ();
+
+use Dwimmer::Feed::DB;
+use Dwimmer::Feed::Config;
+
+my $URL = '';
+my $TITLE = '';
+my $DESCRIPTION = '';
+my $ADMIN_NAME = '';
+my $ADMIN_EMAIL = '';
+my $FRONT_PAGE_SIZE = 20;
+
 
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
@@ -31,20 +41,23 @@ sub BUILD {
 	return;
 }
 
-my $TRACK = <<'TRACK';
+sub collect_all {
+	my ($self) = @_;
 
-<script src="//static.getclicky.com/js" type="text/javascript"></script>
-<script type="text/javascript">try{ clicky.init(66514197); }catch(e){}</script>
-<noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/66514197ns.gif" /></p></noscript>
+	my $sites = $self->db->get_sites;
+	foreach my $site (@$sites) {
+		$self->collect($site->{id});
+	}
 
-TRACK
+	return;
+}
 
 sub collect {
-	my ($self) = @_;
+	my ($self, $site_id) = @_;
 
 	my $INDENT = ' ' x 11;
 
-	my $sources = $self->db->get_sources( enabled => 1 );
+	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	main::LOG("sources loaded: " . @$sources);
 
 	for my $e ( @$sources ) {
@@ -60,6 +73,7 @@ sub collect {
 			alarm 10;
 
 			main::LOG("Processing feed");
+			#main::LOG(Dumper $e);
 			main::LOG("$INDENT $e->{feed}");
 			main::LOG("$INDENT Title by us  : $e->{title}");
 			$feed = XML::Feed->parse(URI->new($e->{feed}));
@@ -68,9 +82,16 @@ sub collect {
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
+			if ($err =~ /TIMEOUT/) {
+				$self->db->update_last_fetch($e->{id}, 'fail_timeout', $err);
+			} else {
+				$self->db->update_last_fetch($e->{id}, 'fail_fetch', $err);
+			}
+			next;
 		}
 		if (not $feed) {
 			main::LOG("   ERROR: " . XML::Feed->errstr);
+			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', XML::Feed->errstr);
 			next;
 		}
 		if ($feed->title) {
@@ -87,16 +108,16 @@ sub collect {
 				my $hostname = $entry->link;
 				$hostname =~ s{^(https?://[^/]+).*}{$1};
 				#main::LOG("HOST: $hostname");
-				if ( not $self->db->find( link => "$hostname%" ) ) {
-					main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
-					my $msg = MIME::Lite->new(
-						From    => 'dwimmer@dwimmer.com',
-						To      => 'szabgab@gmail.com',
-						Subject => "Dwimmer: new URL noticed $hostname",
-						Data    => $entry->link,
-					);
-					$msg->send;
-				}
+				#if ( not $self->db->find( link => "$hostname%" ) ) {
+				#	main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
+				#	my $msg = MIME::Lite->new(
+				#		From    => 'dwimmer@dwimmer.com',
+				#		To      => 'szabgab@gmail.com',
+				#		Subject => "Dwimmer: new URL noticed $hostname",
+				#		Data    => $entry->link,
+				#	);
+				#	$msg->send;
+				#}
 				if ( not $self->db->find( link => $entry->link ) ) {
 					my %current = (
 						source_id => $e->{id},
@@ -108,44 +129,52 @@ sub collect {
 						summary   => ($entry->summary->body || ''),
 						content   => ($entry->content->body || ''),
 						tags    => '', #$entry->tags,
+						site_id   => $site_id,
 					);
 					main::LOG("   INFO: Adding $current{link}");
-					$self->db->add(%current);
+					$self->db->add_entry(%current);
 				}
 			};
 			if ($@) {
 				main::LOG("   EXCEPTION: $@");
 			}
 		}
+		$self->db->update_last_fetch($e->{id}, 'success', '');
 	}
+
+	return;
 }
-
-
-my $FRONT_PAGE_SIZE = 15;
-# my $FEED_SIZE = 20;
-my $TITLE = "Perlsphere";
-my $URL   = "http://feed.szabgab.com/";
-my $DESCRIPTION = 'The largest source of Perl related news';
-my $ADMIN_NAME  = 'Gabor Szabo';
-my $ADMIN_EMAIL = 'szabgab@gmail.com';
-
 
 # should be in its own class?
 # plan: N item on front page or last N days?
 # every day gets its own page in archice/YYYY/MM/DD
-sub generate_html {
-	my ($self, $dir) = @_;
-	die if not $dir or not -d $dir;
+sub generate_html_all {
+	my ($self) = @_;
 
-	my $sources = $self->db->get_sources( enabled => 1 );
+	my $sites = $self->db->get_sites;
+	foreach my $site (@$sites) {
+		$self->generate_html($site->{id});
+	}
+
+	return;
+}
+
+sub generate_html {
+	my ($self, $site_id) = @_;
+	die if not defined $site_id;
+
+	my $dir = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_dir');
+	die 'Missing directory name' if not $dir;
+	die "Not a directory '$dir'" if not -d $dir;
+
+	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	my %src = map { $_->{id } => $_  } @$sources;
 
 
 	my $all_entries = $self->db->get_all_entries;
 	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
-	my @entries = @$all_entries[0 .. $size-1];
 
-	foreach my $e (@entries) {
+	foreach my $e (@$all_entries) {
 		$e->{source_name} = $src{ $e->{source_id} }{title};
 		$e->{source_url} = $src{ $e->{source_id} }{url};
 		$e->{twitter} = $src{ $e->{source_id} }{twitter};
@@ -161,6 +190,12 @@ sub generate_html {
 #		}
 	}
 
+
+	my @entries = @$all_entries[0 .. $size-1];
+
+	my $clicky_enabled = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_enabled');
+	my $clicky_code    = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_code');
+
 	my %site = (
 		url             => $URL,
 		title           => $TITLE,
@@ -171,8 +206,7 @@ sub generate_html {
 		id              => $URL,
 		dwimmer_version => $VERSION,
 		last_update     => scalar localtime,
-		track           => $TRACK,
-
+		clicky          => ($clicky_enabled and $clicky_code ? $clicky_code : ''),
 	);
 
 	$site{last_build_date} = localtime;
@@ -200,17 +234,24 @@ sub generate_html {
 	my $root = dirname dirname abs_path $0;
 
 	my $t = Template->new({ ABSOLUTE => 1, });
-	$t->process("$root/views/feed_index.tt", {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
-	$t->process("$root/views/feed_rss.tt",   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
-	$t->process("$root/views/feed_atom.tt",  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
-	$t->process("$root/views/feed_feeds.tt", {entries => \@feeds},          "$dir/feeds.html") or die $t->error;
+
+	my $header_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'header_tt');
+	my $footer_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'footer_tt');
+	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'index_tt') . $footer_tt;
+	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'feeds_tt') . $footer_tt;
+
+	$t->process(\$feeds_tt, {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
+	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
 
 	foreach my $date (keys %entries_on) {
 		my ($year, $month, $day) = split /-/, $date;
 		my $path = "$dir/archive/$year/$month";
 		mkpath $path;
-		$t->process("$root/views/feed_index.tt", {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
+		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
+
+	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
+	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
 
 	return;
 }

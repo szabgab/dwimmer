@@ -1,10 +1,14 @@
 package Dwimmer::Feed::Sendmail;
 use Moose;
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 use Encode       ();
+use LWP::UserAgent;
 use MIME::Lite   ();
+use Template;
+
+use Dwimmer::Feed::Config;
 
 has 'db'      => (is => 'rw', isa => 'Dwimmer::Feed::DB');
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
@@ -23,32 +27,50 @@ sub send {
 	my ($self) = @_;
 
 	my $entries = $self->db->get_queue( 'mail' );
+	my $sources = $self->db->get_sources;
 
 	foreach my $e (@$entries) {
-		my $text = '';
-		$text .= "Title: $e->{title}\n";
-		$text .= "Link: $e->{link}\n\n";
-		#$text .= "Source: $e->{source}\n\n";
-		$text .= "Tags: $e->{tags}\n\n";
-		$text .= "Author: $e->{author}\n\n";
-		$text .= "Date: $e->{issued}\n\n";
-		$text .= "Summary:\n$e->{summary}\n\n";
-		#$text .=  Encode::encode('UTF-8', "Content:\n$e->{content}\n\n");
-		#$text .= "-------------------------------\n\n";
+		my ($source) = grep { $_->{id} eq $e->{source_id} }  @$sources;
 
-		my $html = qq{<html><head><title></title></head><body>\n};
-		$html .= qq{<h1><a href="$e->{link}">$e->{title}</a></h1>\n};
-		$html .= qq{<p>Link: $e->{link}</p>\n};
-		#$html .= qq{<p>Source: $e->{source}</p>\n};
-		$html .= qq{<p>Tags: $e->{tags}</p>\n};
-		$html .= qq{<p>Author: $e->{author}</p>\n};
-		$html .= qq{<p>Date: $e->{issued}</p>\n};
-		$html .= qq{<hr><p>Summary:<br>$e->{summary}</p>\n};
+		# fix redirection and remove parts after path
+		# This is temporarily here though it should be probably moved to the collector
+		my $ua = LWP::UserAgent->new;
+		my $t = Template->new();
 
-		$html .= qq{<p><a href="http://twitter.com/home?status=$e->{title} $e->{link}">tweet</a></p>};
-		$html .= qq{</body></html>\n};
+		@{ $ua->requests_redirectable } = ();
 
-		$self->_sendmail("Perl Feed: $e->{title}", { text => $text, html => $html } );
+		my $url = $e->{link};
+		my $response = $ua->get($url);
+
+		my $status = $response->status_line;
+		my %other;
+		$other{status} = $status;
+		if ( $response->code == 301 ) {
+			$url = $response->header('Location');
+			$other{redirected} = 1;
+		}
+
+		my $uri = URI->new($url);
+		$uri->fragment(undef);
+		$uri->query(undef);
+
+		$url = $uri->canonical;
+		$other{url} = $url;
+		$other{twitter_status} = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
+
+		my $site_id;
+		die "need site_id";
+		my $html_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_tt');
+		$t->process(\$html_tt, {e => $e, source => $source, other => \%other}, \my $html) or die $t->error;
+
+		my $text_tt = Dwimmer::Feed::Config->get($self->db, 'text_tt');
+		$t->process(\$text_tt, $e, \my $text) or die $t->error;
+
+		my $subject_tt = Dwimmer::Feed::Config->get($self->db, 'subject_tt');
+		$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
+
+		next if not $self->_sendmail($subject, { text => $text, html => $html } );
+
 		$self->db->delete_from_queue('mail', $e->{id});
 	}
 
@@ -61,9 +83,13 @@ sub _sendmail {
 
 	main::LOG("Send Mail: $subject");
 
-	my $config = $self->db->get_config_hash;
+	my $from = Dwimmer::Feed::Config->get($self->db, 'from');
+	if (not $from) {
+		warn "from field is required. Cannot send mail.\n";
+		return;
+	}
 	my $msg = MIME::Lite->new(
-		From    => ($config->{from} || 'dwimmer@dwimmer.org'),
+		From    => $from,
 		To      => 'szabgab@gmail.com',
 		Subject => $subject,
 		Type    => 'multipart/alternative',
@@ -87,7 +113,8 @@ sub _sendmail {
 		$msg->attach($att);
 	}
 
-	$msg->send;
+	return if not $msg->send;
+	return 1;
 }
 
 1;
