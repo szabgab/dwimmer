@@ -6,7 +6,7 @@ use Data::Dumper qw(Dumper);
 use DateTime;
 use DBI;
 
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 has 'store' => (is => 'ro', isa => 'Str', required => 1);
 has 'dbh'   => (is => 'rw', isa => 'DBI::db');
@@ -146,7 +146,7 @@ sub update {
 	my ($self, $id, $field, $value) = @_;
 
 	Carp::croak("Invalid field '$field'")
-		if $field !~ m{^(feed|comment|twitter|status)$};
+		if $field !~ m{^(feed|comment|twitter|status|title|url)$};
 	Carp::croak("Invalid value for status '$value'")
 		if $field eq 'status' and $value !~ m{^(enabled|disabled)$};
 

@@ -2,7 +2,7 @@ package Dwimmer::Feed::Config;
 use strict;
 use warnings;
 
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 my %DEFAULT;
 
@@ -229,6 +229,14 @@ body {
 .title a {
    text-decoration: none;
 }
+.error {
+    color: red;
+}
+
+#header_text ul li {
+   display: inline;
+}
+
 </style>
 };
 
@@ -252,8 +260,13 @@ Last updated: [% last_update %]
 $DEFAULT{index_tt} = q{
   <h1>[% title %]</h1>
   <div id="header_text">
-  Admin: [% admin_name %] [% admin_email %] <a href="/feeds.html">feeds</a>.
+     <ul>
+        [% IF admin_name %]<li> Admin: [% admin_name %] [% admin_email %]</li>[% END %]
+        <li><a href="/feeds.html">feeds</a></li>
+        <li><a href="/archive">archive</a></li>
+     </ul>
   </div>
+  <div>Number of entries: [% entries.size %]</div>
 
 [% FOR e IN entries %]
   <div class="entry postentry">
@@ -305,6 +318,10 @@ $DEFAULT{feeds_tt} = q{
      <div class="twitter"><a href="https://twitter.com/#!/[% e.twitter %]">@[% e.twitter %]</a></div>
   [% END %]
   <div class="latest">Latest: <a href="[% e.latest_entry.link %]">[% e.latest_entry.title %]</a> on [% e.latest_entry.issued %]</div>
+Status: [% e.last_fetch_status %]<br />
+  [% IF e.last_fetch_error %]
+     <div class="error">Latest error: [% e.last_fetch_error %] at [% e.last_fetch_time %]</div>
+  [% END %]
   </div>
 [% END %]
 

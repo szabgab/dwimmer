@@ -15,6 +15,8 @@ GetOptions(\%opt,
 	'collect',
 	'sendmail',
 	'html',
+    'verbose',
+    'mailreport',
 ) or usage();
 usage('Missing --store') if not $opt{store};
 usage('At least one of --collect --html --sendmail is needed')
@@ -26,6 +28,16 @@ my $collector = Dwimmer::Feed::Collector->new(%opt);
 
 if ($opt{collect}) {
 	$collector->collect_all();
+    if ($collector->error and $opt{mailreport}) {
+        use MIME::Lite   ();
+    	my $msg = MIME::Lite->new(
+		    From    => 'gabor@szabgab.com',
+		    To      => 'szabgab@gmail.com',
+		    Subject => 'Feed collector errors',
+            Data    => $collector->error,
+	    );
+	    $msg->send;
+    }
 }
 
 if ($opt{html}) {
@@ -47,7 +59,9 @@ exit;
 
 
 sub LOG {
-	print "@_\n";
+    if ($opt{verbose}) {
+	    print "@_\n";
+    }
 }
 
 sub usage {
