@@ -1,9 +1,15 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+0.30
+    Feed collector issues:
 
-
-    - Add --vberbose flag to feed collector and print the LOG only if --verbose
-      was used.
+    - Show number of post each day and on the front page.
+    - Expose the errors from the database on the web site
+    - Link to archive from main page.
+    - Allow updating the title and the url as well.
+    - Report failures via e-mail when --mailreport is given.
+    - Add --verbose flag to feed collector and print the LOG
+      only if --verbose was used.
 
 0.29 2012.09.26
     - fix sendmail
