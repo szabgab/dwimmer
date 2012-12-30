@@ -266,6 +266,7 @@ $DEFAULT{index_tt} = q{
         <li><a href="/archive">archive</a></li>
      </ul>
   </div>
+  <div>Number of entries: [% entries.size %]</div>
 
 [% FOR e IN entries %]
   <div class="entry postentry">
