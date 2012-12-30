@@ -233,6 +233,10 @@ body {
     color: red;
 }
 
+#header_text ul li {
+   display: inline;
+}
+
 </style>
 };
 
@@ -256,7 +260,11 @@ Last updated: [% last_update %]
 $DEFAULT{index_tt} = q{
   <h1>[% title %]</h1>
   <div id="header_text">
-  Admin: [% admin_name %] [% admin_email %] <a href="/feeds.html">feeds</a>.
+     <ul>
+        [% IF admin_name %]<li> Admin: [% admin_name %] [% admin_email %]</li>[% END %]
+        <li><a href="/feeds.html">feeds</a></li>
+        <li><a href="/archive">archive</a></li>
+     </ul>
   </div>
 
 [% FOR e IN entries %]
