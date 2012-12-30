@@ -346,7 +346,7 @@ $disabled->{status} = 'disabled';
 }
 {
 	{
-		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect --verbose" };
 		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
 		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
 		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
@@ -426,7 +426,7 @@ $disabled->{status} = 'disabled';
 	}
 
 	{
-		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --html" };
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --html --verbose" };
 		#like $out, qr{^sources loaded: \d \s* Processing feed $sources[0]{feed} .* Elapsed time: [01]\s*$}x, 'STDOUT is only elapsed time';
 		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
 		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
@@ -446,7 +446,7 @@ $disabled->{status} = 'disabled';
 	close $out;
 
 	{
-		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect --verbose" };
 		like $out, qr{Elapsed time: \d+}, 'STDOUT has elapsed time';
 		unlike $out, qr{ERROR|EXCEPTION}, 'STDOUT no ERROR or EXCEPTION';
 		is $err, '', 'no STDERR';
@@ -548,7 +548,7 @@ $disabled->{status} = 'disabled';
 		open my $rss, '>', "$tempdir/rss.xml" or die;
 		print $rss '<rss> Garbage';
 		close $rss;
-		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect" };
+		my ($out, $err) = capture { system "$^X script/dwimmer_feed_collector.pl --store $store --collect --verbose" };
 		like $out, qr{Elapsed time: [01]\s*$}, 'STDOUT is only elapsed time';
 		is $err, '', 'no STDERR';
 	}

@@ -15,6 +15,7 @@ GetOptions(\%opt,
 	'collect',
 	'sendmail',
 	'html',
+    'verbose',
 ) or usage();
 usage('Missing --store') if not $opt{store};
 usage('At least one of --collect --html --sendmail is needed')
@@ -47,7 +48,9 @@ exit;
 
 
 sub LOG {
-	print "@_\n";
+    if ($opt{verbose}) {
+	    print "@_\n";
+    }
 }
 
 sub usage {
