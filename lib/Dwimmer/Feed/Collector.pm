@@ -31,6 +31,7 @@ my $FRONT_PAGE_SIZE = 20;
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
 has 'db'      => (is => 'rw', isa => 'Dwimmer::Feed::DB');
+has 'error'   => (is => 'rw', isa => 'Str');
 
 sub BUILD {
 	my ($self) = @_;
@@ -56,6 +57,7 @@ sub collect {
 	my ($self, $site_id) = @_;
 
 	my $INDENT = ' ' x 11;
+    $self->error('');
 
 	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	main::LOG("sources loaded: " . @$sources);
@@ -65,6 +67,7 @@ sub collect {
 		next if not $e->{status} or $e->{status} ne 'enabled';
 		if (not $e->{feed}) {
 			main::LOG("ERROR: No feed for $e->{title}");
+            $self->error( $self->error . "No feed for title $e->{title}\n\n");
 			next;
 		}
 		my $feed;
@@ -82,6 +85,7 @@ sub collect {
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
+            $self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
 			if ($err =~ /TIMEOUT/) {
 				$self->db->update_last_fetch($e->{id}, 'fail_timeout', $err);
 			} else {
@@ -91,6 +95,7 @@ sub collect {
 		}
 		if (not $feed) {
 			main::LOG("   ERROR: " . XML::Feed->errstr);
+            $self->error( $self->error . "Feed $e->{feed}\n   " . XML::Feed->errstr . "\n\n" );
 			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', XML::Feed->errstr);
 			next;
 		}
@@ -135,8 +140,10 @@ sub collect {
 					$self->db->add_entry(%current);
 				}
 			};
-			if ($@) {
-				main::LOG("   EXCEPTION: $@");
+            $err = $@;
+			if ($err) {
+				main::LOG("   EXCEPTION: $err");
+                $self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
 			}
 		}
 		$self->db->update_last_fetch($e->{id}, 'success', '');
@@ -228,6 +235,7 @@ sub generate_html {
 
 	foreach my $f (@feeds) {
 		$f->{latest_entry} = $latest_entry_of{ $f->{id} };
+        $f->{last_fetch_time} = localtime $f->{last_fetch_time};
 	}
 
 

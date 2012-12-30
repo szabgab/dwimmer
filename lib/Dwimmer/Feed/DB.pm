@@ -146,7 +146,7 @@ sub update {
 	my ($self, $id, $field, $value) = @_;
 
 	Carp::croak("Invalid field '$field'")
-		if $field !~ m{^(feed|comment|twitter|status)$};
+		if $field !~ m{^(feed|comment|twitter|status|title|url)$};
 	Carp::croak("Invalid value for status '$value'")
 		if $field eq 'status' and $value !~ m{^(enabled|disabled)$};
 
