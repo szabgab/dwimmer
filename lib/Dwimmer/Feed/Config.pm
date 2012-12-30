@@ -2,7 +2,7 @@ package Dwimmer::Feed::Config;
 use strict;
 use warnings;
 
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 my %DEFAULT;
 

@@ -3,7 +3,7 @@ use Moose;
 
 use 5.008005;
 
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 my $MAX_SIZE = 500;
 my $TRIM_SIZE = 400;
