@@ -235,6 +235,7 @@ sub generate_html {
 
 	foreach my $f (@feeds) {
 		$f->{latest_entry} = $latest_entry_of{ $f->{id} };
+        $f->{last_fetch_time} = localtime $f->{last_fetch_time};
 	}
 
 

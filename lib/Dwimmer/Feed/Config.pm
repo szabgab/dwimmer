@@ -229,6 +229,10 @@ body {
 .title a {
    text-decoration: none;
 }
+.error {
+    color: red;
+}
+
 </style>
 };
 
@@ -305,6 +309,10 @@ $DEFAULT{feeds_tt} = q{
      <div class="twitter"><a href="https://twitter.com/#!/[% e.twitter %]">@[% e.twitter %]</a></div>
   [% END %]
   <div class="latest">Latest: <a href="[% e.latest_entry.link %]">[% e.latest_entry.title %]</a> on [% e.latest_entry.issued %]</div>
+Status: [% e.last_fetch_status %]<br />
+  [% IF e.last_fetch_error %]
+     <div class="error">Latest error: [% e.last_fetch_error %] at [% e.last_fetch_time %]</div>
+  [% END %]
   </div>
 [% END %]
 
