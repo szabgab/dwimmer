@@ -302,7 +302,7 @@ sub register_user {
 				Subject => 'Verify your registration to Dwimmer!',
 				Data    => $message,
 			);
-			$msg->send;
+		    $msg->send('smtp', 'localhost');
 		}
 	} else {
 

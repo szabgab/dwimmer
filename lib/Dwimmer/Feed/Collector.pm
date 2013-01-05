@@ -121,7 +121,7 @@ sub collect {
 				#		Subject => "Dwimmer: new URL noticed $hostname",
 				#		Data    => $entry->link,
 				#	);
-				#	$msg->send;
+		        #   $msg->send('smtp', 'localhost') or warn "Could not send mail $!\n";
 				#}
 				if ( not $self->db->find( link => $entry->link ) ) {
 					my %current = (

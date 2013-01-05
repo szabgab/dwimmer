@@ -114,7 +114,7 @@ sub _sendmail {
 		$msg->attach($att);
 	}
 
-	return if not $msg->send;
+	return if not $msg->send('smtp', 'localhost');
 	return 1;
 }
 
