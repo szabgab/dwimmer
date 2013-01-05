@@ -36,7 +36,7 @@ if ($opt{collect}) {
 		    Subject => 'Feed collector errors',
             Data    => $collector->error,
 	    );
-	    $msg->send;
+		$mail->send('smtp', 'localhost') or warn "Could not send mail for '$site' $!\n";
     }
 }
 
