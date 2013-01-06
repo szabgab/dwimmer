@@ -21,7 +21,7 @@ use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Config;
 
 my $URL = '';
-my $TITLE = '';
+my $TITLE = 'feed collector';
 my $DESCRIPTION = '';
 my $ADMIN_NAME = '';
 my $ADMIN_EMAIL = '';
@@ -160,15 +160,17 @@ sub generate_html_all {
 
 	my $sites = $self->db->get_sites;
 	foreach my $site (@$sites) {
-		$self->generate_html($site->{id});
+		$self->generate_html($site);
 	}
 
 	return;
 }
 
 sub generate_html {
-	my ($self, $site_id) = @_;
-	die if not defined $site_id;
+	my ($self, $site) = @_;
+	die if not defined $site;
+    my ($site_id, $site_name) = ($site->{id}, $site->{name});
+    die if not defined $site_id;
 
 	my $dir = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_dir');
 	die 'Missing directory name' if not $dir;
@@ -205,7 +207,8 @@ sub generate_html {
 
 	my %site = (
 		url             => $URL,
-		title           => $TITLE,
+		title           => "$site_name $TITLE",
+        name            => $site_name,
 		description     => $DESCRIPTION,
 		language        => 'en',
 		admin_name      => $ADMIN_NAME,
@@ -255,6 +258,7 @@ sub generate_html {
 		my ($year, $month, $day) = split /-/, $date;
 		my $path = "$dir/archive/$year/$month";
 		mkpath $path;
+        $site{title} = "Archive of $site_name $TITLE for $year.$month.$day";
 		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
 

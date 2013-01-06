@@ -308,7 +308,7 @@ $DEFAULT{index_tt} = q{
 };
 
 $DEFAULT{feeds_tt} = q{
-  <h1>[% name %]feeds</h1>
+  <h1>[% name %] feeds</h1>
   <a href="/">home</a>
 
 [% FOR e IN entries %]
