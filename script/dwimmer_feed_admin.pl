@@ -31,8 +31,11 @@ GetOptions(\%opt,
 
 	'listqueue=s',
 	'listentries',
+
+    'help',
 ) or usage();
 usage() if not $opt{store};
+usage() if $opt{help};
 
 if ($opt{setup}) {
 	setup($opt{store});
@@ -167,7 +170,7 @@ SCHEMA
 sub usage {
 	my $text = shift || '';
 
-	die <<"END_USAGE";
+	print STDERR <<"END_USAGE";
 $text
 
 Usage: $0
@@ -205,5 +208,9 @@ Actions:
        --listqueue CHANNEL    (e.g. mail)
 
        --listentries         Show all the entries
+
+    Dwimmer::Feed::Admin $Dwimmer::Feed::Admin::VERSION
 END_USAGE
+
+    exit;
 }

@@ -17,7 +17,10 @@ GetOptions(\%opt,
 	'html',
     'verbose',
     'mailreport',
+
+    'help',
 ) or usage();
+usage() if $opt{help};
 usage('Missing --store') if not $opt{store};
 usage('At least one of --collect --html --sendmail is needed')
 	if not $opt{collect} and not $opt{html} and not $opt{sendmail}; # and not $opt{twitter};
@@ -69,7 +72,13 @@ sub usage {
 	if ($txt) {
 		print STDERR "**** $txt\n\n";
 	}
-	print STDERR "Usage: $0 --store storage.db  [--collect --sendmail --html DIR]\n";
+
+	print STDERR <<"END_USAGE";
+Usage: $0 --store storage.db  [--collect --sendmail --html DIR]
+
+    Dwimmer::Feed::Collector $Dwimmer::Feed::Collector::VERSION
+END_USAGE
+
 	exit 1;
 }
 
