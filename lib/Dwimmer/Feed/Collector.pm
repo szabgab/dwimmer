@@ -16,6 +16,7 @@ use List::Util     qw(min);
 use MIME::Lite     ();
 use Template;
 use XML::Feed      ();
+use DateTime       ();
 
 use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Config;
@@ -238,7 +239,8 @@ sub generate_html {
 
 	foreach my $f (@feeds) {
 		$f->{latest_entry} = $latest_entry_of{ $f->{id} };
-        $f->{last_fetch_time} = localtime $f->{last_fetch_time};
+        my $dt = DateTime->from_epoch(epoch => $f->{last_fetch_time});
+        $f->{last_fetch_time} =  $dt->ymd . ' ' . $dt->hms;
 	}
 
 
