@@ -74,7 +74,7 @@ sub usage {
 	}
 
 	print STDERR <<"END_USAGE";
-Usage: $0 --store storage.db  [--collect --sendmail --html DIR]
+Usage: $0 --store storage.db  [--collect --sendmail --html]
 
     Dwimmer::Feed::Collector $Dwimmer::Feed::Collector::VERSION
 END_USAGE
