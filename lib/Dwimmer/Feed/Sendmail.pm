@@ -8,7 +8,18 @@ use LWP::UserAgent;
 use MIME::Lite   ();
 use Template;
 
+=pod
+
+=head1 SYNOPSIS
+
+  my $f = Dwimmer::Feed::Sendmail->new(
+  );
+  $f->send;
+
+=cut
+
 use Dwimmer::Feed::Config;
+use Dwimmer::Feed::DB;
 
 has 'db'      => (is => 'rw', isa => 'Dwimmer::Feed::DB');
 has 'store'   => (is => 'ro', isa => 'Str', required => 1);
@@ -30,53 +41,61 @@ sub send {
 	my $sources = $self->db->get_sources;
 
 	foreach my $e (@$entries) {
-		my ($source) = grep { $_->{id} eq $e->{source_id} }  @$sources;
-
-		# fix redirection and remove parts after path
-		# This is temporarily here though it should be probably moved to the collector
-		my $ua = LWP::UserAgent->new;
-		my $t = Template->new();
-
-		@{ $ua->requests_redirectable } = ();
-
-		my $url = $e->{link};
-		my $response = $ua->get($url);
-
-		my $status = $response->status_line;
-		my %other;
-		$other{status} = $status;
-		if ( $response->code == 301 ) {
-			$url = $response->header('Location');
-			$other{redirected} = 1;
+		if ($self->send_entry($sources, $e)) {
+			$self->db->delete_from_queue('mail', $e->{id});
 		}
+	}
+	return;
+}
 
-		my $uri = URI->new($url);
-		$uri->fragment(undef);
-		$uri->query(undef);
+sub send_entry {
+	my ($self, $sources, $e) = @_;
 
-		$url = $uri->canonical;
-		$other{url} = $url;
-		$other{twitter_status} = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
+	my ($source) = grep { $_->{id} eq $e->{source_id} }  @$sources;
 
-		my $site_id = $e->{site_id};
-		die "need site_id" if not defined $site_id;
-		my $html_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_tt');
-		$t->process(\$html_tt, {e => $e, source => $source, other => \%other}, \my $html) or die $t->error;
+	# fix redirection and remove parts after path
+	# This is temporarily here though it should be probably moved to the collector
+	my $ua = LWP::UserAgent->new;
+	my $t = Template->new();
 
-		my $text_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'text_tt');
-		$t->process(\$text_tt, $e, \my $text) or die $t->error;
+	@{ $ua->requests_redirectable } = ();
 
-		my $subject_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'subject_tt');
-		$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
+	my $url = $e->{link};
+	my $response = $ua->get($url);
 
-		my $from = Dwimmer::Feed::Config->get($self->db, $site_id, 'from');
-
-		next if not $self->_sendmail($from, $subject, { text => $text, html => $html } );
-
-		$self->db->delete_from_queue('mail', $e->{id});
+	my $status = $response->status_line;
+	my %other;
+	$other{status} = $status;
+	if ( $response->code == 301 ) {
+		$url = $response->header('Location');
+		$other{redirected} = 1;
 	}
 
-	return;
+	my $uri = URI->new($url);
+	$uri->fragment(undef);
+	$uri->query(undef);
+
+	$url = $uri->canonical;
+	$other{url} = $url;
+	$other{twitter_status} = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
+
+	my $site_id = $e->{site_id};
+	die "need site_id" if not defined $site_id;
+	my $html_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_tt');
+	$t->process(\$html_tt, {e => $e, source => $source, other => \%other}, \my $html) or die $t->error;
+
+	my $text_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'text_tt');
+	$t->process(\$text_tt, $e, \my $text) or die $t->error;
+
+	my $subject_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'subject_tt');
+	$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
+
+	my $from = Dwimmer::Feed::Config->get($self->db, $site_id, 'from');
+
+	return if not $self->_sendmail($from, $subject, { text => $text, html => $html } );
+
+
+	return 1;
 }
 
 

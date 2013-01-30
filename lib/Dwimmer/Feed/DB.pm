@@ -39,6 +39,17 @@ sub add_source {
 	return $self->dbh->last_insert_id('', '', '', '');
 }
 
+sub get_entry {
+	my ($self, $id) = @_;
+
+	my $sth = $self->dbh->prepare('SELECT * FROM entries WHERE id = ?');
+	$sth->execute($id);
+	my $h = $sth->fetchrow_hashref;
+	$sth->finish;
+
+	return $h;
+}
+
 sub get_all_entries {
 	my ($self) = @_;
 
@@ -85,6 +96,16 @@ sub add_entry {
 
 	return;
 }
+
+=cut
+
+=head2 get_queue
+
+  $db->get_queue('mail')
+
+Given a channel (for examples 'mail') will return the entries that are scheduled to be handled in that channel.
+
+=cut
 
 sub get_queue {
 	my ($self, $channel) = @_;
@@ -258,5 +279,5 @@ sub get_sites {
 
 1;
 
-# vim: set noexpandtab:
+## vim: set noexpandtab:
 
