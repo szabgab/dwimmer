@@ -32,7 +32,7 @@ GetOptions(\%opt,
 	'listqueue=s',
 	'listentries',
 
-    'help',
+	'help',
 ) or usage();
 usage() if not $opt{store};
 usage() if $opt{help};
@@ -213,5 +213,8 @@ Actions:
     Dwimmer::Feed::Admin $Dwimmer::Feed::Admin::VERSION
 END_USAGE
 
-    exit;
+	exit;
 }
+
+# vim: set noexpandtab:
+

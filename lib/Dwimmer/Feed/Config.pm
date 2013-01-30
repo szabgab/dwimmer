@@ -331,3 +331,6 @@ Status: [% e.last_fetch_status %]<br />
 
 
 1;
+
+# vim: set noexpandtab:
+#

@@ -138,9 +138,9 @@ sub update_last_fetch {
 
 	my $sql = qq{UPDATE sources SET last_fetch_time=?, last_fetch_status=?, last_fetch_error=? WHERE id=?};
 	$self->dbh->do($sql, undef, time(), $status, $error, $source_id);
-    if ($status eq 'success') {
+	if ($status eq 'success') {
 	    $self->dbh->do('UPDATE sources SET last_success_time=? WHERE id=?', undef, time(), $source_id);
-    }
+	}
 
 	return;
 }
@@ -257,4 +257,6 @@ sub get_sites {
 }
 
 1;
+
+# vim: set noexpandtab:
 

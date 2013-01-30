@@ -15,10 +15,10 @@ GetOptions(\%opt,
 	'collect',
 	'sendmail',
 	'html',
-    'verbose',
-    'mailreport',
+	'verbose',
+	'mailreport',
 
-    'help',
+	'help',
 ) or usage();
 usage() if $opt{help};
 usage('Missing --store') if not $opt{store};
@@ -31,16 +31,16 @@ my $collector = Dwimmer::Feed::Collector->new(%opt);
 
 if ($opt{collect}) {
 	$collector->collect_all();
-    if ($collector->error and $opt{mailreport}) {
-        use MIME::Lite   ();
-    	my $msg = MIME::Lite->new(
+	if ($collector->error and $opt{mailreport}) {
+		use MIME::Lite   ();
+		my $msg = MIME::Lite->new(
 		    From    => 'gabor@szabgab.com',
 		    To      => 'szabgab@gmail.com',
 		    Subject => 'Feed collector errors',
-            Data    => $collector->error,
+			Data    => $collector->error,
 	    );
 		$msg->send('smtp', 'localhost') or warn "Could not send mail $!\n";
-    }
+	}
 }
 
 if ($opt{html}) {
@@ -62,9 +62,9 @@ exit;
 
 
 sub LOG {
-    if ($opt{verbose}) {
+	if ($opt{verbose}) {
 	    print "@_\n";
-    }
+	}
 }
 
 sub usage {
@@ -81,5 +81,7 @@ END_USAGE
 
 	exit 1;
 }
+
+# vim: set noexpandtab:
 
 

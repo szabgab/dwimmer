@@ -120,4 +120,5 @@ sub _sendmail {
 
 1;
 
+# vim: set noexpandtab:
 
