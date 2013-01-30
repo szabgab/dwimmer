@@ -1,5 +1,7 @@
 Changes to the Dwimmer system. See http://dwimmer.org/
 
+    - ALTER TABLE sources ADD COLUMN last_success_time VARCHAR(20);
+
 0.30 2012.12.30
     Feed collector issues:
 

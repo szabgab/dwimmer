@@ -135,10 +135,21 @@ sub get_source_by_id {
 
 sub update_last_fetch {
 	my ($self, $source_id, $status, $error) = @_;
+
 	my $sql = qq{UPDATE sources SET last_fetch_time=?, last_fetch_status=?, last_fetch_error=? WHERE id=?};
 	$self->dbh->do($sql, undef, time(), $status, $error, $source_id);
+    if ($status eq 'success') {
+	    $self->dbh->do('UPDATE sources SET last_success_time=? WHERE id=?', undef, time(), $source_id);
+    }
 
 	return;
+}
+
+sub get_last_success_time {
+	my ($self, $source_id) = @_;
+
+	my $ref = $self->dbh->selectrow_hashref('SELECT last_success_time FROM sources WHERE id = ?', {}, $source_id);
+	return $ref->{last_success_time};
 }
 
 

@@ -321,6 +321,7 @@ $DEFAULT{feeds_tt} = q{
 Status: [% e.last_fetch_status %]<br />
   [% IF e.last_fetch_error %]
      <div class="error">Latest error: [% e.last_fetch_error %] at [% e.last_fetch_time %]</div>
+     <div>Last success at: [% e.last_success_time %]</div>
   [% END %]
   </div>
 [% END %]

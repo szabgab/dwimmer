@@ -119,6 +119,7 @@ CREATE TABLE sources (
 	twitter   VARCHAR(30),
 	status    VARCHAR(30),
 	site_id   INTEGER NOT NULL,
+	last_success_time VARCHAR(20),
 	last_fetch_time VARCHAR(10),
 	last_fetch_status VARCHAR(10),
 	last_fetch_error BLOB,

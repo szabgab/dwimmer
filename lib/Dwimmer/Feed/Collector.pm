@@ -58,7 +58,7 @@ sub collect {
 	my ($self, $site_id) = @_;
 
 	my $INDENT = ' ' x 11;
-    $self->error('');
+	$self->error('');
 
 	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	main::LOG("sources loaded: " . @$sources);
@@ -68,7 +68,7 @@ sub collect {
 		next if not $e->{status} or $e->{status} ne 'enabled';
 		if (not $e->{feed}) {
 			main::LOG("ERROR: No feed for $e->{title}");
-            $self->error( $self->error . "No feed for title $e->{title}\n\n");
+			$self->error( $self->error . "No feed for title $e->{title}\n\n");
 			next;
 		}
 		my $feed;
@@ -84,9 +84,14 @@ sub collect {
 		};
 		my $err = $@;
 		alarm 0;
+		my $last_success_time = $self->db->get_last_success_time($e->{id}) || 0;
+		my $DIFF = 0;
+		my $now = time;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
-            $self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
+			if ($last_success_time + $DIFF < $now) {
+				$self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
+			}
 			if ($err =~ /TIMEOUT/) {
 				$self->db->update_last_fetch($e->{id}, 'fail_timeout', $err);
 			} else {
@@ -96,7 +101,9 @@ sub collect {
 		}
 		if (not $feed) {
 			main::LOG("   ERROR: " . XML::Feed->errstr);
-            $self->error( $self->error . "Feed $e->{feed}\n   " . XML::Feed->errstr . "\n\n" );
+			if ($last_success_time + $DIFF < $now) {
+				$self->error( $self->error . "Feed $e->{feed}\n   " . XML::Feed->errstr . "\n\n" );
+			}
 			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', XML::Feed->errstr);
 			next;
 		}
@@ -141,10 +148,12 @@ sub collect {
 					$self->db->add_entry(%current);
 				}
 			};
-            $err = $@;
+			$err = $@;
 			if ($err) {
 				main::LOG("   EXCEPTION: $err");
-                $self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
+				if ($last_success_time + $DIFF < $now) {
+					$self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
+				}
 			}
 		}
 		$self->db->update_last_fetch($e->{id}, 'success', '');
@@ -170,8 +179,8 @@ sub generate_html_all {
 sub generate_html {
 	my ($self, $site) = @_;
 	die if not defined $site;
-    my ($site_id, $site_name) = ($site->{id}, $site->{name});
-    die if not defined $site_id;
+	my ($site_id, $site_name) = ($site->{id}, $site->{name});
+	die if not defined $site_id;
 
 	my $dir = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_dir');
 	die 'Missing directory name' if not $dir;
@@ -209,7 +218,7 @@ sub generate_html {
 	my %site = (
 		url             => $URL,
 		title           => "$site_name $TITLE",
-        name            => $site_name,
+		name            => $site_name,
 		description     => $DESCRIPTION,
 		language        => 'en',
 		admin_name      => $ADMIN_NAME,
@@ -239,8 +248,18 @@ sub generate_html {
 
 	foreach my $f (@feeds) {
 		$f->{latest_entry} = $latest_entry_of{ $f->{id} };
-        my $dt = DateTime->from_epoch(epoch => $f->{last_fetch_time});
-        $f->{last_fetch_time} =  $dt->ymd . ' ' . $dt->hms;
+		my $lft = DateTime->from_epoch(epoch => $f->{last_fetch_time});
+		$f->{last_fetch_time} =  $lft->ymd . ' ' . $lft->hms;
+		if ($f->{last_success_time}) {
+			my $lst = DateTime->from_epoch(epoch => $f->{last_success_time} );
+			$f->{last_success_time} =  $lst->ymd . ' ' . $lst->hms;
+		} elsif ($f->{latest_entry}) {
+			$f->{last_success_time} =  $f->{latest_entry}{issued};
+		} else {
+			#my $lst = DateTime->from_epoch(epoch => 0 );
+			#$f->{last_success_time} =  $lst->ymd . ' ' . $lst->hms;
+			$f->{last_success_time} =  'Never';
+		}
 	}
 
 
@@ -253,7 +272,7 @@ sub generate_html {
 	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'index_tt') . $footer_tt;
 	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'feeds_tt') . $footer_tt;
 
-    my @errors = grep { $_->{last_fetch_error} } @feeds;
+	my @errors = grep { $_->{last_fetch_error} } @feeds;
 	$t->process(\$feeds_tt, {entries => \@errors,  %site, title => 'Errors'}, "$dir/errors.html") or die $t->error;
 	$t->process(\$feeds_tt, {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
@@ -262,7 +281,7 @@ sub generate_html {
 		my ($year, $month, $day) = split /-/, $date;
 		my $path = "$dir/archive/$year/$month";
 		mkpath $path;
-        $site{title} = "Archive of $site_name $TITLE for $year.$month.$day";
+		$site{title} = "Archive of $site_name $TITLE for $year.$month.$day";
 		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
 	}
 
@@ -274,4 +293,6 @@ sub generate_html {
 
 
 1;
+
+# vim: set noexpandtab:
 
