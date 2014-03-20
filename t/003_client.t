@@ -15,6 +15,7 @@ eval "use Test::More";
 eval "use Test::Deep";
 require Test::WWW::Mechanize;
 plan( skip_all => 'Unsupported OS' ) if not $run;
+diag("Port: $run");
 
 my $url = "http://localhost:$ENV{DWIMMER_PORT}";
 my $URL = "$url/";
