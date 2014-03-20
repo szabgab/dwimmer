@@ -12,6 +12,7 @@ use File::Basename qw(basename);
 use File::Spec;
 use File::Temp qw(tempdir);
 use File::Copy qw(copy);
+use POSIX ":sys_wait_h";
 
 my $process;
 
@@ -62,7 +63,11 @@ sub start {
         die "Could not fork() while running on $^O" if not defined $process;
 
         if ($process) { # parent
+            # wait 1 sec to let server start
             sleep 1;
+            my $res = waitpid($process, WNOHANG);
+            return if $res == -1;
+            return if $res;
             return $process;
         }
 
