@@ -35,6 +35,7 @@ my %prereq = (
 	'File::Slurp'         => 0,
 	'Getopt::Long'        => 0,
 	'List::Util'          => 0,
+	'LWP::Protocol::https' => 0,  # for https support for the feed reader
 	'JSON'                => 0,
 	'MIME::Lite'          => 0,
 	'Moose'               => 0,
