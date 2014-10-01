@@ -1,6 +1,10 @@
 use strict;
 use warnings;
 
+use Test::More;
+plan skip_all => 'Convert the test to use Plack::Test';
+exit;
+
 use t::lib::Dwimmer::Test qw(start $admin_mail @users);
 
 use Cwd qw(abs_path);
