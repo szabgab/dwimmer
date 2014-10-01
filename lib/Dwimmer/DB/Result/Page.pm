@@ -124,5 +124,5 @@ __PACKAGE__->has_one(
 	{ cascade_copy     => 0,         cascade_delete     => 0 },
 );
 
-
+our $VERSION = '0.32';
 1;

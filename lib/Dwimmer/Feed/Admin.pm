@@ -3,7 +3,7 @@ use Moose;
 
 use 5.008005;
 
-our $VERSION = '0.31';
+our $VERSION = '0.32';
 
 use Carp ();
 use Dwimmer::Feed::DB;

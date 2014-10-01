@@ -84,4 +84,5 @@ __PACKAGE__->add_unique_constraint("name_unique", ["name"]);
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+our $VERSION = '0.32';
 1;

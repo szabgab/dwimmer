@@ -1,4 +1,8 @@
-Changes to the Dwimmer system. See http://dwimmer.org/
+Changes to the Dwimmer system.
+
+0.32 2014.10.01
+    - Prereq added.
+    - Disabled forking web tests for now.
 
 0.31 2014.03.20
     - Eliminate some warnigs.
