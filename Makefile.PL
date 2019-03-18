@@ -24,6 +24,7 @@ my %prereq = (
 	'Dancer'              => 1.3060,
 	'Data::Dumper'        => 0,
 	'DateTime'            => 0,
+	'DBD::SQLite'         => 0,
 	'DBIx::Class'         => 0,
 	'DBIx::Class::Schema' => 0,
 	'DBIx::Class::Schema::Loader' => 0, # only needed for developers using script/dbic.pl
