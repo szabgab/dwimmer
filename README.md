@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.org/szabgab/dwimmer.png)](https://travis-ci.org/szabgab/dwimmer)
+
 Dwimmer is an experiment.
 
 It started as a blog engine with this screencast: http://www.youtube.com/watch?v=NGX5pgKWVoc
