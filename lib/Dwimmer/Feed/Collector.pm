@@ -126,10 +126,10 @@ sub collect {
 				if ( not $self->db->find( link => $entry->link ) ) {
 					my %current = (
 						source_id => $e->{id},
-						link      => $entry->link,
+						link      => ($entry->link || ''),
 						author    => ($entry->author || ''),
 						remote_id => ($entry->id || ''),
-						issued    => ($entry->issued || $entry->modified),
+						issued    => ($entry->issued || $entry->modified || ''),
 						title     => ($entry->title || ''),
 						summary   => ($entry->summary->body || ''),
 						content   => ($entry->content->body || ''),
