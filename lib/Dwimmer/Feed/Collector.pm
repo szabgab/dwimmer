@@ -235,7 +235,7 @@ sub generate_html {
 
 	foreach my $f (@feeds) {
 		$f->{latest_entry} = $latest_entry_of{ $f->{id} };
-        #$f->{last_fetch_time} = localtime $f->{last_fetch_time};
+        $f->{last_fetch_time_string} = $f->{last_fetch_time} ? localtime $f->{last_fetch_time} : 'na';
 		##commented out on 2013.4.26 on the live site as it was generating uninitialized warnings
 		##and in the 0.31 hotfix
 	}
