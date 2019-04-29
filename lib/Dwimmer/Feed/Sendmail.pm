@@ -56,7 +56,9 @@ sub send {
 
 		$url = $uri->canonical;
 		$other{url} = $url;
-		$other{twitter_status} = $e->{title} . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
+        my $title = $e->{title};
+        #$title =~ s/&/
+		$other{twitter_status} = $title . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
 
 		my $site_id = $e->{site_id};
 		die "need site_id" if not defined $site_id;
