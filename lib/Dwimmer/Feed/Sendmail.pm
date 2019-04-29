@@ -58,6 +58,13 @@ sub send {
 		$other{url} = $url;
 		my $title = $e->{title};
 		#$title =~ s/&/
+		# The hexa value from http://www.asciitable.com/
+		$title =~ s/ +/%20/g;
+		$title =~ s/!/%21/g;
+		$title =~ s/"/%22/g;
+		$title =~ s/#/%23/g;
+		$title =~ s/'/%27/g;
+
 		$other{twitter_status} = $title . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
 
 		my $site_id = $e->{site_id};
