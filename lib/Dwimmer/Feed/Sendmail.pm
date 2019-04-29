@@ -56,8 +56,8 @@ sub send {
 
 		$url = $uri->canonical;
 		$other{url} = $url;
-        my $title = $e->{title};
-        #$title =~ s/&/
+		my $title = $e->{title};
+		#$title =~ s/&/
 		$other{twitter_status} = $title . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
 
 		my $site_id = $e->{site_id};

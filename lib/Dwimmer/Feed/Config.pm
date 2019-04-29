@@ -50,7 +50,7 @@ $DEFAULT{html_tt} = q{
 <hr />
 
 <p>Entry</p>
-<p><a href="http://twitter.com/home?status=[% other.twitter_status %]">tweet</a></p>
+<p><a href="http://twitter.com/intent/tweet?text=[% other.twitter_status %]">tweet</a></p>
 <p>Original URL: [% e.link %]</p>
 <p>Link: [% e.link %]</p>
 <p>Entry ID: [% e.id %]</p>
