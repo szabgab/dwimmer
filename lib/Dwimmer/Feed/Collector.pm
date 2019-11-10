@@ -250,7 +250,9 @@ sub generate_html {
 	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'index_tt') . $footer_tt;
 	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'feeds_tt') . $footer_tt;
 
+    my @enabled = grep { $_->{status} eq 'enabled' } @feeds;
 	$t->process(\$feeds_tt, {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
+	$t->process(\$feeds_tt, {entries => \@enabled,   %site}, "$dir/enabled.html") or die $t->error;
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
 
 	foreach my $date (keys %entries_on) {

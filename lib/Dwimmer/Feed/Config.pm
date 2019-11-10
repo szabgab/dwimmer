@@ -263,6 +263,7 @@ $DEFAULT{index_tt} = q{
      <ul>
         [% IF admin_name %]<li> Admin: [% admin_name %] [% admin_email %]</li>[% END %]
         <li><a href="/feeds.html">feeds</a></li>
+        <li><a href="/enabled.html">enabled</a></li>
         <li><a href="/archive">archive</a></li>
      </ul>
   </div>
