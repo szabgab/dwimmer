@@ -15,21 +15,16 @@ configure_requires 'File::Spec'            => 0;
 name 'Dwimmer';
 license 'perl';
 author 'Gabor Szabo <szabgab@dwimmer.org>';
-all_from 'lib/Dwimmer.pm';
+version '1.00';
+#all_from 'lib/Dwimmer.pm';
 
 requires 'perl' => '5.012000';
 
 my %prereq = (
 	'autodie'             => 0,
-	'Dancer'              => 1.3060,
 	'Data::Dumper'        => 0,
 	'DateTime'            => 0,
 	'DBD::SQLite'         => 0,
-	'DBIx::Class'         => 0,
-	'DBIx::Class::Schema' => 0,
-	'DBIx::Class::Schema::Loader' => 0, # only needed for developers using script/dbic.pl
-	'DBIx::RunSQL'        => 0,
-	'Email::Valid'        => 0,
 	'Encode'              => 0,
 	'Fcntl'               => 0,
 	'File::ShareDir'      => '1.00',
@@ -41,7 +36,6 @@ my %prereq = (
 	'MIME::Lite'          => 0,
 	'Moose'               => 0,
 	'Pod::Usage'          => 0,
-	'String::Random'      => 0,
 	'Template'            => 0,
 	'XML::Feed'           => 0,
 	'XML::RSS'            => 0,
@@ -66,10 +60,6 @@ test_requires 'Test::Differences'    => 0;
 homepage 'http://dwimmer.org/';
 bugtracker 'http://github.com/szabgab/dwimmer';
 repository 'http://github.com/szabgab/dwimmer';
-
-install_script 'script/dwimmer_admin.pl';
-install_script 'script/dwimmer_backup.pl';
-install_script 'script/dwimmer';
 
 install_script 'script/dwimmer_feed_admin.pl';
 install_script 'script/dwimmer_feed_collector.pl';
