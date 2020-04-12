@@ -64,17 +64,4 @@ repository 'http://github.com/szabgab/dwimmer';
 install_script 'script/dwimmer_feed_admin.pl';
 install_script 'script/dwimmer_feed_collector.pl';
 
-# Copy files to share before installing (but it is not included in the distribution)
-foreach my $module (qw(File::Copy::Recursive File::Spec)) {
-	eval "use $module";
-	die "Need to install $module before running Makefile.PL again\n" if $@;
-}
-foreach my $dir (qw(bin views schema public environments)) {
-	File::Copy::Recursive::dircopy( $dir, File::Spec->catdir( 'share', $dir ) );
-}
-File::Copy::Recursive::fcopy( 'config.yml', 'share' );
-
-install_share;
-
-
 WriteAll;
