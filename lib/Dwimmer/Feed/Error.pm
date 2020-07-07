@@ -1,4 +1,6 @@
 package Dwimmer::Feed::Error;
+use strict;
+use warnings;
 
 our $VERSION = '0.32';
 use MIME::Lite   ();
@@ -6,7 +8,7 @@ use MIME::Lite   ();
 sub send_error {
     my ($feed, $content) = @_;
 
-    my $subjec = "Error in feed collection for $feed";
+    my $subject = "Error in feed collection for $feed";
 
     my $from = 'gabor@szabgab.com';
 
