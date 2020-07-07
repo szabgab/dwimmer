@@ -101,3 +101,17 @@ mkdir ~/tmp/code_maven
 
 Configure web server to point to the new feed directory
 
+## List data about every feed with an 'sz' in it:
+
+```
+perl -Ilib script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --listsource sz
+```
+
+## Update the url field of  item 24
+
+```
+perl -Ilib script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --update 24 "url=https://some.page/"
+```
+
+
+
