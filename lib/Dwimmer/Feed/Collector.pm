@@ -19,7 +19,7 @@ use XML::Feed      ();
 
 use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Config;
-use Dwimmer::Feed::Error;
+#use Dwimmer::Feed::Error;
 
 my $URL = '';
 my $TITLE = '';
@@ -88,7 +88,7 @@ sub collect {
 			main::LOG("   EXCEPTION: $err");
             my $error_msg = $self->error . "Feed $e->{feed}\n   $err\n\n";
             $self->error( $error_msg );
-            Dwimmer::Feed::Error::send_error($e->{feed}, $error_msg);
+            #Dwimmer::Feed::Error::send_error($e->{feed}, $error_msg);
 
 			if ($err =~ /TIMEOUT/) {
 				$self->db->update_last_fetch($e->{id}, 'fail_timeout', $err);
@@ -101,7 +101,7 @@ sub collect {
             my $error_str = XML::Feed->errstr;
 			main::LOG("   ERROR: " . $error_str);
             my $error_msg = $self->error . "Feed $e->{feed}\n   $error_str\n\n";
-            Dwimmer::Feed::Error::send_error($e->{feed}, $error_msg);
+            #Dwimmer::Feed::Error::send_error($e->{feed}, $error_msg);
             $self->error( $error_msg );
 			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', $error_str);
 			next;
