@@ -19,6 +19,7 @@ use XML::Feed      ();
 
 use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Config;
+use Dwimmer::Feed::Error;
 
 my $URL = '';
 my $TITLE = '';
@@ -85,7 +86,10 @@ sub collect {
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
-            $self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
+            my $error_msg = $self->error . "Feed $e->{feed}\n   $err\n\n";
+            $self->error( $error_msg );
+            Dwimmer::Feed::Error::send_error($e->{feed}, $error_msg);
+
 			if ($err =~ /TIMEOUT/) {
 				$self->db->update_last_fetch($e->{id}, 'fail_timeout', $err);
 			} else {
@@ -94,9 +98,12 @@ sub collect {
 			next;
 		}
 		if (not $feed) {
-			main::LOG("   ERROR: " . XML::Feed->errstr);
-            $self->error( $self->error . "Feed $e->{feed}\n   " . XML::Feed->errstr . "\n\n" );
-			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', XML::Feed->errstr);
+            my $error_str = XML::Feed->errstr;
+			main::LOG("   ERROR: " . $error_str);
+            my $error_msg = $self->error . "Feed $e->{feed}\n   $error_str\n\n";
+            Dwimmer::Feed::Error::send_error($e->{feed}, $error_msg);
+            $self->error( $error_msg );
+			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', $error_str);
 			next;
 		}
 		if ($feed->title) {
@@ -113,7 +120,8 @@ sub collect {
 				my $hostname = $entry->link;
 				$hostname =~ s{^(https?://[^/]+).*}{$1};
 				#main::LOG("HOST: $hostname");
-				#if ( not $self->db->find( link => "$hostname%" ) ) {
+
+#if ( not $self->db->find( link => "$hostname%" ) ) {
 				#	main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
 				#	my $msg = MIME::Lite->new(
 				#		From    => 'dwimmer@dwimmer.com',
@@ -251,8 +259,8 @@ sub generate_html {
 	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'feeds_tt') . $footer_tt;
 
     my @enabled = grep { $_->{status} eq 'enabled' } @feeds;
-	$t->process(\$feeds_tt, {entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
-	$t->process(\$feeds_tt, {entries => \@enabled,   %site}, "$dir/enabled.html") or die $t->error;
+	$t->process(\$feeds_tt, {name => 'all ', entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
+	$t->process(\$feeds_tt, {name => 'enabled ', entries => \@enabled,   %site}, "$dir/enabled.html") or die $t->error;
 	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
 
 	foreach my $date (keys %entries_on) {
