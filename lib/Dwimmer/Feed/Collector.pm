@@ -63,11 +63,12 @@ sub collect {
 	main::LOG("sources loaded: " . @$sources);
 
 	for my $source ( @$sources ) {
+        my $dumped = Dumper $source;
 		main::LOG('');
 		next if not $source->{status} or $source->{status} ne 'enabled';
 		if (not $source->{feed}) {
 			main::LOG("ERROR: No feed for $source->{title}");
-            $self->error( $self->error . "No feed for title $source->{title}\n\n");
+            $self->error( $self->error . "No feed for title $source->{title}\n$dumped\n\n");
 			next;
 		}
 		my $feed;
@@ -85,7 +86,7 @@ sub collect {
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
-            my $error_msg = $self->error . "Feed $source->{feed}\n   $err\n\n";
+            my $error_msg = $self->error . "Feed $source->{feed}\n   $err\n$dumped\n\n";
             $self->error( $error_msg );
 
 			if ($err =~ /TIMEOUT/) {
@@ -98,7 +99,7 @@ sub collect {
 		if (not $feed) {
             my $error_str = XML::Feed->errstr;
 			main::LOG("   ERROR: " . $error_str);
-            my $error_msg = $self->error . "Feed $source->{feed}\n   $error_str\n\n";
+            my $error_msg = $self->error . "Feed $source->{feed}\n   $error_str\n$dumped\n\n";
             $self->error( $error_msg );
 			$self->db->update_last_fetch($source->{id}, 'fail_nofeed', $error_str);
 			next;
@@ -148,7 +149,7 @@ sub collect {
             $err = $@;
 			if ($err) {
 				main::LOG("   EXCEPTION: $err");
-                $self->error( $self->error . "Feed $source->{feed}\n   $err\n\n" );
+                $self->error( $self->error . "Feed $source->{feed}\n   $err\n$dumped\n\n" );
 			}
 		}
 		$self->db->update_last_fetch($source->{id}, 'success', '');
