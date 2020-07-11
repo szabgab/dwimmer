@@ -186,19 +186,19 @@ sub generate_html {
 	my $all_entries = $self->db->get_all_entries;
 	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
 
-	foreach my $e (@$all_entries) {
-		$e->{source_name} = $src{ $e->{source_id} }{title};
-		$e->{source_url} = $src{ $e->{source_id} }{url};
-		$e->{twitter} = $src{ $e->{source_id} }{twitter};
-		$e->{display} = $e->{summary};
-		if (not $e->{display} and $e->{content} and length $e->{content} < $MAX_SIZE) {
-			$e->{display} = $e->{content};
+	foreach my $entry (@$all_entries) {
+		$entry->{source_name} = $src{ $entry->{source_id} }{title};
+		$entry->{source_url} = $src{ $entry->{source_id} }{url};
+		$entry->{twitter} = $src{ $entry->{source_id} }{twitter};
+		$entry->{display} = $entry->{summary};
+		if (not $entry->{display} and $entry->{content} and length $entry->{content} < $MAX_SIZE) {
+			$entry->{display} = $entry->{content};
 		}
 		# trimming needs more work to ensure all the tags in the content are properly closed.
 
-#		$e->{display} = $e->{summary} || $e->{content};
-#		if ($e->{display} and length $e->{display} > $MAX_SIZE) {
-#			$e->{display} = substr $e->{display}, 0, $TRIM_SIZE;
+#		$entry->{display} = $entry->{summary} || $entry->{content};
+#		if ($entry->{display} and length $entry->{display} > $MAX_SIZE) {
+#			$entry->{display} = substr $entry->{display}, 0, $TRIM_SIZE;
 #		}
 	}
 
