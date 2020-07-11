@@ -62,12 +62,12 @@ sub collect {
 	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
 	main::LOG("sources loaded: " . @$sources);
 
-	for my $e ( @$sources ) {
+	for my $source ( @$sources ) {
 		main::LOG('');
-		next if not $e->{status} or $e->{status} ne 'enabled';
-		if (not $e->{feed}) {
-			main::LOG("ERROR: No feed for $e->{title}");
-            $self->error( $self->error . "No feed for title $e->{title}\n\n");
+		next if not $source->{status} or $source->{status} ne 'enabled';
+		if (not $source->{feed}) {
+			main::LOG("ERROR: No feed for $source->{title}");
+            $self->error( $self->error . "No feed for title $source->{title}\n\n");
 			next;
 		}
 		my $feed;
@@ -76,31 +76,31 @@ sub collect {
 			alarm 10;
 
 			main::LOG("Processing feed");
-			#main::LOG(Dumper $e);
-			main::LOG("$INDENT $e->{feed}");
-			main::LOG("$INDENT Title by us  : $e->{title}");
-			$feed = XML::Feed->parse(URI->new($e->{feed}));
+			#main::LOG(Dumper $source);
+			main::LOG("$INDENT $source->{feed}");
+			main::LOG("$INDENT Title by us  : $source->{title}");
+			$feed = XML::Feed->parse(URI->new($source->{feed}));
 		};
 		my $err = $@;
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
-            my $error_msg = $self->error . "Feed $e->{feed}\n   $err\n\n";
+            my $error_msg = $self->error . "Feed $source->{feed}\n   $err\n\n";
             $self->error( $error_msg );
 
 			if ($err =~ /TIMEOUT/) {
-				$self->db->update_last_fetch($e->{id}, 'fail_timeout', $err);
+				$self->db->update_last_fetch($source->{id}, 'fail_timeout', $err);
 			} else {
-				$self->db->update_last_fetch($e->{id}, 'fail_fetch', $err);
+				$self->db->update_last_fetch($source->{id}, 'fail_fetch', $err);
 			}
 			next;
 		}
 		if (not $feed) {
             my $error_str = XML::Feed->errstr;
 			main::LOG("   ERROR: " . $error_str);
-            my $error_msg = $self->error . "Feed $e->{feed}\n   $error_str\n\n";
+            my $error_msg = $self->error . "Feed $source->{feed}\n   $error_str\n\n";
             $self->error( $error_msg );
-			$self->db->update_last_fetch($e->{id}, 'fail_nofeed', $error_str);
+			$self->db->update_last_fetch($source->{id}, 'fail_nofeed', $error_str);
 			next;
 		}
 		if ($feed->title) {
@@ -130,7 +130,7 @@ sub collect {
 				#}
 				if ( not $self->db->find( link => $entry->link ) ) {
 					my %current = (
-						source_id => $e->{id},
+						source_id => $source->{id},
 						link      => ($entry->link || ''),
 						author    => ($entry->author || ''),
 						remote_id => ($entry->id || ''),
@@ -148,10 +148,10 @@ sub collect {
             $err = $@;
 			if ($err) {
 				main::LOG("   EXCEPTION: $err");
-                $self->error( $self->error . "Feed $e->{feed}\n   $err\n\n" );
+                $self->error( $self->error . "Feed $source->{feed}\n   $err\n\n" );
 			}
 		}
-		$self->db->update_last_fetch($e->{id}, 'success', '');
+		$self->db->update_last_fetch($source->{id}, 'success', '');
 	}
 
 	return;
