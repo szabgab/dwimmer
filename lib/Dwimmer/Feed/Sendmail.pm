@@ -29,8 +29,8 @@ sub send {
 	my $entries = $self->db->get_queue( 'mail' );
 	my $sources = $self->db->get_sources;
 
-	foreach my $e (@$entries) {
-		my ($source) = grep { $_->{id} eq $e->{source_id} }  @$sources;
+	foreach my $entry (@$entries) {
+		my ($source) = grep { $_->{id} eq $entry->{source_id} }  @$sources;
 
 		# fix redirection and remove parts after path
 		# This is temporarily here though it should be probably moved to the collector
@@ -39,7 +39,7 @@ sub send {
 
 		@{ $ua->requests_redirectable } = ();
 
-		my $url = $e->{link};
+		my $url = $entry->{link};
 		my $response = $ua->get($url);
 
 		my $status = $response->status_line;
@@ -56,7 +56,7 @@ sub send {
 
 		$url = $uri->canonical;
 		$other{url} = $url;
-		my $title = $e->{title};
+		my $title = $entry->{title};
 		#$title =~ s/&/
 		# The hexa value from http://www.asciitable.com/
 		$title =~ s/ +/%20/g;
@@ -67,22 +67,22 @@ sub send {
 
 		$other{twitter_status} = $title . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
 
-		my $site_id = $e->{site_id};
+		my $site_id = $entry->{site_id};
 		die "need site_id" if not defined $site_id;
 		my $html_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_tt');
-		$t->process(\$html_tt, {e => $e, source => $source, other => \%other}, \my $html) or die $t->error;
+		$t->process(\$html_tt, {e => $entry, source => $source, other => \%other}, \my $html) or die $t->error;
 
 		my $text_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'text_tt');
-		$t->process(\$text_tt, $e, \my $text) or die $t->error;
+		$t->process(\$text_tt, $entry, \my $text) or die $t->error;
 
 		my $subject_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'subject_tt');
-		$t->process(\$subject_tt, $e, \my $subject) or die $t->error;
+		$t->process(\$subject_tt, $entry, \my $subject) or die $t->error;
 
 		my $from = Dwimmer::Feed::Config->get($self->db, $site_id, 'from');
 
 		next if not $self->_sendmail($from, $subject, { text => $text, html => $html } );
 
-		$self->db->delete_from_queue('mail', $e->{id});
+		$self->db->delete_from_queue('mail', $entry->{id});
 	}
 
 	return;
