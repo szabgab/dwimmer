@@ -65,7 +65,7 @@ sub send {
 		$title =~ s/#/%23/g;
 		$title =~ s/'/%27/g;
 
-		$other{twitter_status} = $title . ($source->{twitter} ? " via \@$source->{twitter}" : '') . " $url";
+		$other{twitter_status} = $title . ($source->{twitter} ? " via \@$source->{twitter} %23perl" : '') . " $url";
 
 		my $site_id = $entry->{site_id};
 		die "need site_id" if not defined $site_id;
