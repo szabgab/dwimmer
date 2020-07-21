@@ -3,6 +3,10 @@ use strict;
 use warnings;
 use v5.8;
 
+use FindBin;
+use File::Spec;
+use lib File::Spec->catdir($FindBin::Bin, '..', 'lib');
+
 use Dwimmer::Feed::Admin;
 
 use Data::Dumper qw(Dumper);

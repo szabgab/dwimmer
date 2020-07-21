@@ -76,15 +76,15 @@ perl -Ilib script/dwimmer_feed_admin.pl --store ~/code_maven_feed.db --config de
 to verify:
 
 ```
-perl -Ilib script/dwimmer_feed_admin.pl --store ~/code_maven_feed.db --listconfig --site CM | less
+perl script/dwimmer_feed_admin.pl --store ~/code_maven_feed.db --listconfig --site CM | less
 ```
 
 Add RSS feeds:
 
 ```
-perl -Ilib script/dwimmer_feed_admin.pl --store ~/code_maven_feed.db --site CM --add
+perl script/dwimmer_feed_admin.pl --store ~/code_maven_feed.db --site CM --add
 URL:
-Feed (Atom or RSS) : 
+Feed (Atom or RSS) :
 Title :
 Twitter :
 Comment :
@@ -92,7 +92,7 @@ Comment :
 
 List RSS feeds:
 ```
-perl -Ilib script/dwimmer_feed_admin.pl --store ~/code_maven_feed.db --site CM --listsource
+perl script/dwimmer_feed_admin.pl --store ~/code_maven_feed.db --site CM --listsource
 ```
 
 ```
@@ -104,13 +104,13 @@ Configure web server to point to the new feed directory
 ## List data about every feed with an 'sz' in it:
 
 ```
-perl -Ilib script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --listsource sz
+perl script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --listsource sz
 ```
 
 ## Update the url field of  item 24
 
 ```
-perl -Ilib script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --update 24 "url=https://some.page/"
+perl script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --update 24 "url=https://some.page/"
 ```
 
 
