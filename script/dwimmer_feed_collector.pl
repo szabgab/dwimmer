@@ -32,6 +32,7 @@ my $t0     = time;
 my $statsd = DataDog::DogStatsd->new;
 $statsd->event( 'feed_collector started', 'Nothing to say' );
 $statsd->increment('feed_collector.running');
+$statsd->counter('feed_collector.on', 1);
 
 my $collector = Dwimmer::Feed::Collector->new(%opt);
 
@@ -67,6 +68,7 @@ my $t1           = time;
 my $elapsed_time = $t1 - $t0;
 LOG("Elapsed time: $elapsed_time");
 $statsd->decrement('feed_collector.running');
+$statsd->counter('feed_collector.on', 0);
 $statsd->event( 'feed_collector ended', 'Nothing to say' );
 $statsd->timing( 'feed_collector.elapsed_time', $elapsed_time );
 exit;
