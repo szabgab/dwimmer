@@ -16,32 +16,33 @@ name 'Dwimmer';
 license 'perl';
 author 'Gabor Szabo <szabgab@dwimmer.org>';
 version '1.00';
+
 #all_from 'lib/Dwimmer.pm';
 
 requires 'perl' => '5.012000';
 
 my %prereq = (
-	'autodie'             => 0,
-	'Data::Dumper'        => 0,
-	'DataDog::DogStatsd'  => 0,
-	'DateTime'            => 0,
-	'DBD::SQLite'         => 0,
-	'Encode'              => 0,
-	'Fcntl'               => 0,
-	'File::ShareDir'      => '1.00',
-	'File::Slurp'         => 0,
-	'Getopt::Long'        => 0,
-	'List::Util'          => 0,
-	'LWP::Protocol::https' => 0,  # for https support for the feed reader
-	'JSON'                => 0,
-	'MIME::Lite'          => 0,
-	'Moose'               => 0,
-	'Pod::Usage'          => 0,
-	'Template'            => 0,
-	'XML::Feed'           => 0,
-	'XML::RSS'            => 0,
-	'XML::Simple'         => 0,
-	'YAML'                => 0,
+	'autodie'              => 0,
+	'Data::Dumper'         => 0,
+	'DataDog::DogStatsd'   => 0,
+	'DateTime'             => 0,
+	'DBD::SQLite'          => 0,
+	'Encode'               => 0,
+	'Fcntl'                => 0,
+	'File::ShareDir'       => '1.00',
+	'File::Slurp'          => 0,
+	'Getopt::Long'         => 0,
+	'List::Util'           => 0,
+	'LWP::Protocol::https' => 0,        # for https support for the feed reader
+	'JSON'                 => 0,
+	'MIME::Lite'           => 0,
+	'Moose'                => 0,
+	'Pod::Usage'           => 0,
+	'Template'             => 0,
+	'XML::Feed'            => 0,
+	'XML::RSS'             => 0,
+	'XML::Simple'          => 0,
+	'YAML'                 => 0,
 );
 
 if ( $^O =~ /win32/i ) {
@@ -56,7 +57,6 @@ test_requires 'Test::More'           => 0;
 test_requires 'Test::Deep'           => 0;
 test_requires 'Test::WWW::Mechanize' => 0;
 test_requires 'Test::Differences'    => 0;
-
 
 homepage 'http://dwimmer.org/';
 bugtracker 'http://github.com/szabgab/dwimmer';

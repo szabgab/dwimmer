@@ -7,24 +7,24 @@ our $VERSION = '0.32';
 my %DEFAULT;
 
 sub get_config_hash {
-	my ($self, $db, $site_id) = @_;
+	my ( $self, $db, $site_id ) = @_;
 	die 'Need 3 args for get_config_hash' if @_ != 3;
 
-	return $db->get_config_hash(site_id => $site_id);
+	return $db->get_config_hash( site_id => $site_id );
 }
 
 sub get_config {
-	my ($self, $db, $site_id) = @_;
+	my ( $self, $db, $site_id ) = @_;
 	die 'Need 3 args for get_config' if @_ != 3;
 
-	my $config = $db->get_config(site_id => $site_id);
+	my $config = $db->get_config( site_id => $site_id );
 }
 
 sub get {
-	my ($self, $db, $site_id, $field) = @_;
+	my ( $self, $db, $site_id, $field ) = @_;
 	die 'Need 4 args for get' if @_ != 4;
 
-	my $config = $db->get_config_hash(site_id => $site_id);
+	my $config = $db->get_config_hash( site_id => $site_id );
 	return $config->{$field} // $DEFAULT{$field};
 }
 
@@ -75,7 +75,6 @@ $DEFAULT{html_tt} = q{
 
 </body></html>
 };
-
 
 $DEFAULT{atom_tt} = q{
 <?xml version="1.0" encoding="utf-8"?>
@@ -329,6 +328,5 @@ Config Status: [% e.status %]<br />
 
 </div>
 };
-
 
 1;

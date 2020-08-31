@@ -5,7 +5,7 @@ use v5.8;
 
 use FindBin;
 use File::Spec;
-use lib File::Spec->catdir($FindBin::Bin, '..', 'lib');
+use lib File::Spec->catdir( $FindBin::Bin, '..', 'lib' );
 
 use Dwimmer::Feed::Admin;
 
@@ -13,7 +13,8 @@ use Data::Dumper qw(Dumper);
 use Getopt::Long qw(GetOptions);
 
 my %opt;
-GetOptions(\%opt,
+GetOptions(
+	\%opt,
 	'store=s',
 
 	'setup',
@@ -38,8 +39,8 @@ GetOptions(\%opt,
 ) or usage();
 usage() if not $opt{store};
 
-if ($opt{setup}) {
-	setup($opt{store});
+if ( $opt{setup} ) {
+	setup( $opt{store} );
 	exit;
 }
 
@@ -47,40 +48,49 @@ usage("Database ($opt{store}) does NOT exist") if not -e $opt{store};
 
 my $admin = Dwimmer::Feed::Admin->new(%opt);
 
-if ($opt{addsite}) {
+if ( $opt{addsite} ) {
 	$admin->db->addsite( name => $opt{addsite} );
 	exit;
 }
-if ($opt{listsite}) {
+if ( $opt{listsite} ) {
 	$admin->list_sites();
 	exit;
 }
 
 $opt{site} ||= '';
 
-if (exists $opt{listsource}) {
-	$admin->list_source( filter => ($opt{listsource} || ''), site => $opt{site} );
-} elsif ( defined $opt{enable} ) {
-#	usage('--site SITE  required for this operation') if not $opt{site};
-	$admin->update( id => $opt{enable},  field => 'status', value =>'enabled' );
-} elsif ( defined $opt{disable} ) {
-#	usage('--site SITE  required for this operation') if not $opt{site};
+if ( exists $opt{listsource} ) {
+	$admin->list_source( filter => ( $opt{listsource} || '' ), site => $opt{site} );
+}
+elsif ( defined $opt{enable} ) {
+
+	#	usage('--site SITE  required for this operation') if not $opt{site};
+	$admin->update( id => $opt{enable}, field => 'status', value => 'enabled' );
+}
+elsif ( defined $opt{disable} ) {
+
+	#	usage('--site SITE  required for this operation') if not $opt{site};
 	$admin->update( id => $opt{disable}, field => 'status', value => 'disabled' );
-} elsif ( defined $opt{update} ) {
+}
+elsif ( defined $opt{update} ) {
 	my $str = shift;
 	usage('Need update value') if not $str;
-	my ($field, $value) = split /=/, $str;
+	my ( $field, $value ) = split /=/, $str;
 	$admin->update( id => $opt{update}, field => $field, value => $value );
-} elsif (exists $opt{add}) {
+}
+elsif ( exists $opt{add} ) {
 	usage('--site SITE  required for this operation') if not $opt{site};
 	$admin->add( site => $opt{site} );
-} elsif ($opt{listconfig}) {
-	$admin->list_config($opt{site});
-} elsif ($opt{unconfig}) {
+}
+elsif ( $opt{listconfig} ) {
+	$admin->list_config( $opt{site} );
+}
+elsif ( $opt{unconfig} ) {
 	usage('--site SITE  required for this operation') if not $opt{site};
-	my $site_id = $admin->db->get_site_id($opt{site});
+	my $site_id = $admin->db->get_site_id( $opt{site} );
 	$admin->db->delete_config( key => $opt{unconfig}, site_id => $site_id );
-} elsif ($opt{config}) {
+}
+elsif ( $opt{config} ) {
 	usage('--site SITE  required for this operation') if not $opt{site};
 	my $value = shift;
 	usage('') if not defined $value;
@@ -88,13 +98,16 @@ if (exists $opt{listsource}) {
 	my $site_id = $admin->db->get_site_id( $opt{site} );
 	die("Could not find site '$opt{site}'") if not $site_id;
 	$admin->db->set_config( key => $opt{config}, value => $value, site_id => $site_id );
-} elsif ($opt{listqueue}) {
+}
+elsif ( $opt{listqueue} ) {
 	my $entries = $admin->db->get_queue( $opt{listqueue} );
 	print Dumper $entries;
-} elsif ($opt{listentries}) {
+}
+elsif ( $opt{listentries} ) {
 	my $entries = $admin->db->get_all_entries;
 	print Dumper $entries;
-} else {
+}
+else {
 	usage();
 }
 exit;
@@ -105,7 +118,7 @@ sub setup {
 
 	usage("Database ($store) already exists") if -e $store;
 
-my $SCHEMA = <<'SCHEMA';
+	my $SCHEMA = <<'SCHEMA';
 CREATE TABLE sites (
 	id        INTEGER PRIMARY KEY,
 	name      VARCHAR(100) UNIQUE NOT NULL
@@ -162,11 +175,10 @@ SCHEMA
 	my $db = Dwimmer::Feed::DB->new( store => $store );
 	$db->connect;
 
-	foreach my $sql (split /;/, $SCHEMA) {
+	foreach my $sql ( split /;/, $SCHEMA ) {
 		$db->dbh->do($sql);
 	}
 }
-
 
 sub usage {
 	my $text = shift || '';

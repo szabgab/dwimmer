@@ -1,0 +1,12 @@
+no_cache = 1
+
+[PerlTidy]
+select = {script,bin,lib,t}/**/*.{pl,pm,t,psgi}
+select = etc/munin/*
+select = Makefile.PL
+argv = --profile=$ROOT/.perltidyrc
+
+[SortLines]
+select = .gitignore
+
+

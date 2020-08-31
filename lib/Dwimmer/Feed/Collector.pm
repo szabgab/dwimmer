@@ -5,33 +5,32 @@ use 5.008005;
 
 our $VERSION = '0.32';
 
-my $MAX_SIZE = 500;
+my $MAX_SIZE  = 500;
 my $TRIM_SIZE = 400;
 
-use Cwd            qw(abs_path);
-use Data::Dumper   qw(Dumper);
+use Cwd qw(abs_path);
+use Data::Dumper qw(Dumper);
 use File::Basename qw(dirname);
-use File::Path     qw(mkpath);
-use List::Util     qw(min);
-use MIME::Lite     ();
+use File::Path qw(mkpath);
+use List::Util qw(min);
+use MIME::Lite ();
 use Template;
-use XML::Feed      ();
+use XML::Feed ();
 
 use Dwimmer::Feed::DB;
 use Dwimmer::Feed::Config;
 
-my $URL = '';
-my $TITLE = '';
-my $DESCRIPTION = '';
-my $ADMIN_NAME = '';
-my $ADMIN_EMAIL = '';
+my $URL             = '';
+my $TITLE           = '';
+my $DESCRIPTION     = '';
+my $ADMIN_NAME      = '';
+my $ADMIN_EMAIL     = '';
 my $FRONT_PAGE_SIZE = 20;
 
-
 #has 'sources' => (is => 'ro', isa => 'Str', required => 1);
-has 'store'   => (is => 'ro', isa => 'Str', required => 1);
-has 'db'      => (is => 'rw', isa => 'Dwimmer::Feed::DB');
-has 'error'   => (is => 'rw', isa => 'Str');
+has 'store' => ( is => 'ro', isa => 'Str', required => 1 );
+has 'db'    => ( is => 'rw', isa => 'Dwimmer::Feed::DB' );
+has 'error' => ( is => 'rw', isa => 'Str' );
 
 sub BUILD {
 	my ($self) = @_;
@@ -47,28 +46,28 @@ sub collect_all {
 
 	my $sites = $self->db->get_sites;
 	foreach my $site (@$sites) {
-		$self->collect($site->{id});
+		$self->collect( $site->{id} );
 	}
 
 	return;
 }
 
 sub collect {
-	my ($self, $site_id) = @_;
+	my ( $self, $site_id ) = @_;
 
 	my $INDENT = ' ' x 11;
-    $self->error('');
+	$self->error('');
 
 	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
-	main::LOG("sources loaded: " . @$sources);
+	main::LOG( "sources loaded: " . @$sources );
 
-	for my $source ( @$sources ) {
-        my $dumped = Dumper $source;
+	for my $source (@$sources) {
+		my $dumped = Dumper $source;
 		main::LOG('');
 		next if not $source->{status} or $source->{status} ne 'enabled';
-		if (not $source->{feed}) {
+		if ( not $source->{feed} ) {
 			main::LOG("ERROR: No feed for $source->{title}");
-            $self->error( $self->error . "No feed for title $source->{title}\n$dumped\n\n");
+			$self->error( $self->error . "No feed for title $source->{title}\n$dumped\n\n" );
 			next;
 		}
 		my $feed;
@@ -77,49 +76,53 @@ sub collect {
 			alarm 10;
 
 			main::LOG("Processing feed");
+
 			#main::LOG(Dumper $source);
 			main::LOG("$INDENT $source->{feed}");
 			main::LOG("$INDENT Title by us  : $source->{title}");
-			$feed = XML::Feed->parse(URI->new($source->{feed}));
+			$feed = XML::Feed->parse( URI->new( $source->{feed} ) );
 		};
 		my $err = $@;
 		alarm 0;
 		if ($err) {
 			main::LOG("   EXCEPTION: $err");
-            my $error_msg = $self->error . "Feed $source->{feed}\n   $err\n$dumped\n\n";
-            $self->error( $error_msg );
+			my $error_msg = $self->error . "Feed $source->{feed}\n   $err\n$dumped\n\n";
+			$self->error($error_msg);
 
-			if ($err =~ /TIMEOUT/) {
-				$self->db->update_last_fetch($source->{id}, 'fail_timeout', $err);
-			} else {
-				$self->db->update_last_fetch($source->{id}, 'fail_fetch', $err);
+			if ( $err =~ /TIMEOUT/ ) {
+				$self->db->update_last_fetch( $source->{id}, 'fail_timeout', $err );
+			}
+			else {
+				$self->db->update_last_fetch( $source->{id}, 'fail_fetch', $err );
 			}
 			next;
 		}
-		if (not $feed) {
-            my $error_str = XML::Feed->errstr;
-			main::LOG("   ERROR: " . $error_str);
-            my $error_msg = $self->error . "Feed $source->{feed}\n   $error_str\n$dumped\n\n";
-            $self->error( $error_msg );
-			$self->db->update_last_fetch($source->{id}, 'fail_nofeed', $error_str);
+		if ( not $feed ) {
+			my $error_str = XML::Feed->errstr;
+			main::LOG( "   ERROR: " . $error_str );
+			my $error_msg = $self->error . "Feed $source->{feed}\n   $error_str\n$dumped\n\n";
+			$self->error($error_msg);
+			$self->db->update_last_fetch( $source->{id}, 'fail_nofeed', $error_str );
 			next;
 		}
-		if ($feed->title) {
-			main::LOG("$INDENT Title by them: " . $feed->title);
-		} else {
+		if ( $feed->title ) {
+			main::LOG( "$INDENT Title by them: " . $feed->title );
+		}
+		else {
 			main::LOG("   WARN: no title");
 		}
 
+		for my $entry ( $feed->entries ) {
 
-		for my $entry ($feed->entries) {
 			#print $entry, "\n";
 			eval {
 				# checking for new hostname
 				my $hostname = $entry->link;
 				$hostname =~ s{^(https?://[^/]+).*}{$1};
+
 				#main::LOG("HOST: $hostname");
 
-#if ( not $self->db->find( link => "$hostname%" ) ) {
+				#if ( not $self->db->find( link => "$hostname%" ) ) {
 				#	main::LOG("   ALERT: new hostname ($hostname) in URL: " . $entry->link);
 				#	my $msg = MIME::Lite->new(
 				#		From    => 'dwimmer@dwimmer.com',
@@ -132,27 +135,27 @@ sub collect {
 				if ( not $self->db->find( link => $entry->link ) ) {
 					my %current = (
 						source_id => $source->{id},
-						link      => ($entry->link || ''),
-						author    => ($entry->author || ''),
-						remote_id => ($entry->id || ''),
-						issued    => ($entry->issued || $entry->modified || ''),
-						title     => ($entry->title || ''),
-						summary   => ($entry->summary->body || ''),
-						content   => ($entry->content->body || ''),
-						tags    => '', #$entry->tags,
+						link      => ( $entry->link   || '' ),
+						author    => ( $entry->author || '' ),
+						remote_id => ( $entry->id     || '' ),
+						issued    => ( $entry->issued || $entry->modified || '' ),
+						title     => ( $entry->title         || '' ),
+						summary   => ( $entry->summary->body || '' ),
+						content   => ( $entry->content->body || '' ),
+						tags      => '',         #$entry->tags,
 						site_id   => $site_id,
 					);
 					main::LOG("   INFO: Adding $current{link}");
 					$self->db->add_entry(%current);
 				}
 			};
-            $err = $@;
+			$err = $@;
 			if ($err) {
 				main::LOG("   EXCEPTION: $err");
-                $self->error( $self->error . "Feed $source->{feed}\n   $err\n$dumped\n\n" );
+				$self->error( $self->error . "Feed $source->{feed}\n   $err\n$dumped\n\n" );
 			}
 		}
-		$self->db->update_last_fetch($source->{id}, 'success', '');
+		$self->db->update_last_fetch( $source->{id}, 'success', '' );
 	}
 
 	return;
@@ -166,48 +169,47 @@ sub generate_html_all {
 
 	my $sites = $self->db->get_sites;
 	foreach my $site (@$sites) {
-		$self->generate_html($site->{id});
+		$self->generate_html( $site->{id} );
 	}
 
 	return;
 }
 
 sub generate_html {
-	my ($self, $site_id) = @_;
+	my ( $self, $site_id ) = @_;
 	die if not defined $site_id;
 
-	my $dir = Dwimmer::Feed::Config->get($self->db, $site_id, 'html_dir');
+	my $dir = Dwimmer::Feed::Config->get( $self->db, $site_id, 'html_dir' );
 	die 'Missing directory name' if not $dir;
 	die "Not a directory '$dir'" if not -d $dir;
 
 	my $sources = $self->db->get_sources( status => 'enabled', site_id => $site_id );
-	my %src = map { $_->{id } => $_  } @$sources;
-
+	my %src     = map { $_->{id} => $_ } @$sources;
 
 	my $all_entries = $self->db->get_all_entries;
-	my $size = min($FRONT_PAGE_SIZE, scalar @$all_entries);
+	my $size        = min( $FRONT_PAGE_SIZE, scalar @$all_entries );
 
 	foreach my $entry (@$all_entries) {
 		$entry->{source_name} = $src{ $entry->{source_id} }{title};
-		$entry->{source_url} = $src{ $entry->{source_id} }{url};
-		$entry->{twitter} = $src{ $entry->{source_id} }{twitter};
-		$entry->{display} = $entry->{summary};
-		if (not $entry->{display} and $entry->{content} and length $entry->{content} < $MAX_SIZE) {
+		$entry->{source_url}  = $src{ $entry->{source_id} }{url};
+		$entry->{twitter}     = $src{ $entry->{source_id} }{twitter};
+		$entry->{display}     = $entry->{summary};
+		if ( not $entry->{display} and $entry->{content} and length $entry->{content} < $MAX_SIZE ) {
 			$entry->{display} = $entry->{content};
 		}
+
 		# trimming needs more work to ensure all the tags in the content are properly closed.
 
-#		$entry->{display} = $entry->{summary} || $entry->{content};
-#		if ($entry->{display} and length $entry->{display} > $MAX_SIZE) {
-#			$entry->{display} = substr $entry->{display}, 0, $TRIM_SIZE;
-#		}
+		#		$entry->{display} = $entry->{summary} || $entry->{content};
+		#		if ($entry->{display} and length $entry->{display} > $MAX_SIZE) {
+		#			$entry->{display} = substr $entry->{display}, 0, $TRIM_SIZE;
+		#		}
 	}
 
+	my @entries = @$all_entries[ 0 .. $size - 1 ];
 
-	my @entries = @$all_entries[0 .. $size-1];
-
-	my $clicky_enabled = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_enabled');
-	my $clicky_code    = Dwimmer::Feed::Config->get($self->db, $site_id, 'clicky_code');
+	my $clicky_enabled = Dwimmer::Feed::Config->get( $self->db, $site_id, 'clicky_enabled' );
+	my $clicky_code    = Dwimmer::Feed::Config->get( $self->db, $site_id, 'clicky_code' );
 
 	my %site = (
 		url             => $URL,
@@ -219,61 +221,66 @@ sub generate_html {
 		id              => $URL,
 		dwimmer_version => $VERSION,
 		last_update     => scalar localtime,
-		clicky          => ($clicky_enabled and $clicky_code ? $clicky_code : ''),
+		clicky          => ( $clicky_enabled and $clicky_code ? $clicky_code : '' ),
 	);
 
 	$site{last_build_date} = localtime;
 
-	my @feeds = sort {lc($a->{title}) cmp lc($b->{title})}
-			grep { $_->{status} and $_->{status} eq 'enabled' }
-			@$sources;
-
+	my @feeds = sort { lc( $a->{title} ) cmp lc( $b->{title} ) }
+		grep { $_->{status} and $_->{status} eq 'enabled' } @$sources;
 
 	my %latest_entry_of;
 	my %entries_on;
 	foreach my $e (@$all_entries) {
-		my $field = $e->{source_id};
+		my $field  = $e->{source_id};
 		my ($date) = split / /, $e->{issued};
-		push @{$entries_on{$date}}, $e;
-		next if $latest_entry_of{ $field } and $latest_entry_of{ $field } gt $e->{issued};
-		$latest_entry_of{ $field } = $e;
+		push @{ $entries_on{$date} }, $e;
+		next if $latest_entry_of{$field} and $latest_entry_of{$field} gt $e->{issued};
+		$latest_entry_of{$field} = $e;
 	}
 
 	foreach my $f (@feeds) {
-		$f->{latest_entry} = $latest_entry_of{ $f->{id} };
-        $f->{last_fetch_time_string} = $f->{last_fetch_time} ? localtime $f->{last_fetch_time} : 'na';
+		$f->{latest_entry}           = $latest_entry_of{ $f->{id} };
+		$f->{last_fetch_time_string} = $f->{last_fetch_time} ? localtime $f->{last_fetch_time} : 'na';
 		##commented out on 2013.4.26 on the live site as it was generating uninitialized warnings
 		##and in the 0.31 hotfix
 	}
 
-
 	my $root = dirname dirname abs_path $0;
 
-	my $t = Template->new({ ABSOLUTE => 1, });
+	my $t = Template->new( { ABSOLUTE => 1, } );
 
-	my $header_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'header_tt');
-	my $footer_tt = Dwimmer::Feed::Config->get($self->db, $site_id, 'footer_tt');
-	my $index_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'index_tt') . $footer_tt;
-	my $feeds_tt = $header_tt . Dwimmer::Feed::Config->get($self->db, $site_id, 'feeds_tt') . $footer_tt;
+	my $header_tt = Dwimmer::Feed::Config->get( $self->db, $site_id, 'header_tt' );
+	my $footer_tt = Dwimmer::Feed::Config->get( $self->db, $site_id, 'footer_tt' );
+	my $index_tt  = $header_tt . Dwimmer::Feed::Config->get( $self->db, $site_id, 'index_tt' ) . $footer_tt;
+	my $feeds_tt  = $header_tt . Dwimmer::Feed::Config->get( $self->db, $site_id, 'feeds_tt' ) . $footer_tt;
 
-    my @enabled = grep { $_->{status} eq 'enabled' } @feeds;
-	$t->process(\$feeds_tt, {name => 'all ', entries => \@feeds,   %site}, "$dir/feeds.html") or die $t->error;
-	$t->process(\$feeds_tt, {name => 'enabled ', entries => \@enabled,   %site}, "$dir/enabled.html") or die $t->error;
-	$t->process(\$index_tt, {entries => \@entries, %site}, "$dir/index.html") or die $t->error;
+	my @enabled = grep { $_->{status} eq 'enabled' } @feeds;
+	$t->process( \$feeds_tt, { name => 'all ',     entries => \@feeds,   %site }, "$dir/feeds.html" ) or die $t->error;
+	$t->process( \$feeds_tt, { name => 'enabled ', entries => \@enabled, %site }, "$dir/enabled.html" )
+		or die $t->error;
+	$t->process( \$index_tt, { entries => \@entries, %site }, "$dir/index.html" ) or die $t->error;
 
-	foreach my $date (keys %entries_on) {
-		my ($year, $month, $day) = split /-/, $date;
+	foreach my $date ( keys %entries_on ) {
+		my ( $year, $month, $day ) = split /-/, $date;
 		my $path = "$dir/archive/$year/$month";
 		mkpath $path;
-		$t->process(\$index_tt, {entries => $entries_on{$date}, %site}, "$path/$day.html") or die $t->error;
+		$t->process( \$index_tt, { entries => $entries_on{$date}, %site }, "$path/$day.html" ) or die $t->error;
 	}
 
-	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'rss_tt'),   {entries => \@entries, %site}, "$dir/rss.xml")    or die $t->error;
-	$t->process(\Dwimmer::Feed::Config->get($self->db, $site_id, 'atom_tt'),  {entries => \@entries, %site}, "$dir/atom.xml")   or die $t->error;
+	$t->process(
+		\Dwimmer::Feed::Config->get( $self->db, $site_id, 'rss_tt' ),
+		{ entries => \@entries, %site },
+		"$dir/rss.xml"
+	) or die $t->error;
+	$t->process(
+		\Dwimmer::Feed::Config->get( $self->db, $site_id, 'atom_tt' ),
+		{ entries => \@entries, %site },
+		"$dir/atom.xml"
+	) or die $t->error;
 
 	return;
 }
-
 
 1;
 
