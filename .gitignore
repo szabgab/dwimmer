@@ -1,6 +1,7 @@
 #/polls
 *.db
 *.swp
+/.tidyall.d/
 /db
 /inc
 /polls/*.txt
@@ -20,5 +21,3 @@ blib
 logs
 pm_to_blib
 sessions
-
-/.tidyall.d/

@@ -31,9 +31,9 @@ usage('At least one of --collect --html --sendmail is needed')
 my $t0     = time;
 my $statsd = DataDog::DogStatsd->new;
 $statsd->event( 'feed_collector started', 'Nothing to say' );
-$statsd->increment('feed_collector.running')
+$statsd->increment('feed_collector.running');
 
-	my $collector = Dwimmer::Feed::Collector->new(%opt);
+my $collector = Dwimmer::Feed::Collector->new(%opt);
 
 if ( $opt{collect} ) {
 	$collector->collect_all();
