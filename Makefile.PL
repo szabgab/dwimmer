@@ -23,6 +23,7 @@ requires 'perl' => '5.012000';
 my %prereq = (
 	'autodie'             => 0,
 	'Data::Dumper'        => 0,
+	'DataDog::DogStatsd'  => 0,
 	'DateTime'            => 0,
 	'DBD::SQLite'         => 0,
 	'Encode'              => 0,

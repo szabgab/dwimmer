@@ -11,6 +11,7 @@ use Dwimmer::Feed::Collector;
 use Dwimmer::Feed::Sendmail;
 
 use Getopt::Long qw(GetOptions);
+use DataDog::DogStatsd;
 
 my %opt;
 GetOptions(\%opt,
@@ -27,6 +28,9 @@ usage('At least one of --collect --html --sendmail is needed')
 	if not $opt{collect} and not $opt{html} and not $opt{sendmail}; # and not $opt{twitter};
 
 my $t0 = time;
+my $statsd = DataDog::DogStatsd->new;
+$statsd->event('feed_collector started', 'Nothing to say');
+$statsd->increment( 'feed_collector.running' )
 
 my $collector = Dwimmer::Feed::Collector->new(%opt);
 
@@ -58,7 +62,11 @@ if ($opt{twitter}) {
 }
 
 my $t1 = time;
-LOG("Elapsed time: " . ($t1-$t0));
+my $elapsed_time = $t1-$t0;
+LOG("Elapsed time: $elapsed_time");
+$statsd->decrement( 'feed_collector.running' )
+$statsd->event('feed_collector ended', 'Nothing to say');
+$statsd->timing('feed_collector.elapsed_time', $elapsed_time);
 exit;
 
 
