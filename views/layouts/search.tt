@@ -1,5 +1,0 @@
-<form method="GET" action="/search">
-<input type="text" name="text">
-<input type="submit" value="Search" />
-</form>
-
