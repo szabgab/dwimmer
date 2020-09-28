@@ -145,7 +145,6 @@ $DEFAULT{header_tt} = q {
  <link href="/atom.xml" rel="alternate" type="application/atom+xml" title ="[% name %] ATOM Feed" />
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
- <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
 </head>
 <body>
 <style>
@@ -271,27 +270,6 @@ $DEFAULT{index_tt} = q{
 [% FOR e IN entries %]
   <div class="entry postentry">
 
-    <div class="social_link">
-        <a href="http://twitter.com/share" class="twitter-share-button"
-         data-text="[% e.title %]" data-url="[% e.link %]" data-count="vertical" data-via="szabgab">Tweet</a>
-        <script type="text/javascript" src="http://platform.twitter.com/widgets.js">
-        </script>
-
-      <script>reddit_url='[% e.link %]'</script>
-      <script>reddit_title='[% e.title %]'</script>
-      <script type="text/javascript" src="http://reddit.com/button.js?t=2"></script>
-
-
-       <g:plusone size="tall" href="[% e.link %]"></g:plusone>
-
-<!--
-        <a name="fb_share" type="box_count" class="fb_share"
-        share_url="[% e.link %]">Share</a>
-         <script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
--->
-
-    </div>
-
     <div class="left">
     <div class="source"><a href="[% e.source_url %]">[% e.source_name %]</a></div>
     <div class="title"><a href="[% e.link %]">[% e.title %]</a></div>
@@ -314,9 +292,6 @@ $DEFAULT{feeds_tt} = q{
 [% FOR e IN entries %]
   <div class="entry">
   <div class="title"><a href="[% e.url %]">[% e.title %]</a></div>
-  [% IF e.twitter %]
-     <div class="twitter"><a href="https://twitter.com/#!/[% e.twitter %]">@[% e.twitter %]</a></div>
-  [% END %]
   <div class="latest">Latest: <a href="[% e.latest_entry.link %]">[% e.latest_entry.title %]</a> on [% e.latest_entry.issued %]</div>
 Current Status: [% e.last_fetch_status %]<br />
 Config Status: [% e.status %]<br />
