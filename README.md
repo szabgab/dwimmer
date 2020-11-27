@@ -113,5 +113,8 @@ perl script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --listsourc
 perl script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --update 24 "url=https://some.page/"
 ```
 
+## Disable
 
-
+```
+perl script/dwimmer_feed_admin.pl --store ~/dwimmer_feed.db --site 1 --update 129 status=disabled
+```
