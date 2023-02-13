@@ -11,7 +11,7 @@ use Dwimmer::Feed::Collector;
 use Dwimmer::Feed::Sendmail;
 
 use Getopt::Long qw(GetOptions);
-use DataDog::DogStatsd;
+use MIME::Lite ();
 
 my %opt;
 GetOptions(
@@ -29,25 +29,24 @@ usage('At least one of --collect --html --sendmail is needed')
 	if not $opt{collect} and not $opt{html} and not $opt{sendmail};    # and not $opt{twitter};
 
 my $t0     = time;
-my $statsd = DataDog::DogStatsd->new;
-$statsd->event( 'feed_collector started', 'Nothing to say' );
-$statsd->increment('feed_collector.running');
-$statsd->count('feed_collector.on', 1);
+LOG("Staring");
 
 my $collector = Dwimmer::Feed::Collector->new(%opt);
 
 if ( $opt{collect} ) {
 	$collector->collect_all();
-	if ( $collector->error and $opt{mailreport} ) {
-		use MIME::Lite ();
-		my $msg = MIME::Lite->new(
-			From    => 'gabor@szabgab.com',
-			To      => 'szabgab@gmail.com',
-			Subject => 'Feed collector errors',
-			Data    => $collector->error,
-		);
-		$msg->send;
-	}
+	if ( $collector->error ) {
+        LOG("ERROR: ", $collector->error);
+	    if ( $opt{mailreport} ) {
+	    	#my $msg = MIME::Lite->new(
+	    	#	From    => 'gabor@szabgab.com',
+	    	#	To      => 'szabgab@gmail.com',
+	    	#	Subject => 'Feed collector errors',
+	    	#	Data    => $collector->error,
+	    	#);
+	    	#$msg->send;
+	    }
+    }
 }
 
 if ( $opt{html} ) {
@@ -67,16 +66,13 @@ if ( $opt{twitter} ) {
 my $t1           = time;
 my $elapsed_time = $t1 - $t0;
 LOG("Elapsed time: $elapsed_time");
-$statsd->decrement('feed_collector.running');
-$statsd->count('feed_collector.on', 0);
-$statsd->event( 'feed_collector ended', 'Nothing to say' );
-$statsd->timing( 'feed_collector.elapsed_time', $elapsed_time );
 exit;
 
 sub LOG {
-	if ( $opt{verbose} ) {
-		print "@_\n";
-	}
+	return if not $opt{verbose};
+    open(my $fh, ">>", "/etc/dwimmer.log")  or die "Could not open log file $!";
+    my $time = localtime();
+	print $fh "$time @_\n";
 }
 
 sub usage {
